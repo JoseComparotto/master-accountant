@@ -25,6 +25,8 @@
   },
   "dependencies": {
     "@mikro-orm/core": "^7.0.17",
+    "@mikro-orm/decorators": "^7.0.17",
+    "@mikro-orm/migrations": "^7.0.17",
     "@mikro-orm/nestjs": "^7.0.2",
     "@mikro-orm/postgresql": "^7.0.17",
     "@mikro-orm/reflection": "^7.0.17",
@@ -32,13 +34,16 @@
     "@nestjs/core": "^11.0.1",
     "@nestjs/cqrs": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
-    "add": "^2.0.6",
+    "class-transformer": "^0.5.1",
+    "class-validator": "^0.15.1",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
+    "@mikro-orm/cli": "^7.0.17",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -59,6 +64,7 @@
     "ts-loader": "^9.5.2",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",
+    "tsx": "^4.22.3",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   },
@@ -78,5 +84,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/mikro-orm.config.ts",
+      "./dist/mikro-orm.config.js"
+    ]
   }
 }
