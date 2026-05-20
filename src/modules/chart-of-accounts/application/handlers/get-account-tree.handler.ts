@@ -35,7 +35,7 @@ export class GetAccountTreeHandler implements IQueryHandler<GetAccountTreeQuery>
         
         // Dados do Snapshot (Semântica)
         name: snapshot?.name,
-        nature: snapshot?.nature,
+        balanceType: snapshot?.balanceType,
         group: snapshot?.groupType,
       };
     });

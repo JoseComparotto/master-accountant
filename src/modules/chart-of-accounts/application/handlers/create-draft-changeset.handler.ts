@@ -13,7 +13,8 @@ export class CreateDraftChangesetHandler implements ICommandHandler<CreateDraftC
         const chart = await this.em.findOneOrFail(ChartOfAccounts, command.chartOfAccountsId);
 
         // 2. Cria o maestro (Changeset)
-        const changeset = new AccountChangeset(
+        const changeset = AccountChangeset.create(
+            command.id,
             chart,
             command.incrementType,
             command.effectiveDate,

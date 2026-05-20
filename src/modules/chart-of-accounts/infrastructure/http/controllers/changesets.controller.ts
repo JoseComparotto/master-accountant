@@ -17,6 +17,7 @@ export class ChangesetsController {
     // O Controller apenas roteia a intenção para o motor do CQRS
     return this.commandBus.execute(
       new CreateDraftChangesetCommand(
+        dto.id,
         dto.chartOfAccountsId,
         dto.incrementType,
         dto.effectiveDate ? new Date(dto.effectiveDate) : undefined,

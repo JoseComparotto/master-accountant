@@ -12,16 +12,19 @@ import { AccountTransition } from './domain/entities/account-transition.entity';
 // 2. Controladores HTTP (Infrastructure)
 import { AccountsController } from './infrastructure/http/controllers/accounts.controller';
 import { ChangesetsController } from './infrastructure/http/controllers/changesets.controller';
+import { ChartsOfAccountsController } from './infrastructure/http/controllers/charts-of-accounts.controller';
 
 // 3. Handlers do CQRS (Application)
 import { CreateDraftChangesetHandler } from './application/handlers/create-draft-changeset.handler';
 import { PublishChangesetHandler } from './application/handlers/publish-changeset.handler';
 import { GetAccountTreeHandler } from './application/handlers/get-account-tree.handler';
+import { CreateChartOfAccountHandler } from './application/handlers/create-chart-of-account.handler';
 
 // Agrupar handlers em arrays mantém o providers limpo
 const CommandHandlers = [
   CreateDraftChangesetHandler, 
-  PublishChangesetHandler
+  PublishChangesetHandler,
+  CreateChartOfAccountHandler
 ];
 const QueryHandlers = [
   GetAccountTreeHandler
@@ -45,6 +48,7 @@ const QueryHandlers = [
   controllers: [
     AccountsController,
     ChangesetsController,
+    ChartsOfAccountsController,
   ],
   providers: [
     // Todos os comandos e queries viram providers injetáveis do NestJS

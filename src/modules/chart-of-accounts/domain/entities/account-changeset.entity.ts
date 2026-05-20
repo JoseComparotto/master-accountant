@@ -48,14 +48,25 @@ export class AccountChangeset {
   @OneToMany(() => AccountTransition, transition => transition.changeset)
   transitions = new Collection<AccountTransition>(this);
 
-  constructor(
+  private constructor(
+    id: string,
     chartOfAccounts: Rel<ChartOfAccounts>, 
     incrementType: VersionIncrementType, 
     effectiveDate?: Date
   ) {
+    this.id = id;
     this.chartOfAccounts = chartOfAccounts;
     this.incrementType = incrementType;
     this.effectiveDate = effectiveDate;
+  }
+
+  public static create(
+    id: string | undefined,
+    chartOfAccounts: Rel<ChartOfAccounts>,
+    incrementType: VersionIncrementType,
+    effectiveDate?: Date
+  ): AccountChangeset {
+    return new AccountChangeset(id ?? v4(), chartOfAccounts, incrementType, effectiveDate);
   }
 
   // Método de Domínio: Executado quando o contador clica em "Publicar Alterações"
