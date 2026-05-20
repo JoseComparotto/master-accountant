@@ -26,6 +26,9 @@ export class ChartOfAccounts {
   @Property({ default: true })
   isActive: boolean = true;
 
+  @Property()
+  createdAt: Date = new Date();
+
   // O construtor é privado. Ninguém pode usar `new ChartOfAccounts()` livremente.
   private constructor(id: string, name: string, levelWidths: number[]) {
     this.id = id;
