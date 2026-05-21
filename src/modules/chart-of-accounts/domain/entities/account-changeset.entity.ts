@@ -13,8 +13,8 @@ import { v4 } from 'uuid';
 import { ChartOfAccounts } from './chart-of-accounts.entity';
 import { AccountSnapshot } from './account-snapshot.entity';
 import { AccountTransition } from './account-transition.entity';
-import { ChangesetStatus } from '../enumns/changeset-status.enum';
-import { VersionIncrementType } from '../enumns/version-increment-type.enum';
+import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enumns/changeset-status.enum';
+import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enumns/version-increment-type.enum';
 
 @Entity({schema: 'coa'})
 export class AccountChangeset {

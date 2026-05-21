@@ -1,4 +1,4 @@
-import { VersionIncrementType } from "../../domain/enumns/version-increment-type.enum";
+import { VersionIncrementType } from "@modules/chart-of-accounts/domain/enumns/version-increment-type.enum";
 
 export class CreateDraftChangesetCommand {
   constructor(

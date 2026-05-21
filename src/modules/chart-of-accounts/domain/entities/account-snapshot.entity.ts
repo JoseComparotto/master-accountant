@@ -9,8 +9,8 @@ import { v4 } from 'uuid';
 
 import { AccountNode } from './account-node.entity';
 import { AccountChangeset } from './account-changeset.entity';
-import { AccountClass } from '../enumns/account-class.enum';
-import { AccountBalanceType  } from '../enumns/account-balance-type.enum';
+import { AccountClass } from '@modules/chart-of-accounts/domain/enumns/account-class.enum';
+import { AccountBalanceType  } from '@modules/chart-of-accounts/domain/enumns/account-balance-type.enum';
 
 @Entity({schema: 'coa'})
 export class AccountSnapshot {

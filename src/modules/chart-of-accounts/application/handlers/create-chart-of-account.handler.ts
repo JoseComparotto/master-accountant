@@ -1,6 +1,6 @@
 import { CommandHandler } from "@nestjs/cqrs";
-import { CreateChartOfAccountCommand } from "../commands/create-chart-of-account.command";
-import { ChartOfAccounts } from "../../domain/entities/chart-of-accounts.entity";
+import { CreateChartOfAccountCommand } from "@modules/chart-of-accounts/application/commands/create-chart-of-account.command";
+import { ChartOfAccounts } from "@modules/chart-of-accounts/domain/entities/chart-of-accounts.entity";
 import { EntityManager } from "@mikro-orm/core";
 
 @CommandHandler(CreateChartOfAccountCommand)

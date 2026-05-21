@@ -1,7 +1,7 @@
 import { Module, NestModule, MiddlewareConsumer } from '@nestjs/common';
 import { MikroOrmModule, MikroOrmMiddleware } from '@mikro-orm/nestjs';
-import { ChartOfAccountsModule } from './modules/chart-of-accounts/chart-of-accounts.module';
-import mikroOrmConfig from './mikro-orm.config';
+import { ChartOfAccountsModule } from '@modules/chart-of-accounts/chart-of-accounts.module';
+import mikroOrmConfig from '@/mikro-orm.config';
 
 @Module({
   imports: [
@@ -12,7 +12,7 @@ import mikroOrmConfig from './mikro-orm.config';
     ChartOfAccountsModule,
     
     // Futuramente, outros domínios entram aqui:
-    // JournalModule, ReconciliationModule, etc.
+    // GeneralLedgerModule, ReconciliationModule, etc.
   ],
 })
 export class AppModule implements NestModule {

@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { EntityManager } from '@mikro-orm/core';
-import { CreateDraftChangesetCommand } from '../commands/create-draft-changeset.command';
-import { ChartOfAccounts } from '../../domain/entities/chart-of-accounts.entity';
-import { AccountChangeset } from '../../domain/entities/account-changeset.entity';
+import { CreateDraftChangesetCommand } from '@modules/chart-of-accounts/application/commands/create-draft-changeset.command';
+import { ChartOfAccounts } from '@modules/chart-of-accounts/domain/entities/chart-of-accounts.entity';
+import { AccountChangeset } from '@modules/chart-of-accounts/domain/entities/account-changeset.entity';
 
 @CommandHandler(CreateDraftChangesetCommand)
 export class CreateDraftChangesetHandler implements ICommandHandler<CreateDraftChangesetCommand> {

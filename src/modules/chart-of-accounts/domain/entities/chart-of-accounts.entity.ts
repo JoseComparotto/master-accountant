@@ -7,7 +7,7 @@ import {
 import { Collection } from '@mikro-orm/core';
 import { v4 } from 'uuid';
 import { AccountNode } from './account-node.entity';
-import { DomainError } from '../../shared/exceptions/domain.error';
+import { DomainError } from '@shared/exceptions/domain.error';
 
 @Entity({schema: 'coa'})
 export class ChartOfAccounts {

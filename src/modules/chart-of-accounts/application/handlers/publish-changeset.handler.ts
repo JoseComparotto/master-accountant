@@ -1,8 +1,8 @@
 // src/application/handlers/publish-changeset.handler.ts
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { EntityManager } from '@mikro-orm/core';
-import { PublishChangesetCommand } from '../commands/publish-changeset.command';
-import { AccountChangeset } from '../../domain/entities/account-changeset.entity';
+import { PublishChangesetCommand } from '@modules/chart-of-accounts/application/commands/publish-changeset.command';
+import { AccountChangeset } from '@modules/chart-of-accounts/domain/entities/account-changeset.entity';
 
 @CommandHandler(PublishChangesetCommand)
 export class PublishChangesetHandler implements ICommandHandler<PublishChangesetCommand> {
