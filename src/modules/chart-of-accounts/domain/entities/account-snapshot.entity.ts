@@ -36,7 +36,7 @@ export class AccountSnapshot {
   balanceType!: AccountBalanceType;
 
   @Property({ type: 'string' })
-  groupType!: AccountClass 
+  accountClass!: AccountClass 
 
   @Property({ nullable: true })
   changeReason?: string; // Ex: "Correção ortográfica"
@@ -63,7 +63,7 @@ export class AccountSnapshot {
     this.changeset = changeset;
     this.name = name;
     this.balanceType = balanceType;
-    this.groupType = groupType;
+    this.accountClass = groupType;
     this.changeReason = changeReason;
     this.previousSnapshot = previousSnapshot;
   }

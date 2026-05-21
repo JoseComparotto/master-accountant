@@ -1,6 +1,6 @@
-export class GetAccountTreeQuery {
+export class GetAllAccountsForChartQuery {
   constructor(
     public readonly chartId: string,
-    public readonly targetDate: Date,
+    public readonly targetDate?: Date,
   ) {}
 }

@@ -10,7 +10,7 @@ export class GetAccountTreeDto {
     chartId!: string;   
 
     @ApiPropertyOptional({
-        description: 'Data de referência para obter a árvore de contas. Se não fornecida, será usada a data atual. Deve ser uma string de data ISO válida.',
+        description: 'Data de referência para obter a árvore de contas. Se não fornecida, será retornado o estado mais recente. Deve ser uma string de data ISO válida.',
         example: '2023-10-01'
     })
     @IsOptional()

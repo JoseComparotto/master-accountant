@@ -13,7 +13,7 @@ import { v4 } from 'uuid';
 import { ChartOfAccounts } from './chart-of-accounts.entity';
 import { AccountSnapshot } from './account-snapshot.entity';
 
-@Entity({schema: 'coa'})
+@Entity({ schema: 'coa' })
 @Unique({ properties: ['chartOfAccounts', 'formattedCode'] })
 @Index({ name: 'idx_account_node_path_ltree', properties: ['pathLtree'], type: 'gin' })
 export class AccountNode {
@@ -57,5 +57,13 @@ export class AccountNode {
   // Método de domínio para trocar o snapshot
   updateVersion(newSnapshot: AccountSnapshot) {
     this.currentSnapshot = newSnapshot;
+  }
+
+  findSnapshotAt(date?: Date): AccountSnapshot | undefined {
+    if (!date) return this.currentSnapshot;
+
+    return this.history.getItems()
+      .filter(s => s.effectiveDate && s.effectiveDate <= date)
+      .sort((a, b) => b.effectiveDate!.getTime() - a.effectiveDate!.getTime())[0];
   }
 }

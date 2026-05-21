@@ -17,8 +17,9 @@ import { ChartsOfAccountsController } from '@modules/chart-of-accounts/infrastru
 // 3. Handlers do CQRS (Application)
 import { CreateDraftChangesetHandler } from '@modules/chart-of-accounts/application/handlers/create-draft-changeset.handler';
 import { PublishChangesetHandler } from '@modules/chart-of-accounts/application/handlers/publish-changeset.handler';
-import { GetAccountTreeHandler } from '@modules/chart-of-accounts/application/handlers/get-account-tree.handler';
 import { CreateChartOfAccountHandler } from '@modules/chart-of-accounts/application/handlers/create-chart-of-account.handler';
+import { GetAllAccountsForChartHandler } from '@/modules/chart-of-accounts/application/handlers/get-all-accounts-for-chart.handler';
+import { GetAllChartsOfAccountsHandler } from '@modules/chart-of-accounts/application/handlers/get-all-charts-of-accounts.handler';
 
 // Agrupar handlers em arrays mantém o providers limpo
 const CommandHandlers = [
@@ -27,7 +28,8 @@ const CommandHandlers = [
   CreateChartOfAccountHandler
 ];
 const QueryHandlers = [
-  GetAccountTreeHandler
+  GetAllAccountsForChartHandler,
+  GetAllChartsOfAccountsHandler
 ];
 
 @Module({
