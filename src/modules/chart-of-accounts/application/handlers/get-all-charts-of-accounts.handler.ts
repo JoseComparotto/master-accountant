@@ -1,6 +1,6 @@
 import { ChartOfAccounts } from "@/modules/chart-of-accounts/domain/entities/chart-of-accounts.entity";
 import { ChartOfAccountDto } from "@/modules/chart-of-accounts/infrastructure/http/dtos/chart-of-account.dto";
-import { EntityManager } from "@mikro-orm/core";
+import { EntityManager } from "@mikro-orm/postgresql";
 import { GetAllChartsOfAccountsQuery } from "@modules/chart-of-accounts/application/queries/get-all-charts-of-accounts.query";
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 

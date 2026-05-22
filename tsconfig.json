@@ -20,9 +20,9 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
-      "@/*": ["./src/*"],
+      "@modules/*": ["./src/modules/*"],
       "@shared/*": ["./src/shared/*"],
-      "@modules/*": ["./src/modules/*"]
+      "@/*": ["./src/*"]
     }
   }
 }

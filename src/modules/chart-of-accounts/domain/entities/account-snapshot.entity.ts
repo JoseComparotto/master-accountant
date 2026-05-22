@@ -2,17 +2,19 @@ import {
   Entity,
   PrimaryKey,
   Property,
-  ManyToOne
+  ManyToOne,
+  Enum
 } from '@mikro-orm/decorators/legacy';
-import type { Rel } from '@mikro-orm/core';
+import type { Rel } from '@mikro-orm/postgresql';
 import { v4 } from 'uuid';
 
 import { AccountNode } from './account-node.entity';
 import { AccountChangeset } from './account-changeset.entity';
 import { AccountClass } from '@modules/chart-of-accounts/domain/enumns/account-class.enum';
-import { AccountBalanceType  } from '@modules/chart-of-accounts/domain/enumns/account-balance-type.enum';
+import { AccountBalanceType } from '@modules/chart-of-accounts/domain/enumns/account-balance-type.enum';
+import { ChangesetStatus } from '@/modules/chart-of-accounts/domain/enumns/changeset-status.enum';
 
-@Entity({schema: 'coa'})
+@Entity({ schema: 'coa' })
 export class AccountSnapshot {
   @PrimaryKey({ type: 'uuid' })
   id: string = v4();
@@ -24,6 +26,10 @@ export class AccountSnapshot {
   @ManyToOne(() => AccountChangeset)
   changeset!: Rel<AccountChangeset>;
 
+  @Enum(() => ChangesetStatus)
+  @Property({ persist: false })
+  status!: ChangesetStatus;
+
   // A "Linked List" Temporal: Aponta para a versão anterior da mesma conta (se houver)
   @ManyToOne(() => AccountSnapshot, { nullable: true })
   previousSnapshot?: Rel<AccountSnapshot>;
@@ -32,11 +38,11 @@ export class AccountSnapshot {
   @Property()
   name!: string;
 
-  @Property({ type: 'string' })
+  @Enum(() => AccountBalanceType)
   balanceType!: AccountBalanceType;
 
-  @Property({ type: 'string' })
-  accountClass!: AccountClass 
+  @Enum(() => AccountClass)
+  accountClass!: AccountClass
 
   @Property({ nullable: true })
   changeReason?: string; // Ex: "Correção ortográfica"
@@ -70,6 +76,12 @@ export class AccountSnapshot {
 
   // Método de Domínio: Quando o Changeset for aprovado, ele carimba a data efetiva aqui
   markAsPublished(effectiveDate: Date) {
+    this.status = ChangesetStatus.PUBLISHED;
     this.effectiveDate = effectiveDate;
+  }
+
+  markAsDiscarded() {
+    this.status = ChangesetStatus.DRAFT;
+    this.effectiveDate = undefined;
   }
 }

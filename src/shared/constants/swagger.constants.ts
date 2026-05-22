@@ -7,8 +7,4 @@ export const SWAGGER_TAGS = {
     name: 'General Ledger',
     description: 'Motor transacional de partidas dobradas e consolidação de saldos.',
   },
-  MASTER_DATA: {
-    name: 'Master Data',
-    description: 'Gestão de identidades, entidades legais e configurações globais.',
-  },
 } as const; 

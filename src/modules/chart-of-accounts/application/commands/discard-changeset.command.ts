@@ -1,8 +1,7 @@
 import { ICommand } from "@nestjs/cqrs";
 
-export class PublishChangesetCommand implements ICommand {
+export class DiscardChangesetCommand implements ICommand {
   constructor(
     public readonly changesetId: string,
-    public readonly effectiveDate?: Date,
   ) {}
 }

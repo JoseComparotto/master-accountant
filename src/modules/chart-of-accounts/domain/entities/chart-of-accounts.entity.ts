@@ -4,7 +4,7 @@ import {
   Property,
   OneToMany
 } from '@mikro-orm/decorators/legacy';
-import { Collection } from '@mikro-orm/core';
+import { Collection } from '@mikro-orm/postgresql';
 import { v4 } from 'uuid';
 import { AccountNode } from './account-node.entity';
 import { DomainError } from '@shared/exceptions/domain.error';

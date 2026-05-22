@@ -1,13 +1,14 @@
-import { 
-  Entity, 
-  PrimaryKey, 
-  Property, 
-  ManyToOne, 
-  OneToMany, 
-  Enum 
+import {
+  Entity,
+  PrimaryKey,
+  Property,
+  ManyToOne,
+  OneToMany,
+  Enum,
+  Unique
 } from '@mikro-orm/decorators/legacy';
-import { Collection } from '@mikro-orm/core';
-import type { Rel } from '@mikro-orm/core';
+import { Collection } from '@mikro-orm/postgresql';
+import type { Rel } from '@mikro-orm/postgresql';
 import { v4 } from 'uuid';
 
 import { ChartOfAccounts } from './chart-of-accounts.entity';
@@ -15,11 +16,16 @@ import { AccountSnapshot } from './account-snapshot.entity';
 import { AccountTransition } from './account-transition.entity';
 import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enumns/changeset-status.enum';
 import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enumns/version-increment-type.enum';
+import { DomainError } from '@/shared/exceptions/domain.error';
+import { AccountNode } from '@/modules/chart-of-accounts/domain/entities/account-node.entity';
 
-@Entity({schema: 'coa'})
+@Entity({ schema: 'coa' })
 export class AccountChangeset {
   @PrimaryKey({ type: 'uuid' })
   id: string = v4();
+
+  @Enum(() => ChangesetStatus)
+  status: ChangesetStatus = ChangesetStatus.DRAFT;
 
   @ManyToOne(() => ChartOfAccounts)
   chartOfAccounts!: Rel<ChartOfAccounts>;
@@ -27,19 +33,25 @@ export class AccountChangeset {
   @Enum(() => VersionIncrementType)
   incrementType!: VersionIncrementType;
 
-  @Enum(() => ChangesetStatus)
-  status: ChangesetStatus = ChangesetStatus.DRAFT;
-
   // O Tempo do Negócio: A partir de que dia contábil essas mudanças valem?
-  @Property({ type: 'date', nullable: true })
-  effectiveDate?: Date; 
+  @Property({ columnType: 'date', nullable: true })
+  effectiveDate?: Date;
 
   // O Tempo do Sistema: Quando o rascunho começou a ser criado e quando foi oficializado
   @Property()
   createdAt: Date = new Date();
 
-  @Property({ nullable: true })
+  @Property({ columnType: 'date', nullable: true })
   publishedAt?: Date;
+
+  @Property({ columnType: 'date', nullable: true })
+  discardedAt?: Date;
+
+  @OneToMany(() => AccountNode, node => node.creationChangeset)
+  newNodes = new Collection<AccountNode>(this);
+
+  @OneToMany(() => AccountNode, node => node.inactivationChangeset)
+  inactivatedNodes = new Collection<AccountNode>(this);
 
   // Os pacotes englobados neste rascunho
   @OneToMany(() => AccountSnapshot, snapshot => snapshot.changeset)
@@ -50,8 +62,8 @@ export class AccountChangeset {
 
   private constructor(
     id: string,
-    chartOfAccounts: Rel<ChartOfAccounts>, 
-    incrementType: VersionIncrementType, 
+    chartOfAccounts: Rel<ChartOfAccounts>,
+    incrementType: VersionIncrementType,
     effectiveDate?: Date
   ) {
     this.id = id;
@@ -75,9 +87,6 @@ export class AccountChangeset {
       throw new Error('Apenas pacotes em rascunho podem ser publicados.');
     }
 
-    this.status = ChangesetStatus.PUBLISHED;
-    this.publishedAt = new Date();
-    
     // Se ele não escolheu a data na criação do rascunho, pode escolher na publicação
     if (effectiveDate) {
       this.effectiveDate = effectiveDate;
@@ -86,6 +95,13 @@ export class AccountChangeset {
     if (!this.effectiveDate) {
       throw new Error('Uma data-base (effectiveDate) é obrigatória para publicar.');
     }
+    
+    if(this.newSnapshots.count() === 0 && this.transitions.count() === 0 && this.newNodes.count() === 0) {
+      throw new Error('Não é possível publicar um pacote sem alterações.');
+    }
+
+    this.status = ChangesetStatus.PUBLISHED;
+    this.publishedAt = new Date();
 
     // Desnormalização: Propaga a data-base para leitura rápida nos relatórios
     for (const snapshot of this.newSnapshots) {
@@ -99,8 +115,17 @@ export class AccountChangeset {
   // Método de Domínio: Desistiu de alterar o plano
   discard() {
     if (this.status !== ChangesetStatus.DRAFT) {
-      throw new Error('Não é possível descartar um pacote que já foi publicado.');
+      throw new DomainError('Apenas pacotes em rascunho podem ser descartados.');
     }
+
+    for (const snapshot of this.newSnapshots) {
+      snapshot.markAsDiscarded();
+    }
+    for (const transition of this.transitions) {
+      transition.markAsDiscarded();
+    }
+
     this.status = ChangesetStatus.DISCARDED;
+    this.discardedAt = new Date();
   }
 }

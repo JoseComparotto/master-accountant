@@ -40,6 +40,22 @@
           "enumItems": [],
           "mappedType": "datetime"
         },
+        "discarded_at": {
+          "name": "discarded_at",
+          "type": "date",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "date"
+        },
         "effective_date": {
           "name": "effective_date",
           "type": "date",
@@ -93,19 +109,19 @@
         },
         "published_at": {
           "name": "published_at",
-          "type": "timestamptz(6)",
+          "type": "date",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": true,
           "unique": false,
-          "length": 6,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
           "enumItems": [],
-          "mappedType": "datetime"
+          "mappedType": "date"
         },
         "status": {
           "name": "status",
@@ -181,6 +197,22 @@
           "primary": false,
           "nullable": false,
           "unique": true,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
+        "creation_changeset_id": {
+          "name": "creation_changeset_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
           "length": null,
           "precision": null,
           "scale": null,
@@ -358,6 +390,17 @@
           ],
           "referencedTableName": "coa.chart_of_accounts"
         },
+        "account_node_creation_changeset_id_foreign": {
+          "columnNames": [
+            "creation_changeset_id"
+          ],
+          "constraintName": "account_node_creation_changeset_id_foreign",
+          "localTableName": "coa.account_node",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "coa.account_changeset"
+        },
         "account_node_current_snapshot_id_foreign": {
           "columnNames": [
             "current_snapshot_id"
@@ -389,21 +432,46 @@
       "name": "account_snapshot",
       "schema": "coa",
       "columns": {
-        "balance_type": {
-          "name": "balance_type",
-          "type": "varchar(255)",
+        "account_class": {
+          "name": "account_class",
+          "type": "text",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
           "unique": false,
-          "length": 255,
+          "length": null,
           "precision": null,
           "scale": null,
           "default": null,
           "comment": null,
-          "enumItems": [],
-          "mappedType": "string"
+          "enumItems": [
+            "asset",
+            "liability",
+            "equity",
+            "revenue",
+            "expense"
+          ],
+          "mappedType": "enum"
+        },
+        "balance_type": {
+          "name": "balance_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [
+            "debit",
+            "credit"
+          ],
+          "mappedType": "enum"
         },
         "change_reason": {
           "name": "change_reason",
@@ -469,22 +537,6 @@
           "enumItems": [],
           "mappedType": "date"
         },
-        "group_type": {
-          "name": "group_type",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": 255,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [],
-          "mappedType": "string"
-        },
         "id": {
           "name": "id",
           "type": "uuid",
@@ -548,6 +600,26 @@
           "comment": null,
           "enumItems": [],
           "mappedType": "uuid"
+        },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [
+            "draft",
+            "published",
+            "discarded"
+          ],
+          "mappedType": "enum"
         }
       },
       "indexes": [
@@ -562,7 +634,26 @@
           "unique": true
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "account_snapshot_account_class_check",
+          "expression": "\"account_class\" in ('asset', 'liability', 'equity', 'revenue', 'expense')",
+          "definition": "check (\"account_class\" in ('asset', 'liability', 'equity', 'revenue', 'expense'))",
+          "columnName": "account_class"
+        },
+        {
+          "name": "account_snapshot_balance_type_check",
+          "expression": "\"balance_type\" in ('debit', 'credit')",
+          "definition": "check (\"balance_type\" in ('debit', 'credit'))",
+          "columnName": "balance_type"
+        },
+        {
+          "name": "account_snapshot_status_check",
+          "expression": "\"status\" in ('draft', 'published', 'discarded')",
+          "definition": "check (\"status\" in ('draft', 'published', 'discarded'))",
+          "columnName": "status"
+        }
+      ],
       "foreignKeys": {
         "account_snapshot_changeset_id_foreign": {
           "columnNames": [
@@ -701,6 +792,26 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
+        "status": {
+          "name": "status",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [
+            "draft",
+            "published",
+            "discarded"
+          ],
+          "mappedType": "enum"
+        },
         "target_node_id": {
           "name": "target_node_id",
           "type": "uuid",
@@ -753,6 +864,12 @@
         }
       ],
       "checks": [
+        {
+          "name": "account_transition_status_check",
+          "expression": "\"status\" in ('draft', 'published', 'discarded')",
+          "definition": "check (\"status\" in ('draft', 'published', 'discarded'))",
+          "columnName": "status"
+        },
         {
           "name": "account_transition_transition_type_check",
           "expression": "\"transition_type\" in ('creation', 'split', 'merge', 'discontinue', 'reclassify')",
@@ -814,7 +931,7 @@
           "length": 6,
           "precision": null,
           "scale": null,
-          "default": "now()",
+          "default": null,
           "comment": null,
           "enumItems": [],
           "mappedType": "datetime"

@@ -1,5 +1,5 @@
 import { QueryHandler, IQueryHandler } from '@nestjs/cqrs';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { GetAllAccountsForChartQuery } from '@modules/chart-of-accounts/application/queries/get-account-tree.query';
 import { AccountNode } from '@modules/chart-of-accounts/domain/entities/account-node.entity';
 import { AccountDto } from '@/modules/chart-of-accounts/infrastructure/http/dtos/account.dto';

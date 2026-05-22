@@ -1,14 +1,15 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { EntityManager } from '@mikro-orm/core';
+import { EntityManager } from '@mikro-orm/postgresql';
 import { CreateDraftChangesetCommand } from '@modules/chart-of-accounts/application/commands/create-draft-changeset.command';
 import { ChartOfAccounts } from '@modules/chart-of-accounts/domain/entities/chart-of-accounts.entity';
 import { AccountChangeset } from '@modules/chart-of-accounts/domain/entities/account-changeset.entity';
+import { CreatedUuidDto } from '@/shared/infrastructure/dto/CreatedUuid.dto';
 
 @CommandHandler(CreateDraftChangesetCommand)
 export class CreateDraftChangesetHandler implements ICommandHandler<CreateDraftChangesetCommand> {
     constructor(private readonly em: EntityManager) { }
 
-    async execute(command: CreateDraftChangesetCommand): Promise<string> {
+    async execute(command: CreateDraftChangesetCommand): Promise<CreatedUuidDto> {
         // 1. Carrega a máscara/plano base
         const chart = await this.em.findOneOrFail(ChartOfAccounts, command.chartOfAccountsId);
 
@@ -24,6 +25,6 @@ export class CreateDraftChangesetHandler implements ICommandHandler<CreateDraftC
         this.em.persist(changeset); // Síncrono (Avisa a memória)
         await this.em.flush();      // Assíncrono (Executa o SQL atômico)
 
-        return changeset.id;
+        return { id: changeset.id };
     }
 }

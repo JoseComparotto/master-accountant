@@ -5,12 +5,13 @@ import {
   Enum, 
   Property
 } from '@mikro-orm/decorators/legacy';
-import type { Rel } from '@mikro-orm/core';
+import type { Rel } from '@mikro-orm/postgresql';
 import { v4 } from 'uuid';
 
 import { AccountChangeset } from './account-changeset.entity';
 import { AccountNode } from './account-node.entity';
 import { TransitionType } from '@modules/chart-of-accounts/domain/enumns/transition-type.enum';
+import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enumns/changeset-status.enum';
 
 @Entity({schema: 'coa'})
 export class AccountTransition {
@@ -19,6 +20,10 @@ export class AccountTransition {
 
   @ManyToOne(() => AccountChangeset)
   changeset!: Rel<AccountChangeset>;
+
+  @Enum(() => ChangesetStatus)
+  @Property({ persist: false })
+  status!: ChangesetStatus;
 
   @Enum(() => TransitionType)
   transitionType!: TransitionType;
@@ -58,6 +63,12 @@ export class AccountTransition {
   
   // Método de Domínio: Quando o Changeset for aprovado, ele carimba a data efetiva aqui
   markAsPublished(effectiveDate: Date) {
+    // this.status = ChangesetStatus.PUBLISHED;
     this.effectiveDate = effectiveDate;
+  }
+
+  markAsDiscarded() {
+    this.status = ChangesetStatus.DRAFT;
+    this.effectiveDate = undefined;
   }
 }

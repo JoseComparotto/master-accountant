@@ -1,13 +1,14 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { SWAGGER_TAGS } from '@shared/constants/swagger.constants';
 import { GetAllAccountsForChartQuery } from '@modules/chart-of-accounts/application/queries/get-account-tree.query';
-import { GetAccountTreeDto } from '@modules/chart-of-accounts/infrastructure/http/dtos/get-account-tree.dto';
+import { GetAccountsForChartQueryDto } from '@/modules/chart-of-accounts/infrastructure/http/dtos/get-accounts-for-chart-query.dto';
 import { AccountDto } from '@/modules/chart-of-accounts/infrastructure/http/dtos/account.dto';
+import { GetAccountsForChartParamDto } from '@/modules/chart-of-accounts/infrastructure/http/dtos/get-accounts-for-chart-param.dto';
 
 @ApiTags(SWAGGER_TAGS.CHART_OF_ACCOUNTS.name)
-@Controller('accounts')
+@Controller('charts-of-accounts/:chartId/accounts')
 export class AccountsController {
   constructor(private readonly queryBus: QueryBus) {}
 
@@ -21,13 +22,16 @@ export class AccountsController {
     type: [AccountDto],
   })
   @Get()
-  async findAllForChart(@Query() query: GetAccountTreeDto) {
+  async findAllForChart(
+    @Param() {chartId}: GetAccountsForChartParamDto,
+    @Query() query: GetAccountsForChartQueryDto
+  ): Promise<AccountDto[]> {
 
     const targetDate = query.date ? new Date(query.date) : undefined;
 
     // A Query retorna as contas com as máscaras resolvidas
     return this.queryBus.execute(
-      new GetAllAccountsForChartQuery(query.chartId, targetDate),
+      new GetAllAccountsForChartQuery(chartId, targetDate),
     );
   }
 }

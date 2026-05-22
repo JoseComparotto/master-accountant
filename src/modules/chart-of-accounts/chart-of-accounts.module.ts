@@ -17,15 +17,19 @@ import { ChartsOfAccountsController } from '@modules/chart-of-accounts/infrastru
 // 3. Handlers do CQRS (Application)
 import { CreateDraftChangesetHandler } from '@modules/chart-of-accounts/application/handlers/create-draft-changeset.handler';
 import { PublishChangesetHandler } from '@modules/chart-of-accounts/application/handlers/publish-changeset.handler';
-import { CreateChartOfAccountHandler } from '@modules/chart-of-accounts/application/handlers/create-chart-of-account.handler';
+import { DiscardChangesetHandler } from '@modules/chart-of-accounts/application/handlers/discard-changeset.handler';
+import { CreateChartOfAccountHandler } from '@/modules/chart-of-accounts/application/handlers/create-chart-of-accounts.handler';
 import { GetAllAccountsForChartHandler } from '@/modules/chart-of-accounts/application/handlers/get-all-accounts-for-chart.handler';
 import { GetAllChartsOfAccountsHandler } from '@modules/chart-of-accounts/application/handlers/get-all-charts-of-accounts.handler';
+import { DeleteChartOfAccountsHandler } from '@modules/chart-of-accounts/application/handlers/delete-chart-of-accounts.handler';
 
 // Agrupar handlers em arrays mantém o providers limpo
 const CommandHandlers = [
   CreateDraftChangesetHandler, 
   PublishChangesetHandler,
-  CreateChartOfAccountHandler
+  DiscardChangesetHandler,
+  CreateChartOfAccountHandler,
+  DeleteChartOfAccountsHandler
 ];
 const QueryHandlers = [
   GetAllAccountsForChartHandler,
