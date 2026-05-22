@@ -10,6 +10,7 @@
     "experimentalDecorators": true,
     "allowSyntheticDefaultImports": true,
     "target": "ES2023",
+    "types": ["node", "vitest/globals"],
     "sourceMap": true,
     "outDir": "./dist",
     "incremental": true,
