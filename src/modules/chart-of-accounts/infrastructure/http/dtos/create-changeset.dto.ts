@@ -1,5 +1,5 @@
 import { IsUUID, IsEnum, IsOptional, IsDateString } from 'class-validator';
-import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enumns/version-increment-type.enum';
+import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enums/version-increment-type.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateChangesetDto {

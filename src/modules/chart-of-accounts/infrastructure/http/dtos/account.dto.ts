@@ -1,5 +1,5 @@
-import { AccountBalanceType } from "@/modules/chart-of-accounts/domain/enumns/account-balance-type.enum";
-import { AccountClass } from "@/modules/chart-of-accounts/domain/enumns/account-class.enum";
+import { AccountBalanceType } from "@modules/chart-of-accounts/domain/enums/account-balance-type.enum";
+import { AccountClass } from "@modules/chart-of-accounts/domain/enums/account-class.enum";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class AccountDto {

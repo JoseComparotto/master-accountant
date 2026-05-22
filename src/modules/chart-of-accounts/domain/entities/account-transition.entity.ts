@@ -10,8 +10,8 @@ import { v4 } from 'uuid';
 
 import { AccountChangeset } from './account-changeset.entity';
 import { AccountNode } from './account-node.entity';
-import { TransitionType } from '@modules/chart-of-accounts/domain/enumns/transition-type.enum';
-import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enumns/changeset-status.enum';
+import { TransitionType } from '@modules/chart-of-accounts/domain/enums/transition-type.enum';
+import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enums/changeset-status.enum';
 
 @Entity({schema: 'coa'})
 export class AccountTransition {

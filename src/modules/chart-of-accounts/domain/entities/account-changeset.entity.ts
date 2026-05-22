@@ -14,8 +14,8 @@ import { v4 } from 'uuid';
 import { ChartOfAccounts } from './chart-of-accounts.entity';
 import { AccountSnapshot } from './account-snapshot.entity';
 import { AccountTransition } from './account-transition.entity';
-import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enumns/changeset-status.enum';
-import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enumns/version-increment-type.enum';
+import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enums/changeset-status.enum';
+import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enums/version-increment-type.enum';
 import { DomainError } from '@/shared/exceptions/domain.error';
 import { AccountNode } from '@/modules/chart-of-accounts/domain/entities/account-node.entity';
 

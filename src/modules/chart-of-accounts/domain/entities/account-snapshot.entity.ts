@@ -10,9 +10,9 @@ import { v4 } from 'uuid';
 
 import { AccountNode } from './account-node.entity';
 import { AccountChangeset } from './account-changeset.entity';
-import { AccountClass } from '@modules/chart-of-accounts/domain/enumns/account-class.enum';
-import { AccountBalanceType } from '@modules/chart-of-accounts/domain/enumns/account-balance-type.enum';
-import { ChangesetStatus } from '@/modules/chart-of-accounts/domain/enumns/changeset-status.enum';
+import { AccountClass } from '@modules/chart-of-accounts/domain/enums/account-class.enum';
+import { AccountBalanceType } from '@modules/chart-of-accounts/domain/enums/account-balance-type.enum';
+import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enums/changeset-status.enum';
 
 @Entity({ schema: 'coa' })
 export class AccountSnapshot {

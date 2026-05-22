@@ -1,4 +1,4 @@
-import { VersionIncrementType } from "@modules/chart-of-accounts/domain/enumns/version-increment-type.enum";
+import { VersionIncrementType } from "@modules/chart-of-accounts/domain/enums/version-increment-type.enum";
 import { ICommand } from "@nestjs/cqrs";
 
 export class CreateDraftChangesetCommand implements ICommand  {
