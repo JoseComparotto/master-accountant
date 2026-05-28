@@ -30,7 +30,6 @@ async function bootstrap() {
   // Gerar o documento Swagger a partir dos decoradores e do config
   const config = configBuilder.build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
 
   // Montagem do Swagger UI na rota '/api'
   SwaggerModule.setup('api', app, document);

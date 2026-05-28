@@ -1,5 +1,5 @@
 import { ChartOfAccounts } from "@/modules/chart-of-accounts/domain/entities/chart-of-accounts.entity";
-import { ChartOfAccountDto } from "@/modules/chart-of-accounts/infrastructure/http/dtos/chart-of-account.dto";
+import { ChartOfAccountReturnDto } from "@modules/chart-of-accounts/infrastructure/http/dtos/chart-of-account-return.dto";
 import { EntityManager } from "@mikro-orm/postgresql";
 import { GetAllChartsOfAccountsQuery } from "@modules/chart-of-accounts/application/queries/get-all-charts-of-accounts.query";
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
@@ -8,7 +8,7 @@ import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 export class GetAllChartsOfAccountsHandler implements IQueryHandler<GetAllChartsOfAccountsQuery> {
   constructor(private readonly em: EntityManager) {}
 
-  async execute(_query: GetAllChartsOfAccountsQuery): Promise<ChartOfAccountDto[]> {
+  async execute(_query: GetAllChartsOfAccountsQuery): Promise<ChartOfAccountReturnDto[]> {
     
     const chats = await this.em.findAll(ChartOfAccounts, {
       orderBy: { createdAt: 'DESC' }
@@ -18,7 +18,7 @@ export class GetAllChartsOfAccountsHandler implements IQueryHandler<GetAllCharts
 
   }
 
-  private mapToDto(chart: ChartOfAccounts): ChartOfAccountDto {
+  private mapToDto(chart: ChartOfAccounts): ChartOfAccountReturnDto {
     return {
       id: chart.id,
       name: chart.name,

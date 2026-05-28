@@ -1,7 +1,7 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsOptional, IsDateString } from 'class-validator';
 
-export class PublishChangesetDto {
+export class PublishChangesetBodyDto {
   @ApiPropertyOptional({
     description: 'Data de vigência do changeset. Deve ser uma string de data ISO válida.',
     example: '2023-10-01'

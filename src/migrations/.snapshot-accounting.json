@@ -189,6 +189,45 @@
       "name": "account_node",
       "schema": "coa",
       "columns": {
+        "account_class": {
+          "name": "account_class",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [
+            "asset",
+            "liability",
+            "equity",
+            "revenue",
+            "expense"
+          ],
+          "mappedType": "enum"
+        },
+        "balance_type": {
+          "name": "balance_type",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "text",
+          "generated": "\nCASE\n    WHEN ((account_class = ANY (ARRAY['asset'::text, 'expense'::text])) <> is_contra) THEN 'debit'::text\n    ELSE 'credit'::text\nEND stored"
+        },
         "chart_of_accounts_id": {
           "name": "chart_of_accounts_id",
           "type": "uuid",
@@ -269,8 +308,40 @@
           "enumItems": [],
           "mappedType": "uuid"
         },
+        "inactivation_changeset_id": {
+          "name": "inactivation_changeset_id",
+          "type": "uuid",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "uuid"
+        },
         "is_abstract": {
           "name": "is_abstract",
+          "type": "boolean",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "unique": false,
+          "length": null,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "boolean"
+        },
+        "is_contra": {
+          "name": "is_contra",
           "type": "boolean",
           "unsigned": false,
           "autoincrement": false,
@@ -375,9 +446,49 @@
           "keyName": "idx_account_node_path_ltree",
           "primary": false,
           "unique": false
+        },
+        {
+          "columnNames": [
+            "parent_id",
+            "node_code"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_node_code_unique_per_parent",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "chart_of_accounts_id",
+            "node_code"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_node_code_unique_root_per_coa",
+          "primary": false,
+          "unique": false
+        },
+        {
+          "columnNames": [
+            "chart_of_accounts_id",
+            "account_class"
+          ],
+          "composite": true,
+          "constraint": false,
+          "keyName": "idx_unique_root_per_class_and_coa",
+          "primary": false,
+          "unique": false
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "account_node_account_class_check",
+          "expression": "\"account_class\" in ('asset', 'liability', 'equity', 'revenue', 'expense')",
+          "definition": "check (\"account_class\" in ('asset', 'liability', 'equity', 'revenue', 'expense'))",
+          "columnName": "account_class"
+        }
+      ],
       "foreignKeys": {
         "account_node_chart_of_accounts_id_foreign": {
           "columnNames": [
@@ -413,6 +524,18 @@
           "referencedTableName": "coa.account_snapshot",
           "deleteRule": "set null"
         },
+        "account_node_inactivation_changeset_id_foreign": {
+          "columnNames": [
+            "inactivation_changeset_id"
+          ],
+          "constraintName": "account_node_inactivation_changeset_id_foreign",
+          "localTableName": "coa.account_node",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "coa.account_changeset",
+          "deleteRule": "set null"
+        },
         "account_node_parent_id_foreign": {
           "columnNames": [
             "parent_id"
@@ -432,47 +555,6 @@
       "name": "account_snapshot",
       "schema": "coa",
       "columns": {
-        "account_class": {
-          "name": "account_class",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [
-            "asset",
-            "liability",
-            "equity",
-            "revenue",
-            "expense"
-          ],
-          "mappedType": "enum"
-        },
-        "balance_type": {
-          "name": "balance_type",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "unique": false,
-          "length": null,
-          "precision": null,
-          "scale": null,
-          "default": null,
-          "comment": null,
-          "enumItems": [
-            "debit",
-            "credit"
-          ],
-          "mappedType": "enum"
-        },
         "change_reason": {
           "name": "change_reason",
           "type": "varchar(255)",
@@ -520,6 +602,22 @@
           "comment": null,
           "enumItems": [],
           "mappedType": "datetime"
+        },
+        "description": {
+          "name": "description",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "unique": false,
+          "length": 255,
+          "precision": null,
+          "scale": null,
+          "default": null,
+          "comment": null,
+          "enumItems": [],
+          "mappedType": "string"
         },
         "effective_date": {
           "name": "effective_date",
@@ -635,18 +733,6 @@
         }
       ],
       "checks": [
-        {
-          "name": "account_snapshot_account_class_check",
-          "expression": "\"account_class\" in ('asset', 'liability', 'equity', 'revenue', 'expense')",
-          "definition": "check (\"account_class\" in ('asset', 'liability', 'equity', 'revenue', 'expense'))",
-          "columnName": "account_class"
-        },
-        {
-          "name": "account_snapshot_balance_type_check",
-          "expression": "\"balance_type\" in ('debit', 'credit')",
-          "definition": "check (\"balance_type\" in ('debit', 'credit'))",
-          "columnName": "balance_type"
-        },
         {
           "name": "account_snapshot_status_check",
           "expression": "\"status\" in ('draft', 'published', 'discarded')",

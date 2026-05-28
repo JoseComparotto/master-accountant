@@ -1,6 +1,9 @@
+import { Injectable } from "@nestjs/common";
+
+@Injectable()
 export class MaskService {
   
-  static apply(parentPath: string | null, nodeCode: number, levelWidths: number[], levelIndex: number): { ltree: string, formatted: string } {
+  static applyMask(parentPath: string | null, nodeCode: number, levelWidths: number[], levelIndex: number): { ltree: string, formatted: string } {
     // 1. Pega a largura definida para este nível específico
     const width = levelWidths[levelIndex];
     

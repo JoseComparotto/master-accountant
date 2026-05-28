@@ -8,6 +8,8 @@ import { AccountNode } from '@modules/chart-of-accounts/domain/entities/account-
 import { AccountSnapshot } from '@modules/chart-of-accounts/domain/entities/account-snapshot.entity';
 import { AccountChangeset } from '@modules/chart-of-accounts/domain/entities/account-changeset.entity';
 import { AccountTransition } from '@modules/chart-of-accounts/domain/entities/account-transition.entity';
+import { AccountChangesetValidator } from '@modules/chart-of-accounts/domain/services/account-changeset-validator.service';
+import { MaskService } from '@modules/chart-of-accounts/domain/services/mask.service';
 
 // 2. Controladores HTTP (Infrastructure)
 import { AccountsController } from '@modules/chart-of-accounts/infrastructure/http/controllers/accounts.controller';
@@ -25,7 +27,7 @@ import { DeleteChartOfAccountsHandler } from '@modules/chart-of-accounts/applica
 
 // Agrupar handlers em arrays mantém o providers limpo
 const CommandHandlers = [
-  CreateDraftChangesetHandler, 
+  CreateDraftChangesetHandler,
   PublishChangesetHandler,
   DiscardChangesetHandler,
   CreateChartOfAccountHandler,
@@ -35,12 +37,16 @@ const QueryHandlers = [
   GetAllAccountsForChartHandler,
   GetAllChartsOfAccountsHandler
 ];
+const ServiceProviders = [
+  MaskService,
+  AccountChangesetValidator,
+];
 
 @Module({
   imports: [
     // Ativa os barramentos CommandBus e QueryBus neste módulo
-    CqrsModule, 
-    
+    CqrsModule,
+
     // Registra as entidades no escopo deste módulo.
     // Permite que os Handlers usem a injeção de dependência do EntityManager.
     MikroOrmModule.forFeature([
@@ -60,6 +66,7 @@ const QueryHandlers = [
     // Todos os comandos e queries viram providers injetáveis do NestJS
     ...CommandHandlers,
     ...QueryHandlers,
+    ...ServiceProviders
   ],
 })
-export class ChartOfAccountsModule {}
+export class ChartOfAccountsModule { }

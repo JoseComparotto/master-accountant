@@ -3,10 +3,14 @@ import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { EntityManager } from '@mikro-orm/postgresql';
 import { PublishChangesetCommand } from '@modules/chart-of-accounts/application/commands/publish-changeset.command';
 import { AccountChangeset } from '@modules/chart-of-accounts/domain/entities/account-changeset.entity';
+import { AccountChangesetValidator } from '@modules/chart-of-accounts/domain/services/account-changeset-validator.service';
 
 @CommandHandler(PublishChangesetCommand)
 export class PublishChangesetHandler implements ICommandHandler<PublishChangesetCommand> {
-  constructor(private readonly em: EntityManager) { }
+  constructor(
+    private readonly em: EntityManager,
+    private readonly validator: AccountChangesetValidator
+  ) { }
 
   async execute(command: PublishChangesetCommand): Promise<void> {
     // 1. Carrega o Changeset trazendo junto todos os Snapshots que ele contém
@@ -14,7 +18,7 @@ export class PublishChangesetHandler implements ICommandHandler<PublishChangeset
       , { populate: ['transitions', 'newSnapshots', 'newSnapshots.node'] });
 
     // 2. Regra de Negócio: O Changeset carimba a data efetiva e muda seu status
-    changeset.publish(command.effectiveDate);
+    changeset.publish(this.validator, command.effectiveDate);
 
     // 3. Atualiza os ponteiros de SSoT: A árvore agora aponta para os novos Snapshots
     for (const snapshot of changeset.newSnapshots) {

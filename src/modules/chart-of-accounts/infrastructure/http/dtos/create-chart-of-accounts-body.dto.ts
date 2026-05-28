@@ -13,7 +13,7 @@ import {
     Min
 } from 'class-validator';
 
-export class CreateChartOfAccountDto {
+export class CreateChartOfAccountsBodyDto {
 
     @IsOptional()
     @ApiPropertyOptional({

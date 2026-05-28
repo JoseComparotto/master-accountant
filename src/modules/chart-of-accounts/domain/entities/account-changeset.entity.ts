@@ -5,7 +5,6 @@ import {
   ManyToOne,
   OneToMany,
   Enum,
-  Unique
 } from '@mikro-orm/decorators/legacy';
 import { Collection } from '@mikro-orm/postgresql';
 import type { Rel } from '@mikro-orm/postgresql';
@@ -18,6 +17,18 @@ import { ChangesetStatus } from '@modules/chart-of-accounts/domain/enums/changes
 import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enums/version-increment-type.enum';
 import { DomainError } from '@/shared/exceptions/domain.error';
 import { AccountNode } from '@/modules/chart-of-accounts/domain/entities/account-node.entity';
+import type { AccountChangesetValidator } from '../services/account-changeset-validator.service';
+
+/**
+ * Entidade que representa um pacote de mudanças planejadas para o plano de contas, permitindo a criação de rascunhos, publicação e controle de versões.
+ * 
+ * O AccountChangeset é o núcleo do processo de gerenciamento de mudanças no plano de contas. Ele encapsula um conjunto de alterações (novas contas, inativações, transições) que um contador deseja aplicar ao plano. O fluxo típico é:
+ * 1. O contador cria um novo AccountChangeset em status DRAFT, associando-o a um ChartOfAccounts específico e definindo o tipo de incremento de versão (MAJOR ou MINOR).
+ * 2. O contador adiciona alterações ao pacote, como novas contas (AccountNode), inativações de contas existentes e transições de contas.
+ * 3. Quando o contador estiver satisfeito com as mudanças, ele pode publicar o pacote. O método publish() valida as regras de negócio (como a obrigatoriedade da data-base e a existência de alterações) e, se tudo estiver correto, muda o status para PUBLISHED e registra a data de publicação.
+ * 4. Se o contador decidir desistir das mudanças antes de publicar, ele pode chamar o método discard(), que marca o pacote como descartado e impede sua publicação futura.
+ *
+ */
 
 @Entity({ schema: 'coa' })
 export class AccountChangeset {
@@ -37,7 +48,7 @@ export class AccountChangeset {
   @Property({ columnType: 'date', nullable: true })
   effectiveDate?: Date;
 
-  // O Tempo do Sistema: Quando o rascunho começou a ser criado e quando foi oficializado
+  // O Tempo do Sistema: Quando o rascunho começou a ser criado e quando foi oficializado ou descartado
   @Property()
   createdAt: Date = new Date();
 
@@ -82,7 +93,7 @@ export class AccountChangeset {
   }
 
   // Método de Domínio: Executado quando o contador clica em "Publicar Alterações"
-  publish(effectiveDate?: Date) {
+  publish(validator: AccountChangesetValidator, effectiveDate?: Date) {
     if (this.status !== ChangesetStatus.DRAFT) {
       throw new Error('Apenas pacotes em rascunho podem ser publicados.');
     }
@@ -91,14 +102,13 @@ export class AccountChangeset {
     if (effectiveDate) {
       this.effectiveDate = effectiveDate;
     }
-
+    
     if (!this.effectiveDate) {
       throw new Error('Uma data-base (effectiveDate) é obrigatória para publicar.');
     }
-    
-    if(this.newSnapshots.count() === 0 && this.transitions.count() === 0 && this.newNodes.count() === 0) {
-      throw new Error('Não é possível publicar um pacote sem alterações.');
-    }
+
+    // Valida as regras de negócio antes de publicar
+    validator.validate(this);
 
     this.status = ChangesetStatus.PUBLISHED;
     this.publishedAt = new Date();

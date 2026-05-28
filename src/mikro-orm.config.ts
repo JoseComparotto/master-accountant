@@ -7,27 +7,27 @@ import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 export default defineConfig({
   // Credenciais do PostgreSQL
   driver: PostgreSqlDriver,
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT || '5432', 10),
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  dbName: process.env.DB_NAME,
+  clientUrl: process.env.DATABASE_URL, // Se estiver usando DATABASE_URL, ele ignora as outras configs
 
   // O MikroORM vai buscar as entidades de domínio de dentro da pasta "modules"
   // (padrão de organização em DDD)
-  entities: ['dist/modules/**/domain/entities/*.entity.js'],
-  entitiesTs: ['src/modules/**/domain/entities/*.entity.ts'],
+  entities: ['dist/**/*.entity.js'], // Procura em qualquer lugar dentro de dist
+  entitiesTs: ['src/**/*.entity.ts'], // Procura em qualquer lugar dentro de src
 
   // O MetadataProvider lê as tipagens do TypeScript. 
   // Dispensa ter que escrever o tipo da coluna no decorator o tempo todo.
   metadataProvider: TsMorphMetadataProvider,
+  discovery: {
+    tsConfigPath: './tsconfig.json', // Nota: 'C' maiúsculo e dentro de discovery
+    warnWhenNoEntities: true,      // Opcional: ajuda a debugar se nada for encontrado
+  },
 
   // Configuração para o sistema de migrações do MikroORM
   extensions: [Migrator],
 
   // Pasta para o versionamento do banco
   migrations: {
-    path: 'dist/migrations',
+    path: 'dist/src/migrations',
     pathTs: 'src/migrations',
   },
 

@@ -3,8 +3,8 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Controller, Post, Body, Param } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 
-import { CreateChangesetDto } from '@modules/chart-of-accounts/infrastructure/http/dtos/create-changeset.dto';
-import { PublishChangesetDto } from '@modules/chart-of-accounts/infrastructure/http/dtos/publish-changeset.dto';
+import { CreateChangesetBodyDto } from '@modules/chart-of-accounts/infrastructure/http/dtos/create-changeset-body.dto';
+import { PublishChangesetBodyDto } from '@modules/chart-of-accounts/infrastructure/http/dtos/publish-changeset-body.dto';
 
 import { CreateDraftChangesetCommand } from '@modules/chart-of-accounts/application/commands/create-draft-changeset.command';
 import { PublishChangesetCommand } from '@modules/chart-of-accounts/application/commands/publish-changeset.command';
@@ -24,7 +24,7 @@ export class ChangesetsController {
     description: 'Changeset criado com sucesso.',
   })
   @Post()
-  async createDraft(@Body() dto: CreateChangesetDto) {
+  async createDraft(@Body() dto: CreateChangesetBodyDto) {
     return this.commandBus.execute(
       new CreateDraftChangesetCommand(
         dto.id,
@@ -50,7 +50,7 @@ export class ChangesetsController {
   })
   async publishChangeset(
     @Param('id') id: string,
-    @Body() dto: PublishChangesetDto,
+    @Body() dto: PublishChangesetBodyDto,
   ) {
     return this.commandBus.execute(
       new PublishChangesetCommand(

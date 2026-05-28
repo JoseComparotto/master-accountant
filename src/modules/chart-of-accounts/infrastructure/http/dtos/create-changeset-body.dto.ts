@@ -2,7 +2,7 @@ import { IsUUID, IsEnum, IsOptional, IsDateString } from 'class-validator';
 import { VersionIncrementType } from '@modules/chart-of-accounts/domain/enums/version-increment-type.enum';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateChangesetDto {
+export class CreateChangesetBodyDto {
   @ApiPropertyOptional({
     description: 'UUID gerado pelo cliente para garantia de idempotência. Se não fornecido, o sistema irá gerar um novo UUID v4.',
     example: '123e4567-e89b-12d3-a456-426614174000'
@@ -20,7 +20,9 @@ export class CreateChangesetDto {
 
   @ApiProperty({
     description: 'Tipo de incremento da versão. Deve ser \'major\' ou \'minor\'.',
-    example: 'minor'
+    example: 'minor',
+    enumName: 'VersionIncrementType',
+    enum: VersionIncrementType
   })
   @IsEnum(VersionIncrementType, { message: `O tipo de incremento deve ser 'major' ou 'minor'.` })
   incrementType!: VersionIncrementType;

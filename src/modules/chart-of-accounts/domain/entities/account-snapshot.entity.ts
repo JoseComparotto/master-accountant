@@ -34,15 +34,11 @@ export class AccountSnapshot {
   @ManyToOne(() => AccountSnapshot, { nullable: true })
   previousSnapshot?: Rel<AccountSnapshot>;
 
-  // 2. Dados de Negócio (A Semântica)
   @Property()
   name!: string;
 
-  @Enum(() => AccountBalanceType)
-  balanceType!: AccountBalanceType;
-
-  @Enum(() => AccountClass)
-  accountClass!: AccountClass
+  @Property({ nullable: true })
+  description?: string;
 
   @Property({ nullable: true })
   changeReason?: string; // Ex: "Correção ortográfica"
@@ -60,16 +56,12 @@ export class AccountSnapshot {
     node: Rel<AccountNode>,
     changeset: Rel<AccountChangeset>,
     name: string,
-    balanceType: AccountBalanceType,
-    groupType: AccountClass,
     changeReason?: string,
     previousSnapshot?: Rel<AccountSnapshot>
   ) {
     this.node = node;
     this.changeset = changeset;
     this.name = name;
-    this.balanceType = balanceType;
-    this.accountClass = groupType;
     this.changeReason = changeReason;
     this.previousSnapshot = previousSnapshot;
   }

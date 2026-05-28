@@ -3,13 +3,13 @@ import { EntityManager } from '@mikro-orm/postgresql';
 import { CreateDraftChangesetCommand } from '@modules/chart-of-accounts/application/commands/create-draft-changeset.command';
 import { ChartOfAccounts } from '@modules/chart-of-accounts/domain/entities/chart-of-accounts.entity';
 import { AccountChangeset } from '@modules/chart-of-accounts/domain/entities/account-changeset.entity';
-import { CreatedUuidDto } from '@/shared/infrastructure/dto/CreatedUuid.dto';
+import { CreatedIdReturnDto } from '@shared/infrastructure/dto/CreatedIdReturn.dto';
 
 @CommandHandler(CreateDraftChangesetCommand)
 export class CreateDraftChangesetHandler implements ICommandHandler<CreateDraftChangesetCommand> {
     constructor(private readonly em: EntityManager) { }
 
-    async execute(command: CreateDraftChangesetCommand): Promise<CreatedUuidDto> {
+    async execute(command: CreateDraftChangesetCommand): Promise<CreatedIdReturnDto> {
         // 1. Carrega a máscara/plano base
         const chart = await this.em.findOneOrFail(ChartOfAccounts, command.chartOfAccountsId);
 

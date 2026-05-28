@@ -2,7 +2,7 @@ import { AccountBalanceType } from "@modules/chart-of-accounts/domain/enums/acco
 import { AccountClass } from "@modules/chart-of-accounts/domain/enums/account-class.enum";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class AccountDto {
+export class AccountReturnDto {
 
     @ApiProperty({
         description: 'UUID da conta',
@@ -36,13 +36,17 @@ export class AccountDto {
     
     @ApiProperty({
         description: 'Tipo de saldo da conta',
-        example: AccountBalanceType.DEBIT
+        example: AccountBalanceType.DEBIT,
+        enumName: 'AccountBalanceType',
+        enum: AccountBalanceType
     })
     balanceType!: AccountBalanceType;
     
     @ApiProperty({
         description: 'Classe da conta',
-        example: AccountClass.ASSET
+        example: AccountClass.ASSET,
+        enumName: 'AccountClass',
+        enum: AccountClass
     })
     accountClass!: AccountClass;
 }

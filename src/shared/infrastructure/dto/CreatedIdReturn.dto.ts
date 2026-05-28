@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class CreatedUuidDto {
+export class CreatedIdReturnDto {
     
     @ApiProperty({
         description: 'ID do recurso criado. Será um UUID v4 válido',

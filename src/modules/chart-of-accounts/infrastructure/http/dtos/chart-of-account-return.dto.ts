@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-export class ChartOfAccountDto {
+export class ChartOfAccountReturnDto {
 
     @ApiProperty({
         description: 'UUID do plano de contas',
