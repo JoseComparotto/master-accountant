@@ -1,4 +1,4 @@
-import { DomainException } from "../../../../shared/domain/exception/domain.exception";
+import { DomainException } from "../../../shared/domain/exception/domain.exception";
 import { AccountEntity, CreateAccountProps } from "../entities/account.entity";
 import type { IAccountRepository } from "../interfaces/account-repository.interface";
 

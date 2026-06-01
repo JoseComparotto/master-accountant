@@ -1,4 +1,4 @@
-import { DomainException } from "../../../../shared/domain/exception/domain.exception";
+import { DomainException } from "../../../shared/domain/exception/domain.exception";
 import { AccountClassEnum } from "../enums/account-class.enum";
 
 /**
