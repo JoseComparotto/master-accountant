@@ -1,6 +1,6 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { GetAllAccountsQuery } from "../queries/get-all-accounts.query";
-import type { IAccountRepository } from "@repo/core";
+import { AccountEntity, type IAccountRepository } from "@repo/core";
 import { Inject } from "@nestjs/common";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
@@ -14,7 +14,10 @@ export class GetAllAccountsQueryHandler implements IQueryHandler<GetAllAccountsQ
 
     async execute(query: GetAllAccountsQuery): Promise<AccountFlatDto[]> {
         const accounts = await this.accountRepository.findAll();
-        return accounts.map(AccountMapper.toFlatDto);
+
+        accounts.sort(AccountEntity.sortByCode);
+
+        return accounts.sort().map(AccountMapper.toFlatDto);
     }
 
 }

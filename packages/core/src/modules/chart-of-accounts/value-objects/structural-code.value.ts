@@ -44,7 +44,7 @@ export class StructuralCodeValue {
      * Essencial para o sort() do JavaScript funcionar corretamente com números.
      * Evita o erro de "1.10" vir antes de "1.2"
      */
-    compare(other: StructuralCodeValue): number {
+    compareTo(other: StructuralCodeValue): number {
         const maxLen = Math.max(this.segments.length, other.segments.length);
 
         for (let i = 0; i < maxLen; i++) {

@@ -113,7 +113,7 @@ export class AccountEntity {
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
         account._structuralCode = data.parent.structuralCode.createChild(data.localIndex); // HTI-10: Derivação de Código Estrutural
-        
+
         // Valores default para campos opcionais na criação
         account._description = data.description ?? null;
         account._accountClass = data.accountClass ?? data.parent.accountClass;
@@ -202,6 +202,14 @@ export class AccountEntity {
         Assert.isType(this._isSummary, 'boolean', 'isSummary');
         Assert.isType(this._isContra, 'boolean', 'isContra');
         Assert.isType(this._isActive, 'boolean', 'isActive');
+    }
+
+    compareTo(other: AccountEntity) {
+        return this.structuralCode.compareTo(other.structuralCode);
+    }
+
+    public static sortByCode(a: AccountEntity, b: AccountEntity){
+        return a.compareTo(b);
     }
 
 }
