@@ -1,6 +1,6 @@
-import { DomainException } from "../../../shared/domain/exception/domain.exception";
-import { AccountEntity, CreateAccountProps } from "../entities/account.entity";
-import type { IAccountRepository } from "../interfaces/account-repository.interface";
+import { DomainException } from '../../../shared/exception/domain.exception.js';
+import { AccountEntity, CreateAccountProps } from '../entities/account.entity.js';
+import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
 
 export class AccountDomainService {
   constructor(private readonly repository: IAccountRepository) { }

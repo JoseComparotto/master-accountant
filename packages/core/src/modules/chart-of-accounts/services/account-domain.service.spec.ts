@@ -1,8 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { AccountDomainService } from "./account-domain.service";
-import { AccountEntity } from "../entities/account.entity";
-import { AccountClassEnum } from "../enums/account-class.enum";
-import type { IAccountRepository } from "../interfaces/account-repository.interface";
+import { AccountDomainService } from './account-domain.service.js';
+import { AccountEntity } from '../entities/account.entity.js';
+import { AccountClassEnum } from '../enums/account-class.enum.js';
+import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
 
 describe('AccountDomainService', () => {
     let service: AccountDomainService;

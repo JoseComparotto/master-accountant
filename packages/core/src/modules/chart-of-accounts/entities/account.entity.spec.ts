@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
-import { AccountClassEnum } from "../enums/account-class.enum";
-import { AccountEntity, AccountProps, CreateAccountProps } from "./account.entity";
+import { AccountClassEnum } from '../enums/account-class.enum.js';
+import { AccountEntity, AccountProps, CreateAccountProps } from './account.entity.js';
 
 /**
  * Esta suite deve demonstrar: 

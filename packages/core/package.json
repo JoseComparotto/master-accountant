@@ -1,9 +1,14 @@
 {
   "name": "@repo/core",
+  "type":"module",
   "version": "1.0.0",
   "private": true,
+  "main": "./src/index.ts",
   "exports": {
-    "./*": "./src/*.ts"
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
   },
   "scripts": {
     "test": "vitest run",

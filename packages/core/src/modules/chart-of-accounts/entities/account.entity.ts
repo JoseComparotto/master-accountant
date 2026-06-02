@@ -1,5 +1,5 @@
-import { DomainException } from "../../../shared/domain/exception/domain.exception";
-import { AccountClassEnum } from "../enums/account-class.enum";
+import { DomainException } from '../../../shared/exception/domain.exception.js';
+import { AccountClassEnum } from '../enums/account-class.enum.js';
 
 /**
  * Represents a financial account within the `Chart of Accounts`.
