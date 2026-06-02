@@ -1,5 +1,5 @@
 import { DomainException } from '../../../shared/exception/domain.exception.js';
-import { AccountEntity, CreateAccountProps } from '../entities/account.entity.js';
+import { AccountEntity, CreateAccountProps, CreateRootAccountProps } from '../entities/account.entity.js';
 import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
 
 export class AccountDomainService {
@@ -7,8 +7,27 @@ export class AccountDomainService {
 
   async createAccount(data: CreateAccountProps) {
 
+    const { parent, accountClass, localIndex : _localIndex, ...commonProps } = data;
+
+    if (!parent && !accountClass) {
+      throw new DomainException("COA-01: Root accounts must have an account class defined.");
+    }
+
+    const localIndex = _localIndex ?? await this.generateNextLocalIndex(parent);
+
     // 1. Chama a Factory (Validações Locais)
-    const account = AccountEntity.create(data);
+    const account = parent
+      ? AccountEntity.createChild({
+        ...commonProps,
+        parent,
+        accountClass,
+        localIndex
+      })
+      : AccountEntity.createRoot({
+        ...commonProps,
+        accountClass: accountClass!, // O non-null assertion é seguro aqui devido à validação acima
+        localIndex
+      });
 
     // 2. Validações de Árvore (Async/DB)
 
@@ -26,6 +45,11 @@ export class AccountDomainService {
     if (isIndexTaken) throw new DomainException("HTI-08: Local Index must be unique among siblings.");
 
     return account;
+  }
+
+  private async generateNextLocalIndex(parent?: AccountEntity): Promise<number> {
+    const lastIndex = await this.repository.findLastLocalIndex(parent?.id);
+    return lastIndex + 1;
   }
 
   activateAccount(account: AccountEntity) {
@@ -50,7 +74,7 @@ export class AccountDomainService {
 
   }
 
-  updateAccountMetadata(account: AccountEntity, name: string, description?: string){
+  updateAccountMetadata(account: AccountEntity, name: string, description?: string) {
 
     account.updateMetadata(name, description); // Não há validação necessária
 

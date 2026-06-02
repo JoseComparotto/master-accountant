@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AccountClassEnum } from '../enums/account-class.enum.js';
-import { AccountEntity, AccountProps, CreateAccountProps } from './account.entity.js';
+import { AccountEntity, AccountProps, CreateAccountProps, CreateRootAccountProps } from './account.entity.js';
 
 /**
  * Esta suite deve demonstrar: 
@@ -17,7 +17,7 @@ import { AccountEntity, AccountProps, CreateAccountProps } from './account.entit
 describe('AccountEntity', () => {
 
     // Mock de uma conta raiz para facilitar os testes de descendentes
-    const createRootMock = (overrides?: Partial<CreateAccountProps>) => AccountEntity.create({
+    const createRootMock = (overrides?: Partial<CreateRootAccountProps>) => AccountEntity.createRoot({
         id: 'root-id',
         name: 'Ativo',
         localIndex: 1,
@@ -35,7 +35,7 @@ describe('AccountEntity', () => {
                 const root = createRootMock();
                 // Imaginando que o root.structuralCode seja "1" baseado no localIndex
 
-                const child = AccountEntity.create({
+                const child = AccountEntity.createChild({
                     name: 'Ativo Circulante',
                     parent: root,
                     localIndex: 2,
@@ -52,7 +52,7 @@ describe('AccountEntity', () => {
                     isContra: true // Definindo o root como contra para testar a propagação
                 });
 
-                const child = AccountEntity.create({
+                const child = AccountEntity.createChild({
                     name: 'Conta Contra Teste',
                     parent: root,
                     localIndex: 1,
@@ -70,7 +70,7 @@ describe('AccountEntity', () => {
                     accountClass: AccountClassEnum.LIABILITY // Definindo o root como Liability para testar a herança
                 });
 
-                const child = AccountEntity.create({
+                const child = AccountEntity.createChild({
                     name: 'Conta Passivo Filha',
                     parent: root,
                     localIndex: 1,
@@ -87,7 +87,7 @@ describe('AccountEntity', () => {
                 const root = createRootMock({
                     isContra: true
                 });
-                expect(() => AccountEntity.create({
+                expect(() => AccountEntity.createChild({
                     name: 'Filho Não Contra',
                     parent: root,
                     localIndex: 1,
@@ -101,7 +101,7 @@ describe('AccountEntity', () => {
             it('should throw if account is its own parent (HTI-03)', () => {
                 const id = 'same-id';
 
-                expect(() => AccountEntity.create({
+                expect(() => AccountEntity.createChild({
                     id: id,
                     name: 'Self Reference',
                     parent: { id } as AccountEntity, // Simulando a conta como seu próprio pai
@@ -116,7 +116,7 @@ describe('AccountEntity', () => {
                     isSummary: false // forçando a conta a ser do tipo Posting Account
                 });
 
-                expect(() => AccountEntity.create({
+                expect(() => AccountEntity.createChild({
                     name: 'Sub-conta inválida',
                     parent: postingAccount,
                     localIndex: 1,
@@ -128,7 +128,7 @@ describe('AccountEntity', () => {
             it('should throw if account class differs from parent (COA-01)', () => {
                 const root = createRootMock(); // É ASSET
 
-                expect(() => AccountEntity.create({
+                expect(() => AccountEntity.createChild({
                     name: 'Conta de Passivo no Ativo',
                     parent: root,
                     localIndex: 1,
@@ -142,7 +142,7 @@ describe('AccountEntity', () => {
                     isActive: false
                 });
 
-                expect(() => AccountEntity.create({
+                expect(() => AccountEntity.createChild({
                     name: 'Filho Ativo',
                     parent: inactiveParent,
                     localIndex: 1,
@@ -244,7 +244,7 @@ describe('AccountEntity', () => {
     describe('Getters Validation', () => {
         it('should successfully access all account properties through getters', () => {
             const parent = createRootMock();
-            const account = AccountEntity.create({
+            const account = AccountEntity.createChild({
                 name: 'Checking Account',
                 parent: parent,
                 localIndex: 2,

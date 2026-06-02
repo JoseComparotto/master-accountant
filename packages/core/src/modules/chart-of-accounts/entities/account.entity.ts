@@ -96,12 +96,8 @@ export class AccountEntity {
         return account;
     }
 
-    /**
-     * Factory method to create a new `AccountEntity` with validation of business rules.
-     * @param data The data required to create a new account, including optional fields for inheritance and defaults.
-     * @returns A new instance of `AccountEntity` that has passed all hierarchical and business rule validations.
-     */
-    static create(data: CreateAccountProps): AccountEntity {
+ 
+    static createChild(data: CreateChildAccountProps): AccountEntity {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
@@ -115,7 +111,30 @@ export class AccountEntity {
 
         // Valores default para campos opcionais na criação
         account._accountClass = data.accountClass ?? data.parent.accountClass;
-        account._isContra = data.isContra ?? data.parent?.isContra ?? false; // Tenta herdar do pai, senão assume false
+        account._isContra = data.isContra ?? data.parent.isContra; // Herda do pai por padrão
+        account._isActive = data.isActive ?? true;
+
+        // Delega a validação de regras hierárquicas para um método dedicado
+        account.validateHierarchicalRules();
+
+        return account;
+    }
+
+    
+    static createRoot(data: CreateRootAccountProps): AccountEntity {
+        const account = new AccountEntity();
+
+        // Regra de Identidade: Se não vier ID, geramos um novo
+        account._id = data.id ?? crypto.randomUUID();
+
+        account._name = data.name;
+        account._description = data.description;
+        account._localIndex = data.localIndex;
+        account._isSummary = data.isSummary;
+        account._accountClass = data.accountClass;
+
+        // Valores default para campos opcionais na criação
+        account._isContra = data.isContra ?? false; 
         account._isActive = data.isActive ?? true;
 
         // Delega a validação de regras hierárquicas para um método dedicado
@@ -179,7 +198,18 @@ type BaseCreateProps = Pick<AccountProps, 'name' | 'localIndex' | 'isSummary'> &
 /**
 * Interface defining the properties required to create a new `AccountEntity`.
 */
-export type CreateAccountProps = BaseCreateProps & (
-    | { parent?: never; accountClass: AccountClassEnum } // Raiz pura: não pode ter pai
-    | { parent: AccountEntity; accountClass?: AccountClassEnum } // Filho: pai é obrigatório
-);
+export type CreateAccountProps = BaseCreateProps & {
+    parent?: AccountEntity;
+    accountClass?: AccountClassEnum; 
+};
+
+export type CreateRootAccountProps = BaseCreateProps & {
+    parent?: never;
+    accountClass: AccountClassEnum;
+};
+
+export type CreateChildAccountProps = BaseCreateProps & {
+    parent: AccountEntity;
+    accountClass?: AccountClassEnum;
+};
+

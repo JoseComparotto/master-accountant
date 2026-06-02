@@ -25,7 +25,7 @@
         "^check-types"
       ]
     },
-    "start:dev": {
+    "dev": {
       "cache": false,
       "persistent": true
     },

@@ -2,7 +2,7 @@
   "name": "master-accountant",
   "private": true,
   "scripts": {
-    "start:dev": "turbo run start:dev",
+    "dev": "turbo run dev",
     "test": "turbo run test",
     "build": "turbo run build",
     "lint": "turbo run lint",

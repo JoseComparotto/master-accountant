@@ -9,6 +9,8 @@ export interface IAccountRepository {
 
     findByParent(account: AccountEntity): Promise<AccountEntity[]>;
 
+    findLastLocalIndex(parentId?: string): Promise<number>;
+
     findRootByClass(accountClass: AccountClassEnum): Promise<AccountEntity | null>;
 
     isIndexUsedBySiblings(parentId: string | undefined, localIndex: number): Promise<boolean>;

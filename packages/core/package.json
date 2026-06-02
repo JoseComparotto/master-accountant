@@ -1,9 +1,10 @@
 {
   "name": "@repo/core",
-  "type":"module",
+  "type": "module",
   "version": "1.0.0",
   "private": true,
-  "main": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
@@ -11,6 +12,7 @@
     }
   },
   "scripts": {
+    "dev": "tsc --watch",
     "test": "vitest run",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
