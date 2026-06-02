@@ -1,5 +1,6 @@
 import { DomainException } from '../../../shared/exception/domain.exception.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
+import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 
 /**
  * Represents a financial account within the `Chart of Accounts`.
@@ -13,6 +14,7 @@ export class AccountEntity {
     private _description?: string;
     private _parent?: AccountEntity;
     private _localIndex!: number; // Tipo numérico garante HTI-09
+    private _structuralCode!: StructuralCodeValue;
     private _accountClass!: AccountClassEnum;
     private _isSummary!: boolean;
     private _isContra!: boolean;
@@ -24,19 +26,11 @@ export class AccountEntity {
     get description(): string | undefined { return this._description; }
     get parent(): AccountEntity | undefined { return this._parent; }
     get localIndex(): number { return this._localIndex; }
+    get structuralCode(): StructuralCodeValue { return this._structuralCode; }
     get accountClass(): AccountClassEnum { return this._accountClass; }
     get isSummary(): boolean { return this._isSummary; }
     get isContra(): boolean { return this._isContra; }
     get isActive(): boolean { return this._isActive; }
-
-    // Atende HTI-10: Derivação de Código Estrutural
-    get structuralCode(): string {
-        if (!this._parent) {
-            return this._localIndex.toString();
-        }
-        return `${this._parent.structuralCode}.${this._localIndex}`;
-    }
-
 
     // Setters controlados
 
@@ -89,6 +83,7 @@ export class AccountEntity {
         account._description = data.description;
         account._parent = data.parent;
         account._localIndex = data.localIndex;
+        account._structuralCode = data.structuralCode;
         account._accountClass = data.accountClass;
         account._isSummary = data.isSummary;
         account._isContra = data.isContra;
@@ -96,7 +91,7 @@ export class AccountEntity {
         return account;
     }
 
- 
+
     static createChild(data: CreateChildAccountProps): AccountEntity {
         const account = new AccountEntity();
 
@@ -108,6 +103,7 @@ export class AccountEntity {
         account._parent = data.parent;
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
+        account._structuralCode = data.parent.structuralCode.createChild(data.localIndex); // HTI-10: Derivação de Código Estrutural
 
         // Valores default para campos opcionais na criação
         account._accountClass = data.accountClass ?? data.parent.accountClass;
@@ -120,7 +116,7 @@ export class AccountEntity {
         return account;
     }
 
-    
+
     static createRoot(data: CreateRootAccountProps): AccountEntity {
         const account = new AccountEntity();
 
@@ -132,9 +128,10 @@ export class AccountEntity {
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
         account._accountClass = data.accountClass;
+        account._structuralCode = StructuralCodeValue.createRoot(data.localIndex); // HTI-10: Derivação de Código Estrutural
 
         // Valores default para campos opcionais na criação
-        account._isContra = data.isContra ?? false; 
+        account._isContra = data.isContra ?? false;
         account._isActive = data.isActive ?? true;
 
         // Delega a validação de regras hierárquicas para um método dedicado
@@ -185,6 +182,7 @@ export interface AccountProps {
     name: string;
     description?: string;
     parent?: AccountEntity;
+    structuralCode: StructuralCodeValue;
     localIndex: number;
     accountClass: AccountClassEnum;
     isSummary: boolean;
@@ -200,7 +198,7 @@ type BaseCreateProps = Pick<AccountProps, 'name' | 'localIndex' | 'isSummary'> &
 */
 export type CreateAccountProps = BaseCreateProps & {
     parent?: AccountEntity;
-    accountClass?: AccountClassEnum; 
+    accountClass?: AccountClassEnum;
 };
 
 export type CreateRootAccountProps = BaseCreateProps & {

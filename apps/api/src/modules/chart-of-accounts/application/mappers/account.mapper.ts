@@ -10,6 +10,7 @@ export class AccountMapper {
             parentId: account.parent?.id,
             accountClass: account.accountClass,
             localIndex: account.localIndex,
+            formattedCode: account.structuralCode.toString(),
             isSummary: account.isSummary,
             isContra: account.isContra,
             isActive: account.isActive,

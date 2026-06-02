@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { AccountEntity, AccountProps, CreateAccountProps, CreateRootAccountProps } from './account.entity.js';
+import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 
 /**
  * Esta suite deve demonstrar: 
@@ -33,7 +34,6 @@ describe('AccountEntity', () => {
         describe('Happy Path (Caminho Feliz)', () => {
             it('should derive the structural code correctly (HTI-10)', () => {
                 const root = createRootMock();
-                // Imaginando que o root.structuralCode seja "1" baseado no localIndex
 
                 const child = AccountEntity.createChild({
                     name: 'Ativo Circulante',
@@ -44,7 +44,7 @@ describe('AccountEntity', () => {
                 });
 
                 // HTI-10: Structural Code deve ser o do pai + '.' + localIndex
-                expect(child.structuralCode).toBe('1.2');
+                expect(child.structuralCode.toString()).toBe('1.2');
             });
 
             it('should propagate contra status from parent (COA-02)', () => {
@@ -104,7 +104,7 @@ describe('AccountEntity', () => {
                 expect(() => AccountEntity.createChild({
                     id: id,
                     name: 'Self Reference',
-                    parent: { id } as AccountEntity, // Simulando a conta como seu próprio pai
+                    parent: { id, structuralCode: StructuralCodeValue.createRoot(1) } as AccountEntity, // Simulando a conta como seu próprio pai
                     localIndex: 1,
                     accountClass: AccountClassEnum.ASSET,
                     isSummary: true
@@ -161,6 +161,7 @@ describe('AccountEntity', () => {
                 name: 'Revenue Account',
                 description: 'Operating Revenue',
                 localIndex: 5,
+                structuralCode: StructuralCodeValue.fromString('2.5'),
                 accountClass: AccountClassEnum.REVENUE,
                 isSummary: false,
                 isContra: false,
@@ -173,6 +174,7 @@ describe('AccountEntity', () => {
             expect(account.name).toBe(props.name);
             expect(account.description).toBe(props.description);
             expect(account.localIndex).toBe(props.localIndex);
+            expect(account.structuralCode.toString()).toBe(props.structuralCode.toString());
             expect(account.accountClass).toBe(props.accountClass);
             expect(account.isSummary).toBe(props.isSummary);
             expect(account.isContra).toBe(props.isContra);
@@ -212,6 +214,7 @@ describe('AccountEntity', () => {
                 parent,
                 name: 'Child Account',
                 localIndex: 1,
+                structuralCode: parent.structuralCode.createChild(1),
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: false,
                 isContra: false,
@@ -230,6 +233,7 @@ describe('AccountEntity', () => {
                 parent,
                 name: 'Child Account',
                 localIndex: 1,
+                structuralCode: parent.structuralCode.createChild(1),
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: false,
                 isContra: false,
@@ -261,7 +265,7 @@ describe('AccountEntity', () => {
             expect(account.isSummary).toBe(false);
             expect(account.isContra).toBe(false);
             expect(account.isActive).toBe(true);
-            expect(account.structuralCode).toBe('1.2');
+            expect(account.structuralCode.toString()).toBe('1.2');
             expect(account.parent).toBe(parent);
         });
     });

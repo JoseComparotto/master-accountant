@@ -3,6 +3,7 @@ import { AccountDomainService } from './account-domain.service.js';
 import { AccountEntity } from '../entities/account.entity.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
+import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 
 describe('AccountDomainService', () => {
     let service: AccountDomainService;
@@ -40,6 +41,7 @@ describe('AccountDomainService', () => {
                 id: 'existing-id',
                 name: 'Existing Asset Root',
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: true,
                 isActive: true,
@@ -59,16 +61,17 @@ describe('AccountDomainService', () => {
         });
 
         it('should throw DomainException when local index is already taken by a sibling (HTI-08)', async () => {
-            const parent = AccountEntity.reconstitute({ 
+            const parent = AccountEntity.reconstitute({
                 id: 'parent-id',
                 name: 'Parent Account',
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: true,
                 isContra: false,
-                isActive: true
+                isActive: true,
             })
-            
+
             vi.mocked(repository.findRootByClass).mockResolvedValue(null);
             vi.mocked(repository.isIndexUsedBySiblings).mockResolvedValue(true);
 
@@ -105,6 +108,7 @@ describe('AccountDomainService', () => {
                 id: 'acc-1',
                 name: 'Inactive Account',
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: false,
                 isContra: false,
@@ -126,6 +130,7 @@ describe('AccountDomainService', () => {
                 isSummary: false,
                 isActive: true,
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isContra: false,
             });
@@ -143,6 +148,7 @@ describe('AccountDomainService', () => {
                 isSummary: true,
                 isActive: true,
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isContra: false,
             });
@@ -153,6 +159,7 @@ describe('AccountDomainService', () => {
                     isActive: false,
                     name: 'C1',
                     localIndex: 1,
+                    structuralCode: StructuralCodeValue.createRoot(1),
                     accountClass: AccountClassEnum.ASSET,
                     isSummary: false,
                     isContra: false,
@@ -171,6 +178,7 @@ describe('AccountDomainService', () => {
                 isSummary: true,
                 isActive: true,
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isContra: false,
             });
@@ -181,6 +189,7 @@ describe('AccountDomainService', () => {
                     isActive: true,
                     name: 'Active Child',
                     localIndex: 1,
+                    structuralCode: StructuralCodeValue.createRoot(1),
                     accountClass: AccountClassEnum.ASSET,
                     isSummary: false,
                     isContra: false,
@@ -198,6 +207,7 @@ describe('AccountDomainService', () => {
                 name: 'Old Name',
                 description: 'Old Description',
                 localIndex: 1,
+                structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: false,
                 isContra: false,

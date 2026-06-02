@@ -8,6 +8,7 @@ export class AccountResponseDto implements AccountFlatDto {
     description?: string | undefined;
     parentId?: string | undefined;
     localIndex!: number;
+    formattedCode!: string;
     accountClass!: AccountClassEnum;
     isSummary!: boolean;
     isContra!: boolean;
