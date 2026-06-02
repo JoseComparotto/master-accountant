@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler, IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { AccountDomainService, CreateAccountProps, type IAccountRepository } from "@repo/core";
+import { AccountDomainService, AccountEntity, CreateAccountProps, type IAccountRepository } from "@repo/core";
 import { Inject } from "@nestjs/common";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
@@ -30,7 +30,8 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
         return AccountMapper.toFlatDto(account);
     }
 
-    private async findByIdOrThrow(id: string) {
+    // TODO: Talvez centralizar essa lógica
+    private async findByIdOrThrow(id: string): Promise<AccountEntity> {
         const account = await this.accountRepository.findById(id);
         if (!account) {
             throw new AccountNotFoundException(id);

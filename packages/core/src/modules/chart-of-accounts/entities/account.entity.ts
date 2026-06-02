@@ -10,8 +10,8 @@ import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
  */
 export class AccountEntity {
 
-    private _id!: string;
-    private _name!: string;
+    private _id!: string; // TODO: Separar value-object para UUID
+    private _name!: string; // TODO: Definir regras para nomes de conta
     private _description!: string | null;
     private _parent!: AccountEntity | null;
     private _localIndex!: number; // Tipo numérico garante HTI-09

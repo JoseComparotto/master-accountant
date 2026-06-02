@@ -10,6 +10,7 @@ import { AccountResponseDto } from "../dtos/account-response.dto";
 import { CreateAccountRequestDto } from "../dtos/create-account-request.dto";
 import { ActivateAccountCommand } from "../../../application/commands/activate-account.command";
 
+// TODO: Implementar swagger
 @Controller('accounts')
 export class AccountsController {
 
@@ -40,9 +41,9 @@ export class AccountsController {
         return this.commandBus.execute(new CreateAccountCommand(body));
     }
 
-    // PUT /accounts/:id
     // PATCH /accounts/:id
-    
+    // TODO: Implementar updateAccount
+
     // POST /accounts/:id/inactivate
     @Post(':id/inactivate')
     async inactivateAccount(

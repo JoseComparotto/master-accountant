@@ -1,3 +1,5 @@
+// TODO: Automatizar geração do index
+
 export * from './modules/chart-of-accounts/entities/account.entity.js'
 export * from './modules/chart-of-accounts/enums/account-class.enum.js'
 export * from './modules/chart-of-accounts/interfaces/account-repository.interface.js'

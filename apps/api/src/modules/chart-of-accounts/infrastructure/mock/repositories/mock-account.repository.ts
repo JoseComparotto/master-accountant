@@ -3,6 +3,8 @@ import { AccountEntity, AccountProps, StructuralCodeValue } from "@repo/core";
 import { AccountClassEnum } from "@repo/core";
 import { IAccountRepository } from "@repo/core";
 
+// TODO: Substituir mock por ORM
+
 @Injectable()
 export class MockAccountRepository implements IAccountRepository {
 

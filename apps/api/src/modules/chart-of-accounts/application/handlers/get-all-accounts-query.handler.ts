@@ -5,6 +5,8 @@ import { Inject } from "@nestjs/common";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 
+// TODO: Talvez fazer um AccountAppService
+
 @QueryHandler(GetAllAccountsQuery)
 export class GetAllAccountsQueryHandler implements IQueryHandler<GetAllAccountsQuery> {
     constructor(
