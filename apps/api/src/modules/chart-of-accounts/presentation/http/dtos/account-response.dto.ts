@@ -5,8 +5,8 @@ export class AccountResponseDto implements AccountFlatDto {
 
     id!: string;
     name!: string;
-    description?: string | undefined;
-    parentId?: string | undefined;
+    description!: string | null;
+    parentId!: string | null;
     localIndex!: number;
     formattedCode!: string;
     accountClass!: AccountClassEnum;

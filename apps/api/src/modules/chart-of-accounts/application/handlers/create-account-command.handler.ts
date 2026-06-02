@@ -16,7 +16,7 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
     async execute({ data }: CreateAccountCommand): Promise<AccountFlatDto> {
 
-        const parent = !data.parentId ? undefined : await this.findByIdOrThrow(data.parentId!);
+        const parent = !data.parentId ? null : await this.findByIdOrThrow(data.parentId!);
 
         const createProps: CreateAccountProps = {
             ...data,

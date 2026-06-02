@@ -47,7 +47,7 @@ export class AccountDomainService {
     return account;
   }
 
-  private async generateNextLocalIndex(parent?: AccountEntity): Promise<number> {
+  private async generateNextLocalIndex(parent: AccountEntity | null): Promise<number> {
     const lastIndex = await this.repository.findLastLocalIndex(parent?.id);
     return lastIndex + 1;
   }
@@ -74,7 +74,7 @@ export class AccountDomainService {
 
   }
 
-  updateAccountMetadata(account: AccountEntity, name: string, description?: string) {
+  updateAccountMetadata(account: AccountEntity, name: string, description: string | null) {
 
     account.updateMetadata(name, description); // Não há validação necessária
 

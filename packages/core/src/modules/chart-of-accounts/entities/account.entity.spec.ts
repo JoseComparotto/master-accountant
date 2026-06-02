@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { AccountClassEnum } from '../enums/account-class.enum.js';
-import { AccountEntity, AccountProps, CreateAccountProps, CreateRootAccountProps } from './account.entity.js';
+import { AccountEntity, AccountProps, CreateRootAccountProps } from './account.entity.js';
 import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 
 /**
@@ -17,10 +17,15 @@ import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 
 describe('AccountEntity', () => {
 
+    const mockUUID = (sequence: number): string => {
+        return `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`;
+    }
+
     // Mock de uma conta raiz para facilitar os testes de descendentes
     const createRootMock = (overrides?: Partial<CreateRootAccountProps>) => AccountEntity.createRoot({
-        id: 'root-id',
+        id: mockUUID(overrides?.localIndex ?? 1),
         name: 'Ativo',
+        description: null,
         localIndex: 1,
         accountClass: AccountClassEnum.ASSET,
         isSummary: true,
@@ -99,12 +104,23 @@ describe('AccountEntity', () => {
 
 
             it('should throw if account is its own parent (HTI-03)', () => {
-                const id = 'same-id';
+                const account = AccountEntity.reconstitute({
+                    id: mockUUID(1),
+                    name: 'Self Reference',
+                    description: null,
+                    parent: null,
+                    accountClass: AccountClassEnum.ASSET,
+                    isSummary: true,
+                    isContra: false,
+                    isActive: true,
+                    localIndex: 1,
+                    structuralCode: StructuralCodeValue.createRoot(1)
+                })
 
                 expect(() => AccountEntity.createChild({
-                    id: id,
+                    id: account.id,
                     name: 'Self Reference',
-                    parent: { id, structuralCode: StructuralCodeValue.createRoot(1) } as AccountEntity, // Simulando a conta como seu próprio pai
+                    parent: account, 
                     localIndex: 1,
                     accountClass: AccountClassEnum.ASSET,
                     isSummary: true
@@ -157,11 +173,12 @@ describe('AccountEntity', () => {
     describe('reconstitute', () => {
         it('should restore an account entity from existing properties without side effects', () => {
             const props: AccountProps = {
-                id: 'existing-uuid',
+                id: mockUUID(2),
+                parent: createRootMock(),
                 name: 'Revenue Account',
                 description: 'Operating Revenue',
                 localIndex: 5,
-                structuralCode: StructuralCodeValue.fromString('2.5'),
+                structuralCode: StructuralCodeValue.fromString('1.5'),
                 accountClass: AccountClassEnum.REVENUE,
                 isSummary: false,
                 isContra: false,
@@ -210,9 +227,10 @@ describe('AccountEntity', () => {
         it('should allow activating an inactive account when parent is active', () => {
             const parent = createRootMock({ isActive: true });
             const account = AccountEntity.reconstitute({
-                id: 'child-id',
+                id: mockUUID(2),
                 parent,
                 name: 'Child Account',
+                description: null,
                 localIndex: 1,
                 structuralCode: parent.structuralCode.createChild(1),
                 accountClass: AccountClassEnum.ASSET,
@@ -229,9 +247,10 @@ describe('AccountEntity', () => {
         it('should throw exception when trying to activate a child account of an inactive parent (HTI-07)', () => {
             const parent = createRootMock({ isActive: false });
             const account = AccountEntity.reconstitute({
-                id: 'child-id',
+                id: mockUUID(2),
                 parent,
                 name: 'Child Account',
+                description: null,
                 localIndex: 1,
                 structuralCode: parent.structuralCode.createChild(1),
                 accountClass: AccountClassEnum.ASSET,

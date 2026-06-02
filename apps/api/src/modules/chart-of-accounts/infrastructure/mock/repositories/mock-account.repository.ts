@@ -28,6 +28,8 @@ export class MockAccountRepository implements IAccountRepository {
                 ...commonProps,
                 id: mockId,
                 name: def.name,
+                parent: null,
+                description:null,
                 accountClass: def.class,
                 localIndex: sequence,
                 structuralCode: StructuralCodeValue.createRoot(sequence),

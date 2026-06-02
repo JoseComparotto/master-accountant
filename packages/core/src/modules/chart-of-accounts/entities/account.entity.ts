@@ -1,4 +1,5 @@
 import { DomainException } from '../../../shared/exception/domain.exception.js';
+import { Assert } from '../../../shared/helpers/assert.hellper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 
@@ -11,8 +12,8 @@ export class AccountEntity {
 
     private _id!: string;
     private _name!: string;
-    private _description?: string;
-    private _parent?: AccountEntity;
+    private _description!: string | null;
+    private _parent!: AccountEntity | null;
     private _localIndex!: number; // Tipo numérico garante HTI-09
     private _structuralCode!: StructuralCodeValue;
     private _accountClass!: AccountClassEnum;
@@ -23,8 +24,8 @@ export class AccountEntity {
     // Getters
     get id(): string { return this._id; }
     get name(): string { return this._name; }
-    get description(): string | undefined { return this._description; }
-    get parent(): AccountEntity | undefined { return this._parent; }
+    get description(): string | null { return this._description; }
+    get parent(): AccountEntity | null { return this._parent; }
     get localIndex(): number { return this._localIndex; }
     get structuralCode(): StructuralCodeValue { return this._structuralCode; }
     get accountClass(): AccountClassEnum { return this._accountClass; }
@@ -39,9 +40,11 @@ export class AccountEntity {
      * @param name The new name of the account.
      * @param description The new description of the account.
      */
-    updateMetadata(name: string, description?: string) {
+    updateMetadata(name: string, description: string | null): void {
         this._name = name;
         this._description = description;
+
+        this.validateSchema();
     }
 
     /**
@@ -80,18 +83,25 @@ export class AccountEntity {
         const account = new AccountEntity();
         account._id = data.id;
         account._name = data.name;
-        account._description = data.description;
-        account._parent = data.parent;
+        account._description = data.description ?? null;
+        account._parent = data.parent ?? null;
         account._localIndex = data.localIndex;
         account._structuralCode = data.structuralCode;
         account._accountClass = data.accountClass;
         account._isSummary = data.isSummary;
         account._isContra = data.isContra;
         account._isActive = data.isActive;
+
+        account.validateSchema();
+
         return account;
     }
 
-
+    /**
+     * Creates a child account.
+     * @param data The properties for creating the child account.
+     * @returns A new instance of `AccountEntity`.
+     */
     static createChild(data: CreateChildAccountProps): AccountEntity {
         const account = new AccountEntity();
 
@@ -99,16 +109,18 @@ export class AccountEntity {
         account._id = data.id ?? crypto.randomUUID();
 
         account._name = data.name;
-        account._description = data.description;
         account._parent = data.parent;
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
         account._structuralCode = data.parent.structuralCode.createChild(data.localIndex); // HTI-10: Derivação de Código Estrutural
-
+        
         // Valores default para campos opcionais na criação
+        account._description = data.description ?? null;
         account._accountClass = data.accountClass ?? data.parent.accountClass;
         account._isContra = data.isContra ?? data.parent.isContra; // Herda do pai por padrão
         account._isActive = data.isActive ?? true;
+
+        account.validateSchema();
 
         // Delega a validação de regras hierárquicas para um método dedicado
         account.validateHierarchicalRules();
@@ -116,23 +128,31 @@ export class AccountEntity {
         return account;
     }
 
-
+    /**
+     * Creates a root account.
+     * @param data The properties for creating the root account.
+     * @returns A new instance of `AccountEntity`.
+     */
     static createRoot(data: CreateRootAccountProps): AccountEntity {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
         account._id = data.id ?? crypto.randomUUID();
 
+        account._parent = null;
         account._name = data.name;
-        account._description = data.description;
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
         account._accountClass = data.accountClass;
         account._structuralCode = StructuralCodeValue.createRoot(data.localIndex); // HTI-10: Derivação de Código Estrutural
 
         // Valores default para campos opcionais na criação
+        account._description = data.description ?? null;
         account._isContra = data.isContra ?? false;
         account._isActive = data.isActive ?? true;
+
+        // Validação de tipagem e existência de campos obrigatórios
+        account.validateSchema();
 
         // Delega a validação de regras hierárquicas para um método dedicado
         account.validateHierarchicalRules();
@@ -170,6 +190,20 @@ export class AccountEntity {
         }
     }
 
+    // Valida os tipos e obrigatoriedade em runtime
+    private validateSchema(): void {
+        Assert.isUUID(this._id, 'id');
+        Assert.isType(this._name, 'string', 'name');
+        Assert.isType(this._description, 'string', 'description', true);
+        Assert.isType(this._localIndex, 'number', 'localIndex');
+        Assert.isInstanceOf(this._parent, AccountEntity, 'parent', true);
+        Assert.isInstanceOf(this._structuralCode, StructuralCodeValue, 'structuralCode');
+        Assert.isEnum(this._accountClass, AccountClassEnum, 'accountClass');
+        Assert.isType(this._isSummary, 'boolean', 'isSummary');
+        Assert.isType(this._isContra, 'boolean', 'isContra');
+        Assert.isType(this._isActive, 'boolean', 'isActive');
+    }
+
 }
 
 /**
@@ -180,8 +214,8 @@ export class AccountEntity {
 export interface AccountProps {
     id: string;
     name: string;
-    description?: string;
-    parent?: AccountEntity;
+    description: string | null;
+    parent: AccountEntity | null;
     structuralCode: StructuralCodeValue;
     localIndex: number;
     accountClass: AccountClassEnum;
@@ -197,7 +231,7 @@ type BaseCreateProps = Pick<AccountProps, 'name' | 'localIndex' | 'isSummary'> &
 * Interface defining the properties required to create a new `AccountEntity`.
 */
 export type CreateAccountProps = BaseCreateProps & {
-    parent?: AccountEntity;
+    parent: AccountEntity | null;
     accountClass?: AccountClassEnum;
 };
 

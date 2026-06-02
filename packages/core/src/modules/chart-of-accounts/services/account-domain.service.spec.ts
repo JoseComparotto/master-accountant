@@ -6,6 +6,11 @@ import type { IAccountRepository } from '../interfaces/account-repository.interf
 import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 
 describe('AccountDomainService', () => {
+
+    const mockUUID = (sequence: number): string => {
+        return `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`;
+    }
+
     let service: AccountDomainService;
     let repository: IAccountRepository;
 
@@ -27,6 +32,8 @@ describe('AccountDomainService', () => {
 
             const account = await service.createAccount({
                 name: 'Assets',
+                description: null,
+                parent: null,
                 localIndex: 1,
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: true
@@ -38,8 +45,10 @@ describe('AccountDomainService', () => {
 
         it('should throw DomainException when trying to create a second root for the same class (HTI-01)', async () => {
             const existingRoot = AccountEntity.reconstitute({
-                id: 'existing-id',
+                id: mockUUID(1),
                 name: 'Existing Asset Root',
+                description: null,
+                parent: null,
                 localIndex: 1,
                 structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
@@ -52,6 +61,8 @@ describe('AccountDomainService', () => {
 
             await expect(service.createAccount({
                 name: 'Duplicate Assets',
+                description: null,
+                parent: null,
                 localIndex: 1,
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: true
@@ -62,8 +73,10 @@ describe('AccountDomainService', () => {
 
         it('should throw DomainException when local index is already taken by a sibling (HTI-08)', async () => {
             const parent = AccountEntity.reconstitute({
-                id: 'parent-id',
+                id: mockUUID(1),
                 name: 'Parent Account',
+                description: null,
+                parent: null,
                 localIndex: 1,
                 structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
@@ -92,6 +105,8 @@ describe('AccountDomainService', () => {
 
             await expect(service.createAccount({
                 name: 'Conflicting Account',
+                description: null,
+                parent: null,
                 localIndex: 2,
                 accountClass: AccountClassEnum.ASSET,
                 isSummary: true
@@ -105,8 +120,10 @@ describe('AccountDomainService', () => {
     describe('activateAccount', () => {
         it('should call the activate method on the entity', () => {
             const account = AccountEntity.reconstitute({
-                id: 'acc-1',
+                id: mockUUID(1),
                 name: 'Inactive Account',
+                description: null,
+                parent: null,
                 localIndex: 1,
                 structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
@@ -125,8 +142,10 @@ describe('AccountDomainService', () => {
     describe('inactivateAccount', () => {
         it('should allow inactivating a leaf (posting) account without checking children', async () => {
             const account = AccountEntity.reconstitute({
-                id: 'leaf-1',
+                id: mockUUID(1),
                 name: 'Leaf Account',
+                description: null,
+                parent: null,
                 isSummary: false,
                 isActive: true,
                 localIndex: 1,
@@ -143,8 +162,10 @@ describe('AccountDomainService', () => {
 
         it('should allow inactivating a summary account if all children are inactive (HTI-07)', async () => {
             const summary = AccountEntity.reconstitute({
-                id: 'sum-1',
+                id: mockUUID(1),
                 name: 'Summary Account',
+                description: null,
+                parent: null,
                 isSummary: true,
                 isActive: true,
                 localIndex: 1,
@@ -155,9 +176,11 @@ describe('AccountDomainService', () => {
 
             vi.mocked(repository.findByParent).mockResolvedValue([
                 AccountEntity.reconstitute({
-                    id: 'c1',
+                    id: mockUUID(1),
                     isActive: false,
                     name: 'C1',
+                    description: null,
+                    parent: null,
                     localIndex: 1,
                     structuralCode: StructuralCodeValue.createRoot(1),
                     accountClass: AccountClassEnum.ASSET,
@@ -173,8 +196,10 @@ describe('AccountDomainService', () => {
 
         it('should throw DomainException when inactivating a summary account with active children (HTI-07)', async () => {
             const summary = AccountEntity.reconstitute({
-                id: 'sum-1',
+                id: mockUUID(1),
                 name: 'Summary Account',
+                description: null,
+                parent: null,
                 isSummary: true,
                 isActive: true,
                 localIndex: 1,
@@ -185,9 +210,11 @@ describe('AccountDomainService', () => {
 
             vi.mocked(repository.findByParent).mockResolvedValue([
                 AccountEntity.reconstitute({
-                    id: 'active-child',
+                    id: mockUUID(1),
                     isActive: true,
                     name: 'Active Child',
+                    description: null,
+                    parent: null,
                     localIndex: 1,
                     structuralCode: StructuralCodeValue.createRoot(1),
                     accountClass: AccountClassEnum.ASSET,
@@ -203,9 +230,10 @@ describe('AccountDomainService', () => {
     describe('updateAccountMetadata', () => {
         it('should call the updateMetadata method on the entity', () => {
             const account = AccountEntity.reconstitute({
-                id: 'acc-1',
+                id: mockUUID(1),
                 name: 'Old Name',
                 description: 'Old Description',
+                parent:null,
                 localIndex: 1,
                 structuralCode: StructuralCodeValue.createRoot(1),
                 accountClass: AccountClassEnum.ASSET,
