@@ -18,7 +18,7 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
         const parent = !data.parentId ? null : await this.findByIdOrThrow(data.parentId!);
 
-        const createProps: CreateAccountProps = {
+        const createProps = {
             ...data,
             parent,
         };

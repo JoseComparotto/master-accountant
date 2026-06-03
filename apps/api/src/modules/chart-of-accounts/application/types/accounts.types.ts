@@ -5,6 +5,7 @@ export type AccountFlatDto = Omit<AccountProps, 'parent' | 'structuralCode'> & {
     formattedCode: string;
 };
 
-export type AccountCreateDto = Omit<CreateAccountProps, 'parent'> & {
+export type AccountCreateDto = Omit<CreateAccountProps, 'parent' | 'localIndex'> & {
     parentId?: string | null;
+    localIndex?: number | null
 };

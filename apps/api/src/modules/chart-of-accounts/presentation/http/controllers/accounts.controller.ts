@@ -9,9 +9,11 @@ import { InactivateAccountCommand } from "../../../application/commands/inactiva
 import { AccountResponseDto } from "../dtos/account-response.dto";
 import { CreateAccountRequestDto } from "../dtos/create-account-request.dto";
 import { ActivateAccountCommand } from "../../../application/commands/activate-account.command";
+import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { SwaggerTag } from "../../../../../shared/constants/swagger.constants";
 
-// TODO: Implementar swagger
 @Controller('accounts')
+@ApiTags(SwaggerTag.CHART_OF_ACCOUNTS)
 export class AccountsController {
 
     constructor(
@@ -21,20 +23,38 @@ export class AccountsController {
 
     // GET /accounts
     @Get()
+    @ApiOperation({ operationId: 'getAllAccounts' })
+    @ApiResponse({
+        status: 200,
+        description: 'Lista de contas',
+        type: [AccountResponseDto]
+    })
     async getAllAccounts(): Promise<AccountResponseDto[]> {
         return this.queryBus.execute(new GetAllAccountsQuery());
     }
 
     // GET /accounts/:id
     @Get(':id')
+    @ApiOperation({ operationId: 'getAccountById' })
+    @ApiResponse({
+        status: 200,
+        description: 'Dados da conta',
+        type: AccountResponseDto
+    })
     async getAccountById(
-        @Param() id: string
+        @Param('id') id: string
     ): Promise<AccountResponseDto> {
         return this.queryBus.execute(new GetAccountByIdQuery(id));
     }
 
     // POST /accounts
     @Post()
+    @ApiOperation({ operationId: 'createAccount' })
+    @ApiResponse({
+        status: 201,
+        description: 'Conta criada com sucesso',
+        type: AccountResponseDto
+    })
     async createAccount(
         @Body() body: CreateAccountRequestDto
     ): Promise<AccountResponseDto> {
@@ -46,18 +66,28 @@ export class AccountsController {
 
     // POST /accounts/:id/inactivate
     @Post(':id/inactivate')
+    @ApiOperation({operationId: 'inactivateAccount'})
+    @ApiResponse({
+        status:200,
+        description: 'Conta inativada com sucesso.'
+    })
     async inactivateAccount(
-        @Param() id: string
+        @Param('id') id: string
     ): Promise<void> {
-        return this.commandBus.execute(new InactivateAccountCommand(id));
+        await this.commandBus.execute(new InactivateAccountCommand(id));
     }
 
     // POST /accounts/:id/activate
     @Post(':id/activate')
+    @ApiOperation({operationId: 'activateAccount'})
+    @ApiResponse({
+        status:200,
+        description: 'Conta ativada com sucesso.'
+    })
     async activateAccount(
-        @Param() id: string
+        @Param('id') id: string
     ): Promise<void> {
-        return this.commandBus.execute(new ActivateAccountCommand(id));
+        await this.commandBus.execute(new ActivateAccountCommand(id));
     }
 
 }

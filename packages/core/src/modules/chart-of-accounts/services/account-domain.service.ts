@@ -5,9 +5,9 @@ import type { IAccountRepository } from '../interfaces/account-repository.interf
 export class AccountDomainService {
   constructor(private readonly repository: IAccountRepository) { }
 
-  async createAccount(data: CreateAccountProps) {
+  async createAccount(data: Omit<CreateAccountProps, 'localIndex'> & { localIndex?: number | null }) {
 
-    const { parent, accountClass, localIndex : _localIndex, ...commonProps } = data;
+    const { parent, accountClass, localIndex: _localIndex, ...commonProps } = data;
 
     if (!parent && !accountClass) {
       throw new DomainException("COA-01: Root accounts must have an account class defined.");
