@@ -33,8 +33,12 @@ export class AccountEntity {
     get isContra(): boolean { return this._isContra; }
     get isActive(): boolean { return this._isActive; }
 
+    // TODO: criar getter para balanceType derivado.
+    
     // Setters controlados
 
+    // TODO: Permitir alteração de isContra, observando as regras aplicáveis. 
+    
     /**
      * Updates the metadata of the account.
      * @param name The new name of the account.
