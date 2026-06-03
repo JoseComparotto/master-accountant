@@ -1,6 +1,7 @@
 import { DomainException } from '../../../shared/exception/domain.exception.js';
 import { Assert } from '../../../shared/helpers/assert.hellper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
+import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 
 /**
@@ -33,22 +34,29 @@ export class AccountEntity {
     get isContra(): boolean { return this._isContra; }
     get isActive(): boolean { return this._isActive; }
 
-    // TODO: criar getter para balanceType derivado.
-    
-    // Setters controlados
+    get balanceType(): BalanceTypeEnum {
+        const isNormalDebit = [
+            AccountClassEnum.ASSET, AccountClassEnum.EXPENSE
+        ].includes(this._accountClass);
 
-    // TODO: Permitir alteração de isContra, observando as regras aplicáveis. 
-    
-    /**
-     * Updates the metadata of the account.
-     * @param name The new name of the account.
-     * @param description The new description of the account.
-     */
-    updateMetadata(name: string, description: string | null): void {
-        this._name = name;
-        this._description = description;
+        const isDebit = isNormalDebit !== this.isContra; // XOR
+
+        return isDebit ? BalanceTypeEnum.DEBIT : BalanceTypeEnum.CREDIT
+    }
+
+    // Alterações controladas
+    patchMetadata(patch: AccountMetadataPatch): void {
+        if (patch.name !== undefined) this._name = patch.name;
+        if (patch.description !== undefined) this._description = patch.description;
 
         this.validateSchema();
+    }
+
+    applyContraLogic(isContra: boolean): void {
+        if (this._parent?.isContra && !isContra) {
+            throw new DomainException("COA-02: Cannot unset Contra status because parent is a Contra account.");
+        }
+        this._isActive = true;
     }
 
     /**
@@ -212,7 +220,7 @@ export class AccountEntity {
         return this.structuralCode.compareTo(other.structuralCode);
     }
 
-    public static sortByCode(a: AccountEntity, b: AccountEntity){
+    public static sortByCode(a: AccountEntity, b: AccountEntity) {
         return a.compareTo(b);
     }
 
@@ -257,3 +265,4 @@ export type CreateChildAccountProps = BaseCreateProps & {
     accountClass?: AccountClassEnum;
 };
 
+export type AccountMetadataPatch = Partial<Pick<AccountProps, 'name' | 'description'>>;

@@ -1,4 +1,4 @@
-import { AccountClassEnum } from '@repo/core';
+import { AccountClassEnum, BalanceTypeEnum } from '@repo/core';
 import { AccountFlatDto } from '../../../application/types/accounts.types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
@@ -48,6 +48,13 @@ export class AccountResponseDto implements AccountFlatDto {
     })
     accountClass!: AccountClassEnum;
 
+    @ApiProperty({
+        description: 'Saldo natural da conta',
+        example: BalanceTypeEnum.DEBIT,
+        enumName: 'BalanceTypeEnum',
+        enum: BalanceTypeEnum
+    })
+    balanceType!: BalanceTypeEnum;
     
     @ApiProperty({
         description: 'Indica se a conta é sintética. Apenas contas sintéticas podem ter contas filhas.',

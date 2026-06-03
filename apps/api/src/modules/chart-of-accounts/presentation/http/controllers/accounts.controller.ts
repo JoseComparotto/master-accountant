@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { GetAllAccountsQuery } from "../../../application/queries/get-all-accounts.query";
@@ -11,6 +11,8 @@ import { CreateAccountRequestDto } from "../dtos/create-account-request.dto";
 import { ActivateAccountCommand } from "../../../application/commands/activate-account.command";
 import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { SwaggerTag } from "../../../../../shared/constants/swagger.constants";
+import { PatchAccountRequestDto } from "../dtos/patch-account-request.dto";
+import { PatchAccountCommand } from "../../../application/commands/patch-account.command";
 
 @Controller('accounts')
 @ApiTags(SwaggerTag.CHART_OF_ACCOUNTS)
@@ -62,7 +64,18 @@ export class AccountsController {
     }
 
     // PATCH /accounts/:id
-    // TODO: Implementar updateAccount
+    @Patch(':id/inactivate')
+    @ApiOperation({operationId: 'patchAccount'})
+    @ApiResponse({
+        status:200,
+        description: 'Conta atualizada com sucesso.'
+    })
+    async patchAccount(
+        @Param('id') id: string,
+        @Body() body: PatchAccountRequestDto
+    ): Promise<AccountResponseDto> {
+        return this.commandBus.execute(new PatchAccountCommand(id, body));
+    }
 
     // POST /accounts/:id/inactivate
     @Post(':id/inactivate')

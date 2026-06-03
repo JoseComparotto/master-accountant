@@ -11,6 +11,7 @@ export class AccountMapper {
             accountClass: account.accountClass,
             localIndex: account.localIndex,
             formattedCode: account.structuralCode.toString(),
+            balanceType: account.balanceType,
             isSummary: account.isSummary,
             isContra: account.isContra,
             isActive: account.isActive,

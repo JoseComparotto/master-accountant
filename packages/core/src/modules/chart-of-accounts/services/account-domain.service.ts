@@ -1,5 +1,5 @@
 import { DomainException } from '../../../shared/exception/domain.exception.js';
-import { AccountEntity, CreateAccountProps, CreateRootAccountProps } from '../entities/account.entity.js';
+import { AccountEntity, CreateAccountProps, AccountMetadataPatch } from '../entities/account.entity.js';
 import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
 
 export class AccountDomainService {
@@ -74,9 +74,9 @@ export class AccountDomainService {
 
   }
 
-  updateAccountMetadata(account: AccountEntity, name: string, description: string | null) {
+  patchAccountMetadata(account: AccountEntity, patch: AccountMetadataPatch) {
 
-    account.updateMetadata(name, description); // Não há validação necessária
+    account.patchMetadata(patch); // Não há validação necessária
 
   }
 
