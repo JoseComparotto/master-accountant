@@ -65,9 +65,9 @@ export class AccountsController {
 
     // PATCH /accounts/:id
     @Patch(':id/inactivate')
-    @ApiOperation({operationId: 'patchAccount'})
+    @ApiOperation({ operationId: 'patchAccount' })
     @ApiResponse({
-        status:200,
+        status: 200,
         description: 'Conta atualizada com sucesso.'
     })
     async patchAccount(
@@ -77,30 +77,45 @@ export class AccountsController {
         return this.commandBus.execute(new PatchAccountCommand(id, body));
     }
 
-    // POST /accounts/:id/inactivate
-    @Post(':id/inactivate')
-    @ApiOperation({operationId: 'inactivateAccount'})
+    // PATCH /accounts/:id/inactivate
+    @Patch(':id/inactivate')
+    @ApiOperation({ operationId: 'inactivateAccount' })
     @ApiResponse({
-        status:200,
-        description: 'Conta inativada com sucesso.'
+        status: 200,
+        description: 'Conta inativada com sucesso.',
+        type: AccountResponseDto,
+        example: {
+            "id": "123e4567-e89b-12d3-a456-426614174000",
+            "name": "Ativo Circulante",
+            "description": "Bens e direitos com expctativa de liquidação dentro do exercício corrente.",
+            "parentId": "123e4567-e89b-12d3-a456-426614174000",
+            "localIndex": 1,
+            "formattedCode": "1.1",
+            "accountClass": "asset",
+            "balanceType": "debit",
+            "isSummary": true,
+            "isContra": false,
+            "isActive": false
+        } as AccountResponseDto
     })
     async inactivateAccount(
         @Param('id') id: string
-    ): Promise<void> {
-        await this.commandBus.execute(new InactivateAccountCommand(id));
+    ): Promise<AccountResponseDto> {
+        return await this.commandBus.execute(new InactivateAccountCommand(id));
     }
 
-    // POST /accounts/:id/activate
-    @Post(':id/activate')
-    @ApiOperation({operationId: 'activateAccount'})
+    // PATCH /accounts/:id/activate
+    @Patch(':id/activate')
+    @ApiOperation({ operationId: 'activateAccount' })
     @ApiResponse({
-        status:200,
-        description: 'Conta ativada com sucesso.'
+        status: 200,
+        description: 'Conta ativada com sucesso.',
+        type: AccountResponseDto
     })
     async activateAccount(
         @Param('id') id: string
-    ): Promise<void> {
-        await this.commandBus.execute(new ActivateAccountCommand(id));
+    ): Promise<AccountResponseDto> {
+        return await this.commandBus.execute(new ActivateAccountCommand(id));
     }
 
 }

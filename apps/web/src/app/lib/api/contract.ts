@@ -8,9 +8,9 @@ import type {
 // HTTP client must satisfy this interface.
 export interface AccountsApi {
   list(): Promise<Account[]>;
-  usedLocalCodes(parentId: string): Promise<number[]>;
+  usedLocalIndexes(parentId: string): Promise<number[]>;
   create(input: CreateAccountInput): Promise<Account>;
   update(input: UpdateAccountInput): Promise<Account>;
-  deactivate(id: string): Promise<Account>;
+  inactivate(id: string): Promise<Account>;
   activate(id: string): Promise<Account>;
 }

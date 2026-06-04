@@ -87,7 +87,7 @@ export function CreateChildButton({
   size?: "icon" | "sm";
   expandable?: boolean;
 }) {
-  if (!parent.isAbstract) return null;
+  if (!parent.isSummary) return null;
   return (
     <Button
       variant={variant}

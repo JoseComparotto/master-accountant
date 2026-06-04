@@ -131,7 +131,7 @@ export function InteractiveView({
           </BreadcrumbList>
         </Breadcrumb>
 
-        {current && current.isAbstract && (
+        {current && current.isSummary && (
           <Button size="sm" onClick={() => onCreateChild(current)}>
             <Plus className="size-4 mr-1" />
             Nova conta filha
@@ -158,7 +158,7 @@ export function InteractiveView({
                       {CLASS_THEME[current.accountClass].label}
                     </Badge>
                     <Badge variant="outline">
-                      {current.isAbstract ? "Sintética" : "Analítica"}
+                      {current.isSummary ? "Sintética" : "Analítica"}
                     </Badge>
                     <Badge variant="outline">
                       Saldo {current.balanceType === "debit" ? "Devedor" : "Credor"}
@@ -245,7 +245,7 @@ export function InteractiveView({
         <div>
           <div className="text-sm text-muted-foreground mb-3">
             {visibleChildren.length === 0
-              ? current.isAbstract
+              ? current.isSummary
                 ? "Nenhuma conta filha. Crie a primeira."
                 : "Conta analítica — não possui filhas."
               : `${visibleChildren.length} ${

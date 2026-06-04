@@ -76,7 +76,7 @@ function RowMenuItems({
         <ArrowUpRight className="size-4 mr-2 shrink-0" />
         Ver detalhes
       </Item>
-      {row.isAbstract && (
+      {row.isSummary && (
         <>
           <Separator />
           <Item onClick={() => onCreateChild(row)}>
@@ -156,7 +156,7 @@ export function SpreadsheetView({
             const hasChildren = row.children.length > 0;
             const isCollapsed = collapsed.has(row.id);
             const theme = CLASS_THEME[row.accountClass];
-            const weight = row.isAbstract ? "font-semibold" : "";
+            const weight = row.isSummary ? "font-semibold" : "";
             const color = row.isContra ? "" : theme.text;
 
             const menuProps = {

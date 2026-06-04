@@ -11,7 +11,7 @@ export function ChildCard({
   onOpen: () => void;
 }) {
   const theme = CLASS_THEME[node.accountClass];
-  const Icon = node.isAbstract ? FolderTree : FileText;
+  const Icon = node.isSummary ? FolderTree : FileText;
   return (
     <button
       onClick={onOpen}
@@ -28,7 +28,7 @@ export function ChildCard({
         <div className="min-w-0 flex-1">
           <AccountName account={node} className="font-medium truncate block" />
           <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-            <span>{node.isAbstract ? "Sintética" : "Analítica"}</span>
+            <span>{node.isSummary ? "Sintética" : "Analítica"}</span>
             <span>·</span>
             <span>{node.children.length} filhas</span>
           </div>

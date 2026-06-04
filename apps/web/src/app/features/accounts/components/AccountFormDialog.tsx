@@ -37,10 +37,10 @@ export function AccountFormDialog({
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [isAbstract, setIsAbstract] = useState(false);
+  const [isSummary, setIsAbstract] = useState(false);
   const [isContra, setIsContra] = useState(false);
   const [autoCode, setAutoCode] = useState(true);
-  const [localCode, setLocalCode] = useState<number>(1);
+  const [localIndex, setLocalCode] = useState<number>(1);
   const [usedCodes, setUsedCodes] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,7 +49,7 @@ export function AccountFormDialog({
     if (mode === "edit" && account) {
       setName(account.name);
       setDescription(account.description ?? "");
-      setIsAbstract(account.isAbstract);
+      setIsAbstract(account.isSummary);
       setIsContra(account.isContra);
       return;
     }
@@ -60,7 +60,7 @@ export function AccountFormDialog({
     setIsContra(parent?.isContra ?? false);
     setAutoCode(true);
     if (parent) {
-      api.accounts.usedLocalCodes(parent.id).then((codes) => {
+      api.accounts.usedLocalIndexes(parent.id).then((codes) => {
         setUsedCodes(codes);
         let i = 1;
         while (codes.includes(i)) i++;
@@ -75,7 +75,7 @@ export function AccountFormDialog({
     return i;
   }, [usedCodes]);
 
-  const codeConflict = !autoCode && usedCodes.includes(localCode);
+  const codeConflict = !autoCode && usedCodes.includes(localIndex);
   const theme = parent ? CLASS_THEME[parent.accountClass] : null;
 
   const submit = async () => {
@@ -90,9 +90,9 @@ export function AccountFormDialog({
           parentId: parent.id,
           name,
           description,
-          isAbstract,
+          isSummary,
           isContra,
-          localCode: autoCode ? undefined : localCode,
+          localIndex: autoCode ? undefined : localIndex,
         });
         toast.success("Conta criada.");
       } else if (mode === "edit" && account) {
@@ -195,7 +195,7 @@ export function AccountFormDialog({
                         id="code"
                         type="number"
                         min={1}
-                        value={localCode}
+                        value={localIndex}
                         onChange={(e) =>
                           setLocalCode(Math.max(1, Number(e.target.value) || 1))
                         }
@@ -219,7 +219,7 @@ export function AccountFormDialog({
                   </p>
                 </div>
                 <Switch
-                  checked={isAbstract}
+                  checked={isSummary}
                   onCheckedChange={setIsAbstract}
                   className="shrink-0"
                 />
@@ -247,7 +247,7 @@ export function AccountFormDialog({
               <div className="p-3 flex flex-wrap gap-1.5">
                 <Badge variant="outline">Código: {account.formattedCode}</Badge>
                 <Badge variant="outline">
-                  {account.isAbstract ? "Sintética" : "Analítica"}
+                  {account.isSummary ? "Sintética" : "Analítica"}
                 </Badge>
                 <Badge variant="outline">
                   Saldo {account.balanceType === "debit" ? "devedor" : "credor"}

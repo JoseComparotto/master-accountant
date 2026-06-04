@@ -33,12 +33,12 @@ function computeBalanceType(
   return isDebit ? "debit" : "credit";
 }
 
-const ROOTS: Array<{ name: string; accountClass: AccountClass; localCode: number }> = [
-  { name: "ATIVO", accountClass: "asset", localCode: 1 },
-  { name: "PASSIVO", accountClass: "liability", localCode: 2 },
-  { name: "PATRIMÔNIO LÍQUIDO", accountClass: "equity", localCode: 3 },
-  { name: "RECEITAS", accountClass: "revenue", localCode: 4 },
-  { name: "DESPESAS", accountClass: "expense", localCode: 5 },
+const ROOTS: Array<{ name: string; accountClass: AccountClass; localIndex: number }> = [
+  { name: "ATIVO", accountClass: "asset", localIndex: 1 },
+  { name: "PASSIVO", accountClass: "liability", localIndex: 2 },
+  { name: "PATRIMÔNIO LÍQUIDO", accountClass: "equity", localIndex: 3 },
+  { name: "RECEITAS", accountClass: "revenue", localIndex: 4 },
+  { name: "DESPESAS", accountClass: "expense", localIndex: 5 },
 ];
 
 function seed(): Account[] {
@@ -46,26 +46,26 @@ function seed(): Account[] {
 
   const make = (
     parentId: string | null,
-    localCode: number,
+    localIndex: number,
     name: string,
     accountClass: AccountClass,
-    isAbstract: boolean,
+    isSummary: boolean,
     description?: string,
     isContra = false,
   ): Account => {
     const parent = parentId ? list.find((a) => a.id === parentId) : null;
     const formattedCode = parent
-      ? `${parent.formattedCode}.${localCode}`
-      : String(localCode);
+      ? `${parent.formattedCode}.${localIndex}`
+      : String(localIndex);
     const acc: Account = {
       id: uuid(),
       parentId,
       formattedCode,
-      localCode,
+      localIndex,
       name,
       description,
       accountClass,
-      isAbstract,
+      isSummary,
       isContra,
       balanceType: computeBalanceType(accountClass, isContra),
       isActive: true,
@@ -75,11 +75,11 @@ function seed(): Account[] {
   };
 
   for (const r of ROOTS) {
-    make(null, r.localCode, r.name, r.accountClass, true);
+    make(null, r.localIndex, r.name, r.accountClass, true);
   }
-  const ativo = list.find((a) => a.localCode === 1 && a.parentId === null)!;
-  const passivo = list.find((a) => a.localCode === 2 && a.parentId === null)!;
-  const pl = list.find((a) => a.localCode === 3 && a.parentId === null)!;
+  const ativo = list.find((a) => a.localIndex === 1 && a.parentId === null)!;
+  const passivo = list.find((a) => a.localIndex === 2 && a.parentId === null)!;
+  const pl = list.find((a) => a.localIndex === 3 && a.parentId === null)!;
 
   const ativoCirc = make(ativo.id, 1, "Ativo Circulante", "asset", true,
     "Bens e direitos com previsão de liquidação dentro do exercício corrente.");
@@ -109,17 +109,17 @@ function getChildren(parentId: string): Account[] {
 
 function nextLocalCode(parentId: string | null): number {
   const siblings = accounts.filter((a) => a.parentId === parentId);
-  const used = new Set(siblings.map((s) => s.localCode));
+  const used = new Set(siblings.map((s) => s.localIndex));
   let i = 1;
   while (used.has(i)) i++;
   return i;
 }
 
 function recomputeFormattedCode(account: Account): string {
-  if (!account.parentId) return String(account.localCode);
+  if (!account.parentId) return String(account.localIndex);
   const parent = accounts.find((a) => a.id === account.parentId);
-  if (!parent) return String(account.localCode);
-  return `${recomputeFormattedCode(parent)}.${account.localCode}`;
+  if (!parent) return String(account.localIndex);
+  return `${recomputeFormattedCode(parent)}.${account.localIndex}`;
 }
 
 // ----- public API -----------------------------------------------------------
@@ -129,26 +129,26 @@ export const accountsApi: AccountsApi = {
     return delay(accounts.map((a) => ({ ...a })));
   },
 
-  async usedLocalCodes(parentId: string): Promise<number[]> {
+  async usedLocalIndexes(parentId: string): Promise<number[]> {
     return delay(
-      accounts.filter((a) => a.parentId === parentId).map((a) => a.localCode),
+      accounts.filter((a) => a.parentId === parentId).map((a) => a.localIndex),
     );
   },
 
   async create(input: CreateAccountInput): Promise<Account> {
     const parent = accounts.find((a) => a.id === input.parentId);
     if (!parent) throw new Error("Conta superior não encontrada.");
-    if (!parent.isAbstract)
+    if (!parent.isSummary)
       throw new Error("Apenas contas sintéticas podem ter contas filhas.");
     if (parent.isContra && !input.isContra)
       throw new Error(
         "Contas redutoras não podem ter filhas não redutoras.",
       );
 
-    const localCode = input.localCode ?? nextLocalCode(parent.id);
+    const localIndex = input.localIndex ?? nextLocalCode(parent.id);
     const siblings = getChildren(parent.id);
-    if (siblings.some((s) => s.localCode === localCode))
-      throw new Error(`Código local ${localCode} já está em uso.`);
+    if (siblings.some((s) => s.localIndex === localIndex))
+      throw new Error(`Código local ${localIndex} já está em uso.`);
 
     const id = input.id ?? uuid();
     if (!isValidUuid(id)) throw new Error("UUID inválido.");
@@ -159,12 +159,12 @@ export const accountsApi: AccountsApi = {
     const account: Account = {
       id,
       parentId: parent.id,
-      formattedCode: `${parent.formattedCode}.${localCode}`,
-      localCode,
+      formattedCode: `${parent.formattedCode}.${localIndex}`,
+      localIndex,
       name: input.name.trim(),
       description: input.description?.trim() || undefined,
       accountClass,
-      isAbstract: input.isAbstract,
+      isSummary: input.isSummary,
       isContra: input.isContra,
       balanceType: computeBalanceType(accountClass, input.isContra),
       isActive: true,
@@ -213,7 +213,7 @@ export const accountsApi: AccountsApi = {
   },
 
   // Soft-delete: contas nunca são removidas, apenas inativadas.
-  async deactivate(id: string): Promise<Account> {
+  async inactivate(id: string): Promise<Account> {
     return this.update({ id, isActive: false });
   },
   async activate(id: string): Promise<Account> {

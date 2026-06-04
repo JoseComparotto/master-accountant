@@ -19,7 +19,7 @@ function buildTree(flat: Account[]): AccountNode[] {
     } else roots.push(node);
   });
   const finalize = (nodes: AccountNode[], depth: number) => {
-    nodes.sort((a, b) => a.localCode - b.localCode);
+    nodes.sort((a, b) => a.localIndex - b.localIndex);
     nodes.forEach((n) => {
       n.depth = depth;
       finalize(n.children, depth + 1);
@@ -75,7 +75,7 @@ export function useAccounts() {
   const setActive = useCallback(
     async (id: string, active: boolean) => {
       if (active) await api.accounts.activate(id);
-      else await api.accounts.deactivate(id);
+      else await api.accounts.inactivate(id);
       await refresh();
     },
     [refresh],

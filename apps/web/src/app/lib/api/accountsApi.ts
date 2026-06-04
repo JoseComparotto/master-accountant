@@ -1,12 +1,5 @@
 import type { AccountsApi } from "./contract";
 
-// Real HTTP client for the Chart of Accounts API.
-// Each method should issue a fetch(...) against the backend. Business rules
-// (hierarchy validation, balanceType derivation) live on the server — this
-// module is just the transport layer.
-//
-// Toggle on by setting VITE_USE_MOCK_API=false at build time.
-
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
 function notImplemented(method: string): never {
@@ -15,23 +8,41 @@ function notImplemented(method: string): never {
   );
 }
 
+
+
 export const accountsApi: AccountsApi = {
   async list() {
-    notImplemented("list");
+    const res = await fetch(`${BASE_URL}/accounts`);
+    return await res.json();
   },
-  async usedLocalCodes() {
-    notImplemented("usedLocalCodes");
+  async usedLocalIndexes(parentId) {
+    const accounts = await this.list();
+    const children = accounts.filter(acc => acc.parentId === parentId)
+    return children.map(acc => acc.localIndex)
   },
-  async create() {
-    notImplemented("create");
+  async create(input) {
+    const res = await fetch(`${BASE_URL}/accounts`, {
+      method: 'POST',
+      body: JSON.stringify(input),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return await res.json();
   },
   async update() {
     notImplemented("update");
   },
-  async deactivate() {
-    notImplemented("deactivate");
+  async inactivate(id) {
+    const res = await fetch(`${BASE_URL}/accounts/${id}/inactivate`, {
+      method: 'POST'
+    });
+    return await res.json();
   },
-  async activate() {
-    notImplemented("activate");
+  async activate(id) {
+    const res = await fetch(`${BASE_URL}/accounts/${id}/activate`, {
+      method: 'POST'
+    });
+    return await res.json();
   },
 };

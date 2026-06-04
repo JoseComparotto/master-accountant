@@ -7,8 +7,7 @@
 // The mock implementation is used by default during development. Set
 // VITE_USE_MOCK_API=false to swap in the real HTTP client.
 
-// TODO: Conectar frontend com a api do projeto
-// TODO: Criar pacote api-client
+// TODO: Criar pacote api-contracts
 
 import type { AccountsApi } from "./contract";
 import { accountsApi as mockAccountsApi } from "./mock/accountsApi";

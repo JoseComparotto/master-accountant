@@ -9,25 +9,25 @@ export type BalanceType = "debit" | "credit";
 
 export interface Account {
   id: string;
-  parentId: string | null;
-  formattedCode: string;
-  localCode: number;
   name: string;
-  description?: string;
+  description?: string | null;
+  parentId?: string | null;
+  localIndex: number;
+  formattedCode: string;
   accountClass: AccountClass;
-  isAbstract: boolean;
-  isContra: boolean;
   balanceType: BalanceType;
+  isSummary: boolean;
+  isContra: boolean;
   isActive: boolean;
 }
 
 export interface CreateAccountInput {
   id?: string;
   parentId: string;
-  localCode?: number;
+  localIndex?: number;
   name: string;
-  description?: string;
-  isAbstract: boolean;
+  description?: string | null;
+  isSummary: boolean;
   isContra: boolean;
 }
 
