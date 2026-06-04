@@ -74,6 +74,24 @@ export class AccountDomainService {
 
   }
 
+
+  async applyContraLogic(account: AccountEntity, isContra: boolean) {
+
+    if (account.isSummary && isContra) {
+
+      const children: AccountEntity[] = await this.repository.findByParent(account);
+      const hasNotContraChildren = children.some(c => !c.isContra);
+
+      if (hasNotContraChildren) {
+        throw new DomainException("COA-02: Cannot set contra an account with non-contra children.");
+      }
+    }
+
+    account.applyContraLogic(isContra);
+
+  }
+
+
   patchAccountMetadata(account: AccountEntity, patch: AccountMetadataPatch) {
 
     account.patchMetadata(patch); // Não há validação necessária

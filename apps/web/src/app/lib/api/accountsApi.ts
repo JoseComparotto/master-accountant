@@ -30,8 +30,15 @@ export const accountsApi: AccountsApi = {
     });
     return await res.json();
   },
-  async update() {
-    notImplemented("update");
+  async update({id, ...input}) {    
+    const res = await fetch(`${BASE_URL}/accounts/${id}/`, {
+      method: 'PATCH',
+      body: JSON.stringify(input),
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    });
+    return await res.json();
   },
   async inactivate(id) {
     const res = await fetch(`${BASE_URL}/accounts/${id}/inactivate`, {

@@ -4,7 +4,6 @@ import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PatchAccountRequestDto implements AccountPatchDto {
 
-
     @IsString()
     @MaxLength(255, { message: 'O nome da conta deve ter no máximo 255 caracteres.' })
     @ApiPropertyOptional({
@@ -27,9 +26,14 @@ export class PatchAccountRequestDto implements AccountPatchDto {
     @ApiPropertyOptional({
         description: 'Indica se a conta é redutora. Contas redutoras tem natureza de saldo oposta ao da sua classe.',
         example: false,
-        default: false
     })
     isContra?: boolean;
 
-
+    @IsOptional()
+    @IsBoolean({ message: 'Se fornecido, o campo isActive deve ser um valor booleano.' })
+    @ApiPropertyOptional({
+        description: 'Indica se a conta está ativa.',
+        example: true,
+    })
+    isActive?: boolean;
 }

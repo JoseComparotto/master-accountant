@@ -56,7 +56,10 @@ export class AccountEntity {
         if (this._parent?.isContra && !isContra) {
             throw new DomainException("COA-02: Cannot unset Contra status because parent is a Contra account.");
         }
-        this._isActive = true;
+        // DEVE garantir que todas as contas filhas sejam redutoras
+        this._isContra = isContra;
+        
+        this.validateSchema();
     }
 
     /**
@@ -70,8 +73,6 @@ export class AccountEntity {
         this._isActive = true;
     }
     /**
-     * Inactivates the account.
-     * 
      * **IMPORTANT:** 
      * This method does not automatically inactivate child accounts. It is the
      * responsibility of the caller to ensure that all child accounts are

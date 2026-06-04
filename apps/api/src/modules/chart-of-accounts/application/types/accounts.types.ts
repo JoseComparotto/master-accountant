@@ -12,4 +12,4 @@ export type AccountCreateDto = Omit<CreateAccountProps, 'parent' | 'localIndex'>
 };
 
 export type AccountPatchDto = AccountMetadataPatch &
-    Partial<Pick<AccountProps, 'isContra'>>
+    Partial<Pick<AccountProps, 'isContra' | 'isActive'>>

@@ -5,6 +5,7 @@ import { CqrsModule } from "@nestjs/cqrs";
 import { GetAllAccountsQueryHandler } from "./application/handlers/get-all-accounts-query.handler";
 import { GetAccountByIdQueryHandler } from "./application/handlers/get-account-by-id-query.handler";
 import { CreateAccountCommandHandler } from "./application/handlers/create-account-command.handler";
+import { PatchAccountCommandHandler } from "./application/handlers/patch-account-command.handler";
 import { ActivateAccountCommandHandler } from "./application/handlers/activate-account-command.handler"
 import { InactivateAccountCommandHandler } from "./application/handlers/inactivate-account-command.handler"
 
@@ -26,6 +27,7 @@ const QueryHandlers = [
 
 const CommandHandlers = [
     CreateAccountCommandHandler,
+    PatchAccountCommandHandler,
     InactivateAccountCommandHandler,
     ActivateAccountCommandHandler
 ];
