@@ -1,26 +1,18 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import type { IAccountRepository } from "@repo/core";
-import { Inject } from "@nestjs/common";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { GetAccountByIdQuery } from "../queries/get-account-by-id.query";
 
-import { AccountNotFoundException } from "../exceptions/account-not-found.exception";
+import { AccountAppService } from "../services/account-app.service";
 
 @QueryHandler(GetAccountByIdQuery)
 export class GetAccountByIdQueryHandler implements IQueryHandler<GetAccountByIdQuery> {
     constructor(
-        @Inject('IAccountRepository')
-        private readonly accountRepository: IAccountRepository,
+        private readonly accountAppService: AccountAppService,
     ) { }
 
     async execute({ id }: GetAccountByIdQuery): Promise<AccountFlatDto> {
-        const account = await this.accountRepository.findById(id);
-
-        if (!account) {
-            throw new AccountNotFoundException(id);
-        }
-
+        const account = await this.accountAppService.getById(id);
         return AccountMapper.toFlatDto(account);
     }
 

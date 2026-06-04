@@ -37,10 +37,10 @@ export function AccountFormDialog({
 }: Props) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [isSummary, setIsAbstract] = useState(false);
+  const [isSummary, setIsSummary] = useState(false);
   const [isContra, setIsContra] = useState(false);
   const [autoCode, setAutoCode] = useState(true);
-  const [localIndex, setLocalCode] = useState<number>(1);
+  const [localIndex, setLocalIndex] = useState<number>(1);
   const [usedCodes, setUsedCodes] = useState<number[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
@@ -49,14 +49,14 @@ export function AccountFormDialog({
     if (mode === "edit" && account) {
       setName(account.name);
       setDescription(account.description ?? "");
-      setIsAbstract(account.isSummary);
+      setIsSummary(account.isSummary);
       setIsContra(account.isContra);
       return;
     }
     // create
     setName("");
     setDescription("");
-    setIsAbstract(false);
+    setIsSummary(false);
     setIsContra(parent?.isContra ?? false);
     setAutoCode(true);
     if (parent) {
@@ -64,7 +64,7 @@ export function AccountFormDialog({
         setUsedCodes(codes);
         let i = 1;
         while (codes.includes(i)) i++;
-        setLocalCode(i);
+        setLocalIndex(i);
       });
     }
   }, [open, mode, account, parent]);
@@ -197,7 +197,7 @@ export function AccountFormDialog({
                         min={1}
                         value={localIndex}
                         onChange={(e) =>
-                          setLocalCode(Math.max(1, Number(e.target.value) || 1))
+                          setLocalIndex(Math.max(1, Number(e.target.value) || 1))
                         }
                         className={codeConflict ? "border-destructive flex-1" : "flex-1"}
                       />
@@ -220,7 +220,7 @@ export function AccountFormDialog({
                 </div>
                 <Switch
                   checked={isSummary}
-                  onCheckedChange={setIsAbstract}
+                  onCheckedChange={setIsSummary}
                   className="shrink-0"
                 />
               </div>

@@ -107,7 +107,7 @@ function getChildren(parentId: string): Account[] {
   return accounts.filter((a) => a.parentId === parentId);
 }
 
-function nextLocalCode(parentId: string | null): number {
+function nextLocalIndex(parentId: string | null): number {
   const siblings = accounts.filter((a) => a.parentId === parentId);
   const used = new Set(siblings.map((s) => s.localIndex));
   let i = 1;
@@ -145,7 +145,7 @@ export const accountsApi: AccountsApi = {
         "Contas redutoras não podem ter filhas não redutoras.",
       );
 
-    const localIndex = input.localIndex ?? nextLocalCode(parent.id);
+    const localIndex = input.localIndex ?? nextLocalIndex(parent.id);
     const siblings = getChildren(parent.id);
     if (siblings.some((s) => s.localIndex === localIndex))
       throw new Error(`Código local ${localIndex} já está em uso.`);

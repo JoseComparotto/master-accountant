@@ -4,22 +4,20 @@ import { AccountEntity, type IAccountRepository } from "@repo/core";
 import { Inject } from "@nestjs/common";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
-
-// TODO: Talvez fazer um AccountAppService
+import { AccountAppService } from "../services/account-app.service";
 
 @QueryHandler(GetAllAccountsQuery)
 export class GetAllAccountsQueryHandler implements IQueryHandler<GetAllAccountsQuery> {
     constructor(
-        @Inject('IAccountRepository')
-        private readonly accountRepository: IAccountRepository,
+        private readonly accountAppService: AccountAppService,
     ) { }
 
     async execute(query: GetAllAccountsQuery): Promise<AccountFlatDto[]> {
-        const accounts = await this.accountRepository.findAll();
+        const accounts = await this.accountAppService.getAll();
 
         accounts.sort(AccountEntity.sortByCode);
 
-        return accounts.sort().map(AccountMapper.toFlatDto);
+        return accounts.map(AccountMapper.toFlatDto);
     }
 
 }

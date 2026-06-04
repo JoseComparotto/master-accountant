@@ -35,13 +35,13 @@ export const accountsApi: AccountsApi = {
   },
   async inactivate(id) {
     const res = await fetch(`${BASE_URL}/accounts/${id}/inactivate`, {
-      method: 'POST'
+      method: 'PATCH'
     });
     return await res.json();
   },
   async activate(id) {
     const res = await fetch(`${BASE_URL}/accounts/${id}/activate`, {
-      method: 'POST'
+      method: 'PATCH'
     });
     return await res.json();
   },

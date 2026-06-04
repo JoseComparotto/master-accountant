@@ -5,18 +5,21 @@ import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
 import { AccountNotFoundException } from "../exceptions/account-not-found.exception";
+import { AccountAppService } from "../services/account-app.service";
 
 @CommandHandler(CreateAccountCommand)
 export class CreateAccountCommandHandler implements ICommandHandler<CreateAccountCommand> {
     constructor(
         @Inject('IAccountRepository')
         private readonly accountRepository: IAccountRepository,
+        private readonly accountAppService: AccountAppService,
         private readonly accountDomainService: AccountDomainService,
     ) { }
 
     async execute({ data }: CreateAccountCommand): Promise<AccountFlatDto> {
 
-        const parent = !data.parentId ? null : await this.findByIdOrThrow(data.parentId!);
+        const parent = !data.parentId ? null :
+            await this.accountAppService.getById(data.parentId!);
 
         const createProps = {
             ...data,
@@ -30,12 +33,4 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
         return AccountMapper.toFlatDto(account);
     }
 
-    // TODO: Talvez centralizar essa lógica
-    private async findByIdOrThrow(id: string): Promise<AccountEntity> {
-        const account = await this.accountRepository.findById(id);
-        if (!account) {
-            throw new AccountNotFoundException(id);
-        }
-        return account;
-    }
 }

@@ -64,7 +64,7 @@ export class AccountsController {
     }
 
     // PATCH /accounts/:id
-    @Patch(':id/inactivate')
+    @Patch(':id')
     @ApiOperation({ operationId: 'patchAccount' })
     @ApiResponse({
         status: 200,

@@ -5,6 +5,8 @@ import { CqrsModule } from "@nestjs/cqrs";
 import { GetAllAccountsQueryHandler } from "./application/handlers/get-all-accounts-query.handler";
 import { GetAccountByIdQueryHandler } from "./application/handlers/get-account-by-id-query.handler";
 import { CreateAccountCommandHandler } from "./application/handlers/create-account-command.handler";
+import { ActivateAccountCommandHandler } from "./application/handlers/activate-account-command.handler"
+import { InactivateAccountCommandHandler } from "./application/handlers/inactivate-account-command.handler"
 
 // Controllers
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
@@ -12,7 +14,10 @@ import { AccountsController } from "./presentation/http/controllers/accounts.con
 // Repositories
 import { MockAccountRepository } from "./infrastructure/mock/repositories/mock-account.repository";
 import { IAccountRepository } from "@repo/core";
+
+// Services
 import { AccountDomainService } from "@repo/core";
+import { AccountAppService } from "./application/services/account-app.service";
 
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
@@ -21,6 +26,8 @@ const QueryHandlers = [
 
 const CommandHandlers = [
     CreateAccountCommandHandler,
+    InactivateAccountCommandHandler,
+    ActivateAccountCommandHandler
 ];
 
 const Repositories = [
@@ -31,6 +38,7 @@ const Repositories = [
 ];
 
 const Services = [
+    AccountAppService,
     {
         provide: AccountDomainService,
         useFactory: (repo: IAccountRepository) => new AccountDomainService(repo),
