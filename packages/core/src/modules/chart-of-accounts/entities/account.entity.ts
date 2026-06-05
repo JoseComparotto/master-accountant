@@ -1,10 +1,10 @@
-import { BusinessRuleViolationException, DomainException } from '../../../shared/exception/domain.exception.js';
-import { Assert } from '../../../shared/helpers/assert.hellper.js';
+import { Assert } from '../../../shared/helpers/assert.helper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
 import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
 import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
+import { UuidValue } from '../../../shared/value-objects/uuid.value.js';
 
 /**
  * Represents a financial account within the `Chart of Accounts`.
@@ -13,7 +13,7 @@ import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
  */
 export class AccountEntity {
 
-    private _id!: string; // TODO: Separar value-object para UUID
+    private _id!: UuidValue;
     private _name!: string; // TODO: Definir regras para nomes de conta
     private _description!: string | null;
     private _parent!: AccountEntity | null;
@@ -25,10 +25,11 @@ export class AccountEntity {
     private _isActive!: boolean;
 
     // Getters
-    get id(): string { return this._id; }
+    get id(): UuidValue { return this._id; }
     get name(): string { return this._name; }
     get description(): string | null { return this._description; }
     get parent(): AccountEntity | null { return this._parent; }
+    get parentId(): UuidValue | null { return this._parent?.id ?? null; }
     get localIndex(): number { return this._localIndex; }
     get structuralCode(): StructuralCodeValue { return this._structuralCode; }
     get accountClass(): AccountClassEnum { return this._accountClass; }
@@ -122,7 +123,7 @@ export class AccountEntity {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
-        account._id = data.id ?? crypto.randomUUID();
+        account._id = data.id ?? UuidValue.generate();
 
         account._name = data.name;
         account._parent = data.parent;
@@ -153,7 +154,7 @@ export class AccountEntity {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
-        account._id = data.id ?? crypto.randomUUID();
+        account._id = data.id ?? UuidValue.generate();
 
         account._parent = null;
         account._name = data.name;
@@ -191,7 +192,7 @@ export class AccountEntity {
         if (isRoot) return; // Non-Root rules:
 
         // HTI-03: Proibição de auto-referência
-        if (this.id === this.parent.id) throw new AccountInvariantViolationException("HTI-03", "Self-reference prohibited.");
+        if (UuidValue.equals(this.id, this.parentId)) throw new AccountInvariantViolationException("HTI-03", "Self-reference prohibited.");
 
         // HTI-04: Restrição de Paternidade Exclusiva para Contas de Sintéticas 
         if (!this.parent.isSummary) {
@@ -210,13 +211,13 @@ export class AccountEntity {
 
         // COA-02: Propagação de Contra Account
         if (this.parent.isContra && !this.isContra) {
-            throw new AccountInvariantViolationException("COA-02","Contra account status must propagate to children.");
+            throw new AccountInvariantViolationException("COA-02", "Contra account status must propagate to children.");
         }
     }
 
     // Valida os tipos e obrigatoriedade em runtime
     private validateSchema(): void {
-        Assert.isUUID(this._id, 'id');
+        Assert.isInstanceOf(this._id, UuidValue, 'id');
         Assert.isType(this._name, 'string', 'name');
         Assert.isType(this._description, 'string', 'description', true);
         Assert.isType(this._localIndex, 'number', 'localIndex');
@@ -244,7 +245,7 @@ export class AccountEntity {
  * required to create or reconstitute an `AccountEntity`.
  */
 export interface AccountProps {
-    id: string;
+    id: UuidValue;
     name: string;
     description: string | null;
     parent: AccountEntity | null;

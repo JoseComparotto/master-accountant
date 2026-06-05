@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountRepository, AccountAlreadyExistsException } from "@repo/core";
+import { AccountDomainService, AccountRepository, AccountAlreadyExistsException, UuidValue, wrapVO } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
@@ -13,22 +13,24 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
     async execute({ data }: CreateAccountCommand): Promise<AccountFlatDto> {
 
-        const existing = data.id ? await this.accountRepository.findById(data.id) : null;
-        if(existing) throw new AccountAlreadyExistsException(data.id!);
+        const id = wrapVO('id', () => UuidValue.createOptional(data.id));
+        const parentId = wrapVO('parentId', () => UuidValue.createOptional(data.parentId!));
 
-        const parent = !data.parentId ? null :
-            await this.accountRepository.getById(data.parentId!);
+        if (id) {
+            const existing = await this.accountRepository.findById(id);
+            if (existing) throw new AccountAlreadyExistsException(id);
+        }
 
-        const createProps = {
+        const parent = parentId ? await this.accountRepository.getById(parentId) : null;
+
+        const account = await this.accountDomainService.createAccount({
             ...data,
+            id,
             parent,
-        };
-
-        const account = await this.accountDomainService.createAccount(createProps);
+        });
 
         await this.accountRepository.save(account);
 
         return AccountMapper.toFlatDto(account);
     }
-
 }

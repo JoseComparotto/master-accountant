@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountRepository } from "@repo/core";
+import { AccountDomainService, AccountRepository, UuidValue, wrapVO } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { ActivateAccountCommand } from "../commands/activate-account.command";
@@ -11,7 +11,8 @@ export class ActivateAccountCommandHandler implements ICommandHandler<ActivateAc
         private readonly accountDomainService: AccountDomainService,
     ) { }
 
-    async execute({ id }: ActivateAccountCommand): Promise<AccountFlatDto> {
+    async execute(command: ActivateAccountCommand): Promise<AccountFlatDto> {
+        const id = wrapVO('id', () => UuidValue.create(command.id));
 
         const account = await this.accountRepository.getById(id);
 

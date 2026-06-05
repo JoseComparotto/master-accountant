@@ -1,15 +1,16 @@
 import { DomainInvariantViolationException, EntityAlreadyExistsException, EntityNotExistsException } from "../../../shared/exception/domain.exception.js";
+import { UuidValue } from "../../../shared/value-objects/uuid.value.js";
 
 const ENTITY_NAME = 'Account';
 
 export class AccountAlreadyExistsException extends EntityAlreadyExistsException {
-    constructor(accountId: string) {
+    constructor(accountId: UuidValue) {
         super(ENTITY_NAME, accountId)
     }
 }
 
 export class AccountExistsException extends EntityNotExistsException {
-    constructor(accountId: string) {
+    constructor(accountId: UuidValue) {
         super(ENTITY_NAME, accountId)
     }
 }

@@ -1,3 +1,5 @@
+import { UuidValue } from "../value-objects/uuid.value.js";
+
 export abstract class DomainException extends Error {
 
   // Metadados genéricos opcionais para enriquecer o payload da API externa
@@ -23,7 +25,7 @@ export abstract class DomainException extends Error {
 export class EntityAlreadyExistsException extends DomainException {
   constructor(
     public readonly entityName: string,
-    public readonly identifier: string
+    public readonly identifier: UuidValue
   ) {
     super(
       `${entityName} with ID ${identifier} already exists.`,
@@ -35,7 +37,7 @@ export class EntityAlreadyExistsException extends DomainException {
 export class EntityNotExistsException extends DomainException {
   constructor(
     public readonly entityName: string,
-    public readonly identifier: string | number
+    public readonly identifier: UuidValue
   ) {
     super(
       `${entityName} with ID ${identifier} not found.`,
@@ -66,5 +68,26 @@ export class AtributeConstraintViolationException extends BusinessRuleViolationE
     message: string
   ) {
     super(message, { attribute });
+  }
+}
+
+export class ValueObjectMalformedException extends BusinessRuleViolationException {
+  constructor(
+    public readonly valueObjectName: string,
+    public readonly value: any,
+    message: string,
+    metadata: Record<string, any> = {}
+  ) {
+    // Inicializa a exceção de negócio com os metadados brutos do VO
+    super(message, { valueObjectName, value, ...metadata });
+  }
+
+  /**
+   * Padrão Fluente: Permite contextualizar a exceção adicionando o nome 
+   * do atributo onde este Value Object foi atribuído.
+   */
+  public withAttribute(attributeName: string): this {
+    this.metadata.attributeName = attributeName;
+    return this;
   }
 }

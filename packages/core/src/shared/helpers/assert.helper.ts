@@ -2,9 +2,6 @@ import { AtributeConstraintViolationException } from "../exception/domain.except
 
 export class Assert {
 
-    /// Expressão regular para validar UUID (sem versão específica)
-    private static readonly UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-
     /**
      * Valida tipos primitivos permitindo ou não nulos.
      */
@@ -83,15 +80,6 @@ export class Assert {
             throw new AtributeConstraintViolationException(
                 fieldName,
                 `O campo '${fieldName}' possui um valor inválido. Valores aceitos: ${validValues.join(', ')}`
-            );
-        }
-    }
-
-    public static isUUID(value: string, fieldName: string): void {
-        if (!this.UUID_REGEX.test(value)) {
-            throw new AtributeConstraintViolationException(
-                fieldName,
-                `O campo '${fieldName}' deve ser um UUID válido. Recebido: ${value}`
             );
         }
     }
