@@ -51,9 +51,9 @@ export class MockAccountRepository implements IAccountRepository {
         return this.accounts.filter(acc => acc.parent?.id === account.id);
     }
 
-    async findLastLocalIndex(parentId?: string): Promise<number> {
+    async findLastLocalIndex(parentId: string | null): Promise<number> {
         const siblings = parentId
-            ? this.accounts.filter(acc => acc.parent?.id === parentId)
+            ? this.accounts.filter(acc => (acc.parent?.id ?? null) === parentId)
             : this.accounts.filter(acc => !acc.parent);
         return siblings.reduce((max, acc) => acc.localIndex > max ? acc.localIndex : max, 0);
     }
@@ -62,8 +62,9 @@ export class MockAccountRepository implements IAccountRepository {
         return this.accounts.find(acc => acc.accountClass === accountClass && !acc.parent) || null;
     }
 
-    async isIndexUsedBySiblings(parentId: string | undefined, localIndex: number): Promise<boolean> {
-        return this.accounts.some(acc => acc.parent?.id === parentId && acc.localIndex === localIndex);
+    async findByParentAndIndex(parent: AccountEntity | null, localIndex: number): Promise<AccountEntity | null> {
+        const parentId = parent?.id ?? null;
+        return this.accounts.find(acc => acc.parent?.id === parentId && acc.localIndex === localIndex) ?? null;
     }
 
     async save(account: AccountEntity): Promise<void> {

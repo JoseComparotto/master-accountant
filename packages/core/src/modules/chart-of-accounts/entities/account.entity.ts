@@ -2,6 +2,7 @@ import { DomainException } from '../../../shared/exception/domain.exception.js';
 import { Assert } from '../../../shared/helpers/assert.hellper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
+import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 
 /**
@@ -37,7 +38,7 @@ export class AccountEntity {
     get balanceType(): BalanceTypeEnum {
         const isNormalDebit = [
             AccountClassEnum.ASSET, AccountClassEnum.EXPENSE
-        ].includes(this._accountClass);
+        ].includes(this.accountClass);
 
         const isDebit = isNormalDebit !== this.isContra; // XOR
 
@@ -52,13 +53,18 @@ export class AccountEntity {
         this.validateSchema();
     }
 
-    applyContraLogic(isContra: boolean): void {
-        if (this._parent?.isContra && !isContra) {
+    async applyContraLogic(isContra: boolean, hierarchyChecker: IHierarchyCheckerService): Promise<void> {
+
+        if (!isContra && this.parent?.isContra) {
             throw new DomainException("COA-02: Cannot unset Contra status because parent is a Contra account.");
         }
-        // DEVE garantir que todas as contas filhas sejam redutoras
+
+        if (isContra && await hierarchyChecker.hasNonContraChildren(this)) {
+            throw new DomainException("COA-02: Cannot set contra an account with non-contra children.");
+        }
+
         this._isContra = isContra;
-        
+
         this.validateSchema();
     }
 
@@ -67,20 +73,16 @@ export class AccountEntity {
      * @throws DomainException if the parent account is inactive. (HTI-07: Restriction of Activity between Parents and Children)
      */
     activate() {
-        if (this._parent && !this._parent.isActive) {
+        if (this.parent && !this.parent.isActive) {
             throw new DomainException("HTI-07: Cannot activate an account with an inactive parent.");
         }
         this._isActive = true;
     }
-    /**
-     * **IMPORTANT:** 
-     * This method does not automatically inactivate child accounts. It is the
-     * responsibility of the caller to ensure that all child accounts are
-     * inactivated before calling this method on the parent account, in order
-     * to maintain hierarchical integrity and comply HTI-07: Restriction of Activity between Parents and Children.
-     */
-    inactivate() {
-        // DEVE garantir que todas as contas filhas sejam desativadas também antes de desativar a conta atual
+
+    async inactivate(hierarchyChecker: IHierarchyCheckerService) {
+        if (await hierarchyChecker.hasActiveChildren(this)) {
+            throw new DomainException("HTI-07: Cannot inactivate an account with active children.");
+        }
         this._isActive = false;
     }
 
@@ -115,7 +117,7 @@ export class AccountEntity {
      * @param data The properties for creating the child account.
      * @returns A new instance of `AccountEntity`.
      */
-    static createChild(data: CreateChildAccountProps): AccountEntity {
+    static async createChild(data: CreateChildAccountProps, hierarchyChecker: IHierarchyCheckerService): Promise<AccountEntity> {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
@@ -136,7 +138,7 @@ export class AccountEntity {
         account.validateSchema();
 
         // Delega a validação de regras hierárquicas para um método dedicado
-        account.validateHierarchicalRules();
+        await account.validateHierarchicalRules(hierarchyChecker);
 
         return account;
     }
@@ -146,7 +148,7 @@ export class AccountEntity {
      * @param data The properties for creating the root account.
      * @returns A new instance of `AccountEntity`.
      */
-    static createRoot(data: CreateRootAccountProps): AccountEntity {
+    static async createRoot(data: CreateRootAccountProps, hierarchyChecker: IHierarchyCheckerService): Promise<AccountEntity> {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
@@ -168,16 +170,24 @@ export class AccountEntity {
         account.validateSchema();
 
         // Delega a validação de regras hierárquicas para um método dedicado
-        account.validateHierarchicalRules();
+        await account.validateHierarchicalRules(hierarchyChecker);
 
         return account;
     }
 
-    private validateHierarchicalRules() {
+    private async validateHierarchicalRules(hierarchyChecker: IHierarchyCheckerService) {
 
-        if (!this.parent) {
-            return;
+        const isRoot = !this.parent;
+
+        if (isRoot && await hierarchyChecker.existsRootWithSameClass(this)) {
+            throw new DomainException("HTI-01: Root account already exists for this class.");
         }
+
+        if (await hierarchyChecker.isIndexUsedBySiblings(this)) {
+            throw new DomainException("HTI-08: Local Index must be unique among siblings.");
+        }
+
+        if (isRoot) return; // Non-Root rules:
 
         // HTI-03: Proibição de auto-referência
         if (this.id === this.parent.id) throw new DomainException("HTI-03: Self-reference prohibited.");

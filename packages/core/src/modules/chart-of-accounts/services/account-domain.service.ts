@@ -1,9 +1,13 @@
 import { DomainException } from '../../../shared/exception/domain.exception.js';
 import { AccountEntity, CreateAccountProps, AccountMetadataPatch } from '../entities/account.entity.js';
 import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
+import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 
 export class AccountDomainService {
-  constructor(private readonly repository: IAccountRepository) { }
+  constructor(
+    private readonly hierarchyChercker: IHierarchyCheckerService,
+    private readonly repository: IAccountRepository
+  ) { }
 
   async createAccount(data: Omit<CreateAccountProps, 'localIndex'> & { localIndex?: number | null }) {
 
@@ -17,85 +21,40 @@ export class AccountDomainService {
 
     // 1. Chama a Factory (Validações Locais)
     const account = parent
-      ? AccountEntity.createChild({
+      ? await AccountEntity.createChild({
         ...commonProps,
         parent,
         accountClass,
         localIndex
-      })
-      : AccountEntity.createRoot({
+      }, this.hierarchyChercker)
+      : await AccountEntity.createRoot({
         ...commonProps,
         accountClass: accountClass!, // O non-null assertion é seguro aqui devido à validação acima
         localIndex
-      });
-
-    // 2. Validações de Árvore (Async/DB)
-
-    // HTI-01: Validação de Raiz Única
-    if (!account.parent) {
-      const existingRoot = await this.repository.findRootByClass(account.accountClass);
-      if (existingRoot) throw new DomainException("HTI-01: Root account already exists for this class.");
-    }
-
-    // HTI-08: Unicidade do Local Index entre irmãos
-    const isIndexTaken = await this.repository.isIndexUsedBySiblings(
-      account.parent?.id,
-      account.localIndex
-    );
-    if (isIndexTaken) throw new DomainException("HTI-08: Local Index must be unique among siblings.");
+      }, this.hierarchyChercker);
 
     return account;
   }
 
   private async generateNextLocalIndex(parent: AccountEntity | null): Promise<number> {
-    const lastIndex = await this.repository.findLastLocalIndex(parent?.id);
+    const lastIndex = await this.repository.findLastLocalIndex(parent?.id ?? null);
     return lastIndex + 1;
   }
 
+  patchAccountMetadata(account: AccountEntity, patch: AccountMetadataPatch) {
+    account.patchMetadata(patch);
+  }
+
   activateAccount(account: AccountEntity) {
-
-    account.activate(); // Validação é feita na entidade
-
+    account.activate();
   }
 
   async inactivateAccount(account: AccountEntity) {
-
-    if (account.isSummary) {
-
-      const children: AccountEntity[] = await this.repository.findByParent(account);
-      const hasActiveChildren = children.some(c => c.isActive);
-
-      if (hasActiveChildren) {
-        throw new DomainException("HTI-07: Cannot inactivate an account with active children.");
-      }
-    }
-
-    account.inactivate();
-
+    await account.inactivate(this.hierarchyChercker);
   }
-
 
   async applyContraLogic(account: AccountEntity, isContra: boolean) {
-
-    if (account.isSummary && isContra) {
-
-      const children: AccountEntity[] = await this.repository.findByParent(account);
-      const hasNotContraChildren = children.some(c => !c.isContra);
-
-      if (hasNotContraChildren) {
-        throw new DomainException("COA-02: Cannot set contra an account with non-contra children.");
-      }
-    }
-
-    account.applyContraLogic(isContra);
-
-  }
-
-
-  patchAccountMetadata(account: AccountEntity, patch: AccountMetadataPatch) {
-
-    account.patchMetadata(patch); // Não há validação necessária
-
+    await account.applyContraLogic(isContra, this.hierarchyChercker);
   }
 
 }
