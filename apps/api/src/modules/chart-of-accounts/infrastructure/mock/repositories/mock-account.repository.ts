@@ -17,7 +17,7 @@ export class MockAccountRepository implements IAccountRepository {
             { name: 'ATIVO', class: AccountClassEnum.ASSET },               // ID: 00000000-0000-4000-8000-000000000001
             { name: 'PASSIVO', class: AccountClassEnum.LIABILITY },         // ID: 00000000-0000-4000-8000-000000000002
             { name: 'PATRIMÔNIO LÍQUIDO', class: AccountClassEnum.EQUITY }, // ID: 00000000-0000-4000-8000-000000000003
-            { name: 'RECEITAS', class: AccountClassEnum.REVENUE },          // ID: 00000000-0000-4000-8000-000000000004
+            { name: 'RECEITAS', class: AccountClassEnum.INCOME },          // ID: 00000000-0000-4000-8000-000000000004
             { name: 'DESPESAS', class: AccountClassEnum.EXPENSE },          // ID: 00000000-0000-4000-8000-000000000005
         ];
 

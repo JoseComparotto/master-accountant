@@ -28,7 +28,7 @@ export const CLASS_THEME: Record<
     chip: "bg-indigo-100 text-indigo-700",
     soft: "bg-indigo-50",
   },
-  revenue: {
+  income: {
     label: "Receitas",
     bg: "bg-sky-500",
     border: "border-sky-200",

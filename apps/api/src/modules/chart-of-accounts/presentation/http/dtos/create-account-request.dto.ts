@@ -22,7 +22,7 @@ export class CreateAccountRequestDto implements AccountCreateDto {
     parentId?: string | undefined;
 
     @IsOptional()
-    @IsEnum(AccountClassEnum, { message: 'A classe da conta deve ser um valor válido do enum AccountClassEnum: "asset", "liability", "equity", "revenue" ou "expense"' })
+    @IsEnum(AccountClassEnum, { message: 'A classe da conta deve ser um valor válido do enum AccountClassEnum: "asset", "liability", "equity", "income" ou "expense"' })
     @ApiPropertyOptional({
         description: 'Classe da conta. Obrigatório apenas para contas raiz. Para contas filhas, a classe é herdada do pai e este campo deve ser omitido, nulo ou igual à do pai.',
         example: AccountClassEnum.ASSET,

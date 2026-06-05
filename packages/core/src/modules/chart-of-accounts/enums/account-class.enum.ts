@@ -3,7 +3,7 @@ export enum AccountClassEnum {
     ASSET = 'asset',
     LIABILITY = 'liability',
     EQUITY = 'equity',
-    REVENUE = 'revenue',
+    INCOME = 'income',
     EXPENSE = 'expense',
 
 }

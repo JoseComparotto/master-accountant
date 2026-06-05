@@ -37,7 +37,7 @@ const ROOTS: Array<{ name: string; accountClass: AccountClass; localIndex: numbe
   { name: "ATIVO", accountClass: "asset", localIndex: 1 },
   { name: "PASSIVO", accountClass: "liability", localIndex: 2 },
   { name: "PATRIMÔNIO LÍQUIDO", accountClass: "equity", localIndex: 3 },
-  { name: "RECEITAS", accountClass: "revenue", localIndex: 4 },
+  { name: "RECEITAS", accountClass: "income", localIndex: 4 },
   { name: "DESPESAS", accountClass: "expense", localIndex: 5 },
 ];
 

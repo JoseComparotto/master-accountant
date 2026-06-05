@@ -13,7 +13,7 @@ const ROOT_ABBREVIATION: Record<AccountClass, string> = {
   asset: "Ativo",
   liability: "Passivo",
   equity: "PL",
-  revenue: "Receitas",
+  income: "Receitas",
   expense: "Despesas",
 };
 
@@ -21,7 +21,7 @@ const ROOT_ICON: Record<AccountClass, LucideIcon> = {
   asset: PlusIcon,
   liability: Minus,
   equity: Scale,
-  revenue: TrendingUp,
+  income: TrendingUp,
   expense: TrendingDown,
 };
 

@@ -2,7 +2,7 @@ export type AccountClass =
   | "asset"
   | "liability"
   | "equity"
-  | "revenue"
+  | "income"
   | "expense";
 
 export type BalanceType = "debit" | "credit";
@@ -48,6 +48,6 @@ export const ACCOUNT_CLASS_LABEL: Record<AccountClass, string> = {
   asset: "Ativo",
   liability: "Passivo",
   equity: "Patrimônio Líquido",
-  revenue: "Receitas",
+  income: "Receitas",
   expense: "Despesas",
 };
