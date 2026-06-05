@@ -14,11 +14,10 @@ import { AccountsController } from "./presentation/http/controllers/accounts.con
 
 // Repositories
 import { MockAccountRepository } from "./infrastructure/mock/repositories/mock-account.repository";
-import { IAccountRepository } from "@repo/core";
+import { AccountRepository } from "@repo/core";
 
 // Services
 import { AccountDomainService, IHierarchyCheckerService, HierarchyCheckerService } from "@repo/core";
-import { AccountAppService } from "./application/services/account-app.service";
 
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
@@ -34,28 +33,26 @@ const CommandHandlers = [
 
 const Repositories = [
     {
-        provide: 'IAccountRepository',
-        useClass: MockAccountRepository,
+        provide: AccountRepository,
+        useClass: MockAccountRepository
     }
 ];
 
 const Services = [
     {
         provide: 'IHierarchyCheckerService',
-        useFactory: (
-            repo: IAccountRepository
-        ) => new HierarchyCheckerService(repo),
-        inject: ['IAccountRepository']
+        useFactory: (repo) =>
+            new HierarchyCheckerService(repo),
+        inject: [AccountRepository]
     },
     {
         provide: AccountDomainService,
         useFactory: (
             checker: IHierarchyCheckerService,
-            repo: IAccountRepository
+            repo: AccountRepository
         ) => new AccountDomainService(checker, repo),
-        inject: [ 'IHierarchyCheckerService', 'IAccountRepository']
+        inject: ['IHierarchyCheckerService', AccountRepository]
     },
-    AccountAppService,
 ];
 
 @Module({

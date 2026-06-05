@@ -1,12 +1,12 @@
-import { DomainException } from '../../../shared/exception/domain.exception.js';
 import { AccountEntity, CreateAccountProps, AccountMetadataPatch } from '../entities/account.entity.js';
-import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
+import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
+import type { AccountRepository } from '../interfaces/account-repository.interface.js';
 import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 
 export class AccountDomainService {
   constructor(
     private readonly hierarchyChercker: IHierarchyCheckerService,
-    private readonly repository: IAccountRepository
+    private readonly repository: AccountRepository
   ) { }
 
   async createAccount(data: Omit<CreateAccountProps, 'localIndex'> & { localIndex?: number | null }) {
@@ -14,7 +14,7 @@ export class AccountDomainService {
     const { parent, accountClass, localIndex: _localIndex, ...commonProps } = data;
 
     if (!parent && !accountClass) {
-      throw new DomainException("COA-01: Root accounts must have an account class defined.");
+      throw new AccountInvariantViolationException("COA-01","Root accounts must have an account class defined.");
     }
 
     const localIndex = _localIndex ?? await this.generateNextLocalIndex(parent);

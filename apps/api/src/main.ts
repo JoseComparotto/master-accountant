@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { SWAGGER_API_INFO, SWAGGER_TAGS_ARRAY } from './shared/constants/swagger.constants';
 import { INestApplication } from '@nestjs/common';
+import { DomainExceptionFilter } from './shared/presentation/filters/domain-exception.filter';
 
 function swaggerSetup(app: INestApplication<any>) {
 
@@ -35,7 +36,8 @@ function swaggerSetup(app: INestApplication<any>) {
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors(); 
+  app.enableCors();
+  app.useGlobalFilters(new DomainExceptionFilter());
 
   swaggerSetup(app);
 

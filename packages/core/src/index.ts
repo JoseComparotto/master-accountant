@@ -1,6 +1,7 @@
 // TODO: Automatizar geração do index
 
 export * from './modules/chart-of-accounts/entities/account.entity.js'
+export * from './modules/chart-of-accounts/exceptions/account.exception.js'
 export * from './modules/chart-of-accounts/enums/account-class.enum.js'
 export * from './modules/chart-of-accounts/enums/balance-type.enum.js'
 export * from './modules/chart-of-accounts/interfaces/account-repository.interface.js'

@@ -1,7 +1,8 @@
-import { DomainException } from '../../../shared/exception/domain.exception.js';
+import { BusinessRuleViolationException, DomainException } from '../../../shared/exception/domain.exception.js';
 import { Assert } from '../../../shared/helpers/assert.hellper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
+import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
 import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 
@@ -56,11 +57,11 @@ export class AccountEntity {
     async applyContraLogic(isContra: boolean, hierarchyChecker: IHierarchyCheckerService): Promise<void> {
 
         if (!isContra && this.parent?.isContra) {
-            throw new DomainException("COA-02: Cannot unset Contra status because parent is a Contra account.");
+            throw new AccountInvariantViolationException("COA-02", "Cannot unset Contra status because parent is a Contra account.");
         }
 
         if (isContra && await hierarchyChecker.hasNonContraChildren(this)) {
-            throw new DomainException("COA-02: Cannot set contra an account with non-contra children.");
+            throw new AccountInvariantViolationException("COA-02", "Cannot set contra an account with non-contra children.");
         }
 
         this._isContra = isContra;
@@ -74,14 +75,14 @@ export class AccountEntity {
      */
     activate() {
         if (this.parent && !this.parent.isActive) {
-            throw new DomainException("HTI-07: Cannot activate an account with an inactive parent.");
+            throw new AccountInvariantViolationException("HTI-07", "Cannot activate an account with an inactive parent.");
         }
         this._isActive = true;
     }
 
     async inactivate(hierarchyChecker: IHierarchyCheckerService) {
         if (await hierarchyChecker.hasActiveChildren(this)) {
-            throw new DomainException("HTI-07: Cannot inactivate an account with active children.");
+            throw new AccountInvariantViolationException("HTI-07", "Cannot inactivate an account with active children.");
         }
         this._isActive = false;
     }
@@ -180,36 +181,36 @@ export class AccountEntity {
         const isRoot = !this.parent;
 
         if (isRoot && await hierarchyChecker.existsRootWithSameClass(this)) {
-            throw new DomainException("HTI-01: Root account already exists for this class.");
+            throw new AccountInvariantViolationException("HTI-01", "Root account already exists for this class.");
         }
 
         if (await hierarchyChecker.isIndexUsedBySiblings(this)) {
-            throw new DomainException("HTI-08: Local Index must be unique among siblings.");
+            throw new AccountInvariantViolationException("HTI-08", "Local Index must be unique among siblings.");
         }
 
         if (isRoot) return; // Non-Root rules:
 
         // HTI-03: Proibição de auto-referência
-        if (this.id === this.parent.id) throw new DomainException("HTI-03: Self-reference prohibited.");
+        if (this.id === this.parent.id) throw new AccountInvariantViolationException("HTI-03", "Self-reference prohibited.");
 
         // HTI-04: Restrição de Paternidade Exclusiva para Contas de Sintéticas 
         if (!this.parent.isSummary) {
-            throw new DomainException("HTI-04: Only summary accounts can have child accounts.");
+            throw new AccountInvariantViolationException("HTI-04", "Only summary accounts can have child accounts.");
         }
 
         // HTI-07: Restrição de Atividade entre Pais e Filhos
         if (!this.parent.isActive && this.isActive) {
-            throw new DomainException("HTI-07: Inactive parent accounts cannot have active child accounts.");
+            throw new AccountInvariantViolationException("HTI-07", "Inactive parent accounts cannot have active child accounts.");
         }
 
         // COA-01: Herança de Classe
         if (this.accountClass !== this.parent.accountClass) {
-            throw new DomainException("COA-01: Account class must match parent's account class.");
+            throw new AccountInvariantViolationException("COA-01", "Account class must match parent's account class.");
         }
 
         // COA-02: Propagação de Contra Account
         if (this.parent.isContra && !this.isContra) {
-            throw new DomainException("COA-02: Contra account status must propagate to children.");
+            throw new AccountInvariantViolationException("COA-02","Contra account status must propagate to children.");
         }
     }
 

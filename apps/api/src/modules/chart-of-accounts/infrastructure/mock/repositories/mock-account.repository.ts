@@ -1,41 +1,78 @@
 import { Injectable } from "@nestjs/common";
-import { AccountEntity, AccountProps, StructuralCodeValue } from "@repo/core";
-import { AccountClassEnum } from "@repo/core";
-import { IAccountRepository } from "@repo/core";
+import { AccountEntity, AccountClassEnum, AccountRepository, StructuralCodeValue } from "@repo/core";
 
 // TODO: Substituir mock por ORM
 
 @Injectable()
-export class MockAccountRepository implements IAccountRepository {
+export class MockAccountRepository extends AccountRepository {
 
     private accounts: AccountEntity[] = [];
-
     constructor() {
+        super();
         const commonProps = { isSummary: true, isContra: false, isActive: true };
 
-        const rootDefinitions = [
-            { name: 'ATIVO', class: AccountClassEnum.ASSET },               // ID: 00000000-0000-4000-8000-000000000001
-            { name: 'PASSIVO', class: AccountClassEnum.LIABILITY },         // ID: 00000000-0000-4000-8000-000000000002
-            { name: 'PATRIMÔNIO LÍQUIDO', class: AccountClassEnum.EQUITY }, // ID: 00000000-0000-4000-8000-000000000003
-            { name: 'RECEITAS', class: AccountClassEnum.INCOME },          // ID: 00000000-0000-4000-8000-000000000004
-            { name: 'DESPESAS', class: AccountClassEnum.EXPENSE },          // ID: 00000000-0000-4000-8000-000000000005
+        // 1. Definição declarativa e hierárquica usando códigos estruturais
+        const definitions = [
+            { code: '1', name: 'ATIVO', class: AccountClassEnum.ASSET },
+            { code: '1.1', name: 'Ativo Circulante' },
+            { code: '1.2', name: 'Ativo Não Circulante' },
+
+            { code: '2', name: 'PASSIVO', class: AccountClassEnum.LIABILITY },
+            { code: '2.1', name: 'Passivo Circulante' },
+            { code: '2.2', name: 'Passivo Não Circulante' },
+
+            { code: '3', name: 'PATRIMÔNIO LÍQUIDO', class: AccountClassEnum.EQUITY },
+
+            { code: '4', name: 'RECEITAS', class: AccountClassEnum.INCOME },
+
+            { code: '5', name: 'DESPESAS', class: AccountClassEnum.EXPENSE },
         ];
 
-        this.accounts = rootDefinitions.map((def, index) => {
+        // Mapa auxiliar para guardar as instâncias criadas e resolver o relacionamento 'parent'
+        const accountsMap = new Map<string, AccountEntity>();
+
+        this.accounts = definitions.map((def, index) => {
+            // Mantém a geração de IDs 100% determinística e única baseado na sequência global
             const sequence = index + 1;
-            // Gera: 00000000-0000-4000-8000-000000000001, etc.
             const mockId = `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`;
 
-            return AccountEntity.reconstitute({
+            // Decompõe o código estrutural (ex: '1.1' -> ['1', '1'])
+            const segments = def.code.split('.');
+
+            // O localIndex é sempre o último número do código estrutural
+            const localIndex = parseInt(segments[segments.length - 1]!, 10);
+
+            // Identifica o código do pai removendo o último segmento (ex: '1.1' -> '1')
+            const parentCode = segments.slice(0, -1).join('.');
+            const parentEntity = parentCode ? accountsMap.get(parentCode) || null : null;
+
+            // Se a conta não tiver classe explícita, ela herda do pai (DRY)
+            const accountClass = def.class ?? (parentEntity ? parentEntity.accountClass : null);
+
+            if (!accountClass) {
+                throw new Error(`Não foi possível determinar a AccountClass para a conta contábil: ${def.code}`);
+            }
+
+            // Instancia o Value Object de código estrutural adequadamente para raízes ou filhos
+            const structuralCode = segments.length === 1
+                ? StructuralCodeValue.createRoot(localIndex)
+                : StructuralCodeValue.fromString(def.code); // Mude para .create(def.code) ou o método de parsing do seu projeto
+
+            const account = AccountEntity.reconstitute({
                 ...commonProps,
                 id: mockId,
                 name: def.name,
-                parent: null,
-                description:null,
-                accountClass: def.class,
-                localIndex: sequence,
-                structuralCode: StructuralCodeValue.createRoot(sequence),
+                parent: parentEntity, // Agora vincula corretamente a entidade pai em memória
+                description: null,
+                accountClass,
+                localIndex,
+                structuralCode,
             });
+
+            // Alimenta o mapa para que esta conta possa servir de pai para os próximos loops
+            accountsMap.set(def.code, account);
+
+            return account;
         });
     }
 

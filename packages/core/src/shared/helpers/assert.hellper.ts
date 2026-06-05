@@ -1,4 +1,4 @@
-import { DomainException } from "../exception/domain.exception.js";
+import { AtributeConstraintViolationException } from "../exception/domain.exception.js";
 
 export class Assert {
 
@@ -19,16 +19,24 @@ export class Assert {
 
         // Se for undefined (campo esquecido no mock/objeto), sempre estoura erro
         if (value === undefined) {
-            throw new DomainException(`O campo '${fieldName}' deve ser definido (mesmo que nulo).`);
+            throw new AtributeConstraintViolationException(
+                fieldName,`O campo '${fieldName}' deve ser definido (mesmo que nulo).`
+            );
         }
 
         // Se for null mas não permitido
         if (value === null && !isNullable) {
-            throw new DomainException(`O campo '${fieldName}' não pode ser nulo.`);
+            throw new AtributeConstraintViolationException(
+                fieldName,
+                `O campo '${fieldName}' não pode ser nulo.`
+            );
         }
 
         if (typeof value !== expectedType) {
-            throw new DomainException(`O campo '${fieldName}' deve ser ${expectedType}. Recebido: ${typeof value}`);
+            throw new AtributeConstraintViolationException(
+                fieldName,
+                `O campo '${fieldName}' deve ser ${expectedType}. Recebido: ${typeof value}`
+            );
         }
     }
 
@@ -45,11 +53,15 @@ export class Assert {
         if (value === null && isNullable) return;
 
         if (value === null && !isNullable) {
-            throw new DomainException(`O campo '${fieldName}' não pode ser nulo.`);
+            throw new AtributeConstraintViolationException(
+                fieldName, `O campo '${fieldName}' não pode ser nulo.`
+            );
         }
 
         if (!(value instanceof expectedClass)) {
-            throw new DomainException(`O campo '${fieldName}' deve ser uma instância de ${expectedClass.name}.`);
+            throw new AtributeConstraintViolationException(
+                fieldName, `O campo '${fieldName}' deve ser uma instância de ${expectedClass.name}.`
+            );
         }
     }
 
@@ -68,7 +80,8 @@ export class Assert {
         const validValues = Object.values(enumObject);
 
         if (!validValues.includes(value)) {
-            throw new DomainException(
+            throw new AtributeConstraintViolationException(
+                fieldName,
                 `O campo '${fieldName}' possui um valor inválido. Valores aceitos: ${validValues.join(', ')}`
             );
         }
@@ -76,7 +89,10 @@ export class Assert {
 
     public static isUUID(value: string, fieldName: string): void {
         if (!this.UUID_REGEX.test(value)) {
-            throw new DomainException(`O campo '${fieldName}' deve ser um UUID válido. Recebido: ${value}`);
+            throw new AtributeConstraintViolationException(
+                fieldName,
+                `O campo '${fieldName}' deve ser um UUID válido. Recebido: ${value}`
+            );
         }
     }
 }

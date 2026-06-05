@@ -1,20 +1,29 @@
 import { AccountEntity } from '../entities/account.entity.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
+import { AccountExistsException } from '../exceptions/account.exception.js';
 
-export interface IAccountRepository {
+export abstract class AccountRepository {
     
-    findAll(): Promise<AccountEntity[]>;
+    abstract findAll(): Promise<AccountEntity[]>;
     
-    findById(id: string): Promise<AccountEntity | null>;
+    abstract findById(id: string): Promise<AccountEntity | null>;
     
-    findByParent(account: AccountEntity): Promise<AccountEntity[]>;
+    abstract findByParent(account: AccountEntity): Promise<AccountEntity[]>;
     
-    findLastLocalIndex(parentId: string | null): Promise<number>;
+    abstract findLastLocalIndex(parentId: string | null): Promise<number>;
     
-    findRootByClass(accountClass: AccountClassEnum): Promise<AccountEntity | null>;
+    abstract findRootByClass(accountClass: AccountClassEnum): Promise<AccountEntity | null>;
     
-    findByParentAndIndex(parent: AccountEntity | null, localIndex: number): Promise<AccountEntity | null>;
+    abstract findByParentAndIndex(parent: AccountEntity | null, localIndex: number): Promise<AccountEntity | null>;
     
-    save(account: AccountEntity): Promise<void>;
+    abstract save(account: AccountEntity): Promise<void>;
+
+    async getById(id: string): Promise<AccountEntity> {
+        const account = await this.findById(id);
+        if(!account){
+            throw new AccountExistsException(id);
+        }
+        return account;
+    }
 
 }

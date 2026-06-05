@@ -22,7 +22,7 @@
     "@jest/globals": "^30.4.1",
     "@repo/eslint-config": "workspace:*",
     "@repo/typescript-config": "workspace:*",
-    "@types/node": "^22.15.3",
+    "@types/node": "^22.19.19",
     "eslint": "^9.39.1",
     "typescript": "5.9.2",
     "vitest": "^4.1.8"

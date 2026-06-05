@@ -1,11 +1,11 @@
 import { AccountEntity } from "../entities/account.entity.js";
-import { IAccountRepository } from "../interfaces/account-repository.interface.js";
+import { AccountRepository } from "../interfaces/account-repository.interface.js";
 import { IHierarchyCheckerService } from "../interfaces/hierarchy-checker.interface.js";
 
 export class HierarchyCheckerService implements IHierarchyCheckerService {
 
     constructor(
-        private readonly repository: IAccountRepository
+        private readonly repository: AccountRepository
     ){}
 
     async existsRootWithSameClass(account: AccountEntity): Promise<boolean> {
