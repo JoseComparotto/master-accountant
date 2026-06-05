@@ -191,7 +191,7 @@ describe('AccountEntity', () => {
             expect(account.name).toBe(props.name);
             expect(account.description).toBe(props.description);
             expect(account.localIndex).toBe(props.localIndex);
-            expect(account.structuralCode.toString()).toBe(props.structuralCode.toString());
+            expect(account.structuralCode.value).toBe(props.structuralCode.value);
             expect(account.accountClass).toBe(props.accountClass);
             expect(account.isSummary).toBe(props.isSummary);
             expect(account.isContra).toBe(props.isContra);
@@ -284,7 +284,7 @@ describe('AccountEntity', () => {
             expect(account.isSummary).toBe(false);
             expect(account.isContra).toBe(false);
             expect(account.isActive).toBe(true);
-            expect(account.structuralCode.toString()).toBe('1.2');
+            expect(account.structuralCode.value).toBe('1.2');
             expect(account.parent).toBe(parent);
         });
     });

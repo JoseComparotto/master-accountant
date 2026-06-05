@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { AccountEntity, AccountClassEnum, AccountRepository, StructuralCodeValue, UuidValue } from "@repo/core";
+import { AccountEntity, AccountClassEnum, AccountRepository, StructuralCodeValue, UuidValue, AccountNameValue } from "@repo/core";
 
 // TODO: Substituir mock por ORM
 
@@ -61,7 +61,7 @@ export class MockAccountRepository extends AccountRepository {
             const account = AccountEntity.reconstitute({
                 ...commonProps,
                 id: mockId,
-                name: def.name,
+                name: AccountNameValue.create(def.name),
                 parent: parentEntity, // Agora vincula corretamente a entidade pai em memória
                 description: null,
                 accountClass,

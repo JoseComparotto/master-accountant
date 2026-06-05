@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Type, Logger } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { BusinessRuleViolationException, DomainException, EntityAlreadyExistsException, EntityNotExistsException } from '@repo/core';
-import { ApiErrorResponseDto } from '../dto/api-error-response.dto';
+import { ApiErrorResponseDto } from '../../presentation/dto/api-error-response.dto';
 
 const DOMAIN_STATUS_MAP = new Map<Type<DomainException>, HttpStatus>([
   [EntityNotExistsException, HttpStatus.NOT_FOUND], // 404

@@ -1,11 +1,12 @@
 import { AccountPatchDto } from '../../../application/types/accounts.types';
-import { IsBoolean, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsBoolean, IsOptional, IsString, MaxLength, MinLength } from "class-validator";
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class PatchAccountRequestDto implements AccountPatchDto {
 
     @IsString()
-    @MaxLength(255, { message: 'O nome da conta deve ter no máximo 255 caracteres.' })
+    @MinLength(3, { message: 'O nome da conta deve ter no mínimo 3 caracteres.' })
+    @MaxLength(100, { message: 'O nome da conta deve ter no máximo 100 caracteres.' })
     @ApiPropertyOptional({
         description: 'Nome da conta. Deve ser único e descritivo.',
         example: 'Ativo Circulante'

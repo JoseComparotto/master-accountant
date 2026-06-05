@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountRepository, AccountAlreadyExistsException, UuidValue, wrapVO } from "@repo/core";
+import { AccountDomainService, AccountRepository, AccountAlreadyExistsException, UuidValue, wrapVO, AccountNameValue } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
@@ -15,6 +15,7 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
         const id = wrapVO('id', () => UuidValue.createOptional(data.id));
         const parentId = wrapVO('parentId', () => UuidValue.createOptional(data.parentId!));
+        const name = wrapVO('name', () => AccountNameValue.create(data.name));
 
         if (id) {
             const existing = await this.accountRepository.findById(id);
@@ -27,6 +28,7 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
             ...data,
             id,
             parent,
+            name
         });
 
         await this.accountRepository.save(account);

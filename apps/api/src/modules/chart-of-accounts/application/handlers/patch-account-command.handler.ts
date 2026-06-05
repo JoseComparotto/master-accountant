@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountRepository, UuidValue, wrapVO } from "@repo/core";
+import { AccountDomainService, AccountNameValue, AccountRepository, UuidValue, wrapVO } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { PatchAccountCommand } from "../commands/patch-account.command";
@@ -19,7 +19,7 @@ export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountC
 
         if (data.name !== undefined || data.description !== undefined) {
             this.accountDomainService.patchAccountMetadata(account, {
-                name: data.name,
+                name: wrapVO('name', ()=> AccountNameValue.createOptional(data.name)),
                 description: data.description,
             })
         }

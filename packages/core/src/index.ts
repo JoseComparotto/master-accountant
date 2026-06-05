@@ -9,6 +9,7 @@ export * from './modules/chart-of-accounts/interfaces/hierarchy-checker.interfac
 export * from './modules/chart-of-accounts/services/account-domain.service.js'
 export * from './modules/chart-of-accounts/services/hierarchy-checker.service.js'
 export * from './modules/chart-of-accounts/value-objects/structural-code.value.js'
+export * from './modules/chart-of-accounts/value-objects/account-name.value.js'
 export * from './shared/helpers/value-objects.helper.js'
 export * from './shared/exception/domain.exception.js'
 export * from './shared/value-objects/uuid.value.js'

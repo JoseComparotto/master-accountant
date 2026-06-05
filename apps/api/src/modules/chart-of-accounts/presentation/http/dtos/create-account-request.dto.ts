@@ -1,6 +1,6 @@
 import { AccountClassEnum } from '@repo/core';
 import { AccountCreateDto } from '../../../application/types/accounts.types';
-import { IsBoolean, IsEnum, IsInt, IsOptional, IsPositive, IsString, IsUUID, MaxLength } from "class-validator";
+import { IsBoolean, IsEnum, IsInt, IsOptional, IsPositive, IsString, IsUUID, MaxLength, MinLength } from "class-validator";
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreateAccountRequestDto implements AccountCreateDto {
@@ -41,7 +41,8 @@ export class CreateAccountRequestDto implements AccountCreateDto {
     localIndex?: number | null;
 
     @IsString()
-    @MaxLength(255, { message: 'O nome da conta deve ter no máximo 255 caracteres.' })
+    @MinLength(3, { message: 'O nome da conta deve ter no mínimo 3 caracteres.' })
+    @MaxLength(100, { message: 'O nome da conta deve ter no máximo 100 caracteres.' })
     @ApiProperty({
         description: 'Nome da conta. Deve ser único e descritivo.',
         example: 'Ativo Circulante'

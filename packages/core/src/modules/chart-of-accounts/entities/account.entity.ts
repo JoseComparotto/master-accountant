@@ -5,6 +5,7 @@ import { AccountInvariantViolationException } from '../exceptions/account.except
 import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 import { UuidValue } from '../../../shared/value-objects/uuid.value.js';
+import { AccountNameValue } from '../value-objects/account-name.value.js';
 
 /**
  * Represents a financial account within the `Chart of Accounts`.
@@ -14,7 +15,7 @@ import { UuidValue } from '../../../shared/value-objects/uuid.value.js';
 export class AccountEntity {
 
     private _id!: UuidValue;
-    private _name!: string; // TODO: Definir regras para nomes de conta
+    private _name!: AccountNameValue;
     private _description!: string | null;
     private _parent!: AccountEntity | null;
     private _localIndex!: number; // Tipo numérico garante HTI-09
@@ -26,7 +27,7 @@ export class AccountEntity {
 
     // Getters
     get id(): UuidValue { return this._id; }
-    get name(): string { return this._name; }
+    get name(): AccountNameValue { return this._name; }
     get description(): string | null { return this._description; }
     get parent(): AccountEntity | null { return this._parent; }
     get parentId(): UuidValue | null { return this._parent?.id ?? null; }
@@ -218,7 +219,7 @@ export class AccountEntity {
     // Valida os tipos e obrigatoriedade em runtime
     private validateSchema(): void {
         Assert.isInstanceOf(this._id, UuidValue, 'id');
-        Assert.isType(this._name, 'string', 'name');
+        Assert.isInstanceOf(this._name, AccountNameValue, 'name');
         Assert.isType(this._description, 'string', 'description', true);
         Assert.isType(this._localIndex, 'number', 'localIndex');
         Assert.isInstanceOf(this._parent, AccountEntity, 'parent', true);
@@ -246,7 +247,7 @@ export class AccountEntity {
  */
 export interface AccountProps {
     id: UuidValue;
-    name: string;
+    name: AccountNameValue;
     description: string | null;
     parent: AccountEntity | null;
     structuralCode: StructuralCodeValue;
