@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { AccountEntity, AccountClassEnum, AccountRepository, StructuralCodeValue, UuidValue, AccountNameValue } from "@repo/core";
+import { AccountEntity, AccountClassEnum, BaseAccountRepository, StructuralCodeValue, UuidValue, AccountNameValue } from "@repo/core";
 
 // TODO: Substituir mock por ORM
 
 @Injectable()
-export class MockAccountRepository extends AccountRepository {
+export class MockAccountRepository extends BaseAccountRepository {
 
     private accounts: AccountEntity[] = [];
     constructor() {

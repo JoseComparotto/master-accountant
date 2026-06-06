@@ -37,6 +37,13 @@
         "generate-barrels"
       ]
     },
+    "test:cov": {
+      "cache": false,
+      "persistent": true,
+      "dependsOn": [
+        "generate-barrels"
+      ]
+    },
     "generate-barrels": {
       "inputs": [
         "src/**/*.ts",

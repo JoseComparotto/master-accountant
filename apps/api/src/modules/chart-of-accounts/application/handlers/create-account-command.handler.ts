@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountRepository, AccountAlreadyExistsException, UuidValue, Ensure, AccountNameValue } from "@repo/core";
+import { AccountDomainService, BaseAccountRepository, AccountAlreadyExistsException, UuidValue, Ensure } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
@@ -7,7 +7,7 @@ import { CreateAccountCommand } from "../commands/create-account.command";
 @CommandHandler(CreateAccountCommand)
 export class CreateAccountCommandHandler implements ICommandHandler<CreateAccountCommand> {
     constructor(
-        private readonly accountRepository: AccountRepository,
+        private readonly accountRepository: BaseAccountRepository,
         private readonly accountDomainService: AccountDomainService,
     ) { }
 

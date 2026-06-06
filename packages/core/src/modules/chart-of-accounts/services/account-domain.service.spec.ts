@@ -2,9 +2,9 @@ import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { AccountDomainService } from './account-domain.service.js';
 import { AccountEntity, CreateAccountProps } from '../entities/account.entity.js';
 import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
-import type { AccountRepository } from '../interfaces/account-repository.interface.js';
 import type { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
+import { IAccountRepository } from '../interfaces/account-repository.interface.js';
 
 describe('AccountDomainService', () => {
     let service: AccountDomainService;
@@ -21,7 +21,7 @@ describe('AccountDomainService', () => {
 
         service = new AccountDomainService(
             hierarchyCheckerMock as unknown as IHierarchyCheckerService,
-            repositoryMock as unknown as AccountRepository
+            repositoryMock as unknown as IAccountRepository
         );
     });
 

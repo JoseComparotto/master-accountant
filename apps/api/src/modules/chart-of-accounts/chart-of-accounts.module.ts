@@ -14,7 +14,7 @@ import { AccountsController } from "./presentation/http/controllers/accounts.con
 
 // Repositories
 import { MockAccountRepository } from "./infrastructure/mock/repositories/mock-account.repository";
-import { AccountRepository } from "@repo/core";
+import { BaseAccountRepository } from "@repo/core";
 
 // Services
 import { AccountDomainService, IHierarchyCheckerService, DefaultHierarchyCheckerService } from "@repo/core";
@@ -33,7 +33,7 @@ const CommandHandlers = [
 
 const Repositories = [
     {
-        provide: AccountRepository,
+        provide: BaseAccountRepository,
         useClass: MockAccountRepository
     }
 ];
@@ -41,17 +41,17 @@ const Repositories = [
 const Services = [
     {
         provide: 'IHierarchyCheckerService',
-        useFactory: (repo: AccountRepository) =>
+        useFactory: (repo: BaseAccountRepository) =>
             new DefaultHierarchyCheckerService(repo),
-        inject: [AccountRepository]
+        inject: [BaseAccountRepository]
     },
     {
         provide: AccountDomainService,
         useFactory: (
             checker: IHierarchyCheckerService,
-            repo: AccountRepository
+            repo: BaseAccountRepository
         ) => new AccountDomainService(checker, repo),
-        inject: ['IHierarchyCheckerService', AccountRepository]
+        inject: ['IHierarchyCheckerService', BaseAccountRepository]
     },
 ];
 

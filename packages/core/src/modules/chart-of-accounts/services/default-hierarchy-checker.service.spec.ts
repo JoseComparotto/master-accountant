@@ -1,7 +1,7 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { DefaultHierarchyCheckerService } from './default-hierarchy-checker.service.js';
-import { AccountRepository } from '../interfaces/account-repository.interface.js';
 import { AccountEntity } from '../entities/account.entity.js';
+import { IAccountRepository } from '../interfaces/account-repository.interface.js';
 
 describe('DefaultHierarchyCheckerService', () => {
     let service: DefaultHierarchyCheckerService;
@@ -21,7 +21,7 @@ describe('DefaultHierarchyCheckerService', () => {
         };
 
         // Injeta o mock simulando a inversão de dependência da camada de Infraestrutura
-        service = new DefaultHierarchyCheckerService(repositoryMock as unknown as AccountRepository);
+        service = new DefaultHierarchyCheckerService(repositoryMock as unknown as IAccountRepository);
     });
 
     describe('existsRootWithSameClass - Validação de Raiz Duplicada', () => {

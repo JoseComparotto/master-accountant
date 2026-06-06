@@ -2,13 +2,13 @@ import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { GetAccountByIdQuery } from "../queries/get-account-by-id.query";
-import { AccountRepository, UuidValue, Ensure } from "@repo/core";
+import { BaseAccountRepository, UuidValue, Ensure } from "@repo/core";
 
 
 @QueryHandler(GetAccountByIdQuery)
 export class GetAccountByIdQueryHandler implements IQueryHandler<GetAccountByIdQuery> {
     constructor(
-        private readonly accountRepository: AccountRepository,
+        private readonly accountRepository: BaseAccountRepository,
     ) { }
 
     async execute(query: GetAccountByIdQuery): Promise<AccountFlatDto> {

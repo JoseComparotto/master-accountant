@@ -1,12 +1,12 @@
 import { AccountEntity, CreateAccountProps, AccountMetadataPatch } from '../entities/account.entity.js';
 import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
-import type { AccountRepository } from '../interfaces/account-repository.interface.js';
+import type { IAccountRepository } from '../interfaces/account-repository.interface.js';
 import { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 
 export class AccountDomainService {
   constructor(
     private readonly hierarchyChercker: IHierarchyCheckerService,
-    private readonly repository: AccountRepository
+    private readonly repository: IAccountRepository
   ) { }
 
   async createAccount(data: Omit<CreateAccountProps, 'localIndex'> & { localIndex?: number | null }) {

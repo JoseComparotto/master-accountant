@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountRepository, UuidValue, Ensure } from "@repo/core";
+import { AccountDomainService, BaseAccountRepository, UuidValue, Ensure } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { ActivateAccountCommand } from "../commands/activate-account.command";
@@ -7,7 +7,7 @@ import { ActivateAccountCommand } from "../commands/activate-account.command";
 @CommandHandler(ActivateAccountCommand)
 export class ActivateAccountCommandHandler implements ICommandHandler<ActivateAccountCommand> {
     constructor(
-        private readonly accountRepository: AccountRepository,
+        private readonly accountRepository: BaseAccountRepository,
         private readonly accountDomainService: AccountDomainService,
     ) { }
 

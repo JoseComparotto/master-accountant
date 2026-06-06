@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountNameValue, AccountRepository, Ensure, UuidValue } from "@repo/core";
+import { AccountDomainService, BaseAccountRepository, Ensure, UuidValue } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { PatchAccountCommand } from "../commands/patch-account.command";
@@ -7,7 +7,7 @@ import { PatchAccountCommand } from "../commands/patch-account.command";
 @CommandHandler(PatchAccountCommand)
 export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountCommand> {
     constructor(
-        private readonly accountRepository: AccountRepository,
+        private readonly accountRepository: BaseAccountRepository,
         private readonly accountDomainService: AccountDomainService,
     ) { }
 
