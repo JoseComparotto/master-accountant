@@ -19,7 +19,7 @@ export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountC
 
         if (data.name !== undefined || data.description !== undefined) {
             this.accountDomainService.patchAccountMetadata(account, {
-                name: Ensure.vo('name', ()=> AccountNameValue.createOptional(data.name)),
+                name: data.name,
                 description: data.description,
             })
         }

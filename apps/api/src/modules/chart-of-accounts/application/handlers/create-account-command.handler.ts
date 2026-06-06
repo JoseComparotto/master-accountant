@@ -15,7 +15,6 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
         const id =  Ensure.vo('id', () => UuidValue.createOptional(data.id));
         const parentId =  Ensure.vo('parentId', () => UuidValue.createOptional(data.parentId!));
-        const name =  Ensure.vo('name', () => AccountNameValue.create(data.name));
 
         if (id) {
             const existing = await this.accountRepository.findById(id);
@@ -26,9 +25,8 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
         const account = await this.accountDomainService.createAccount({
             ...data,
-            id,
             parent,
-            name
+            id: id?.value
         });
 
         await this.accountRepository.save(account);

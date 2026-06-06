@@ -50,7 +50,8 @@ export class AccountEntity {
 
     // Alterações controladas
     patchMetadata(patch: AccountMetadataPatch): void {
-        if (patch.name !== undefined) this._name = patch.name;
+        if (patch.name !== undefined) this._name = Ensure.vo('name', () => AccountNameValue.create(patch.name!));
+
         if (patch.description !== undefined) this._description = patch.description;
 
         this.validateSchema();
@@ -124,9 +125,9 @@ export class AccountEntity {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
-        account._id = data.id ?? UuidValue.generate();
+        account._id = data.id ? UuidValue.create(data.id) : UuidValue.generate();
 
-        account._name = data.name;
+        account._name = Ensure.vo('name', () => AccountNameValue.create(data.name));
         account._parent = data.parent;
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
@@ -155,10 +156,10 @@ export class AccountEntity {
         const account = new AccountEntity();
 
         // Regra de Identidade: Se não vier ID, geramos um novo
-        account._id = data.id ?? UuidValue.generate();
+        account._id = data.id ? UuidValue.create(data.id) : UuidValue.generate();
 
         account._parent = null;
-        account._name = data.name;
+        account._name = Ensure.vo('name', () => AccountNameValue.create(data.name));
         account._localIndex = data.localIndex;
         account._isSummary = data.isSummary;
         account._accountClass = data.accountClass;
@@ -258,8 +259,11 @@ export interface AccountProps {
     isActive: boolean;
 }
 
-type BaseCreateProps = Pick<AccountProps, 'name' | 'localIndex' | 'isSummary'> &
-    Partial<Pick<AccountProps, 'id' | 'description' | 'isContra' | 'isActive'>>;
+type BaseCreateProps = {
+    id?: string,
+    name: string
+} & Pick<AccountProps, 'localIndex' | 'isSummary'>
+    & Partial<Pick<AccountProps, 'description' | 'isContra' | 'isActive'>>;
 
 /**
 * Interface defining the properties required to create a new `AccountEntity`.
@@ -279,4 +283,4 @@ export type CreateChildAccountProps = BaseCreateProps & {
     accountClass?: AccountClassEnum;
 };
 
-export type AccountMetadataPatch = Partial<Pick<AccountProps, 'name' | 'description'>>;
+export type AccountMetadataPatch = Partial<Pick<BaseCreateProps, 'name' | 'description'>>;
