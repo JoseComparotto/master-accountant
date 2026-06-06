@@ -16,7 +16,8 @@
     "test": "vitest run",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "build": "tsc"
+    "build": "tsc",
+    "generate-barrels": "node ../../tools/generate-barrels.js"
   },
   "devDependencies": {
     "@jest/globals": "^30.4.1",

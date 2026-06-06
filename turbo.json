@@ -4,7 +4,8 @@
   "tasks": {
     "build": {
       "dependsOn": [
-        "^build"
+        "^build",
+        "generate-barrels"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -31,7 +32,22 @@
     },
     "test": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "dependsOn": [
+        "generate-barrels"
+      ]
+    },
+    "generate-barrels": {
+      "inputs": [
+        "src/**/*.ts",
+        "!src/index.ts",
+        "!src/**/*.spec.ts",
+        "!src/**/*.test.ts"
+      ],
+      "outputs": [
+        "src/index.ts"
+      ],
+      "cache": true
     }
   }
 }
