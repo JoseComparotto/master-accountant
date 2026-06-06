@@ -17,7 +17,7 @@ import { MockAccountRepository } from "./infrastructure/mock/repositories/mock-a
 import { AccountRepository } from "@repo/core";
 
 // Services
-import { AccountDomainService, IHierarchyCheckerService, HierarchyCheckerService } from "@repo/core";
+import { AccountDomainService, IHierarchyCheckerService, DefaultHierarchyCheckerService } from "@repo/core";
 
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
@@ -41,8 +41,8 @@ const Repositories = [
 const Services = [
     {
         provide: 'IHierarchyCheckerService',
-        useFactory: (repo) =>
-            new HierarchyCheckerService(repo),
+        useFactory: (repo: AccountRepository) =>
+            new DefaultHierarchyCheckerService(repo),
         inject: [AccountRepository]
     },
     {

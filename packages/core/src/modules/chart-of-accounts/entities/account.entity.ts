@@ -1,4 +1,4 @@
-import { Assert } from '../../../shared/helpers/assert.helper.js';
+import { Ensure } from '../../../shared/helpers/assert.helper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
 import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
@@ -193,7 +193,7 @@ export class AccountEntity {
         if (isRoot) return; // Non-Root rules:
 
         // HTI-03: Proibição de auto-referência
-        if (UuidValue.equals(this.id, this.parentId)) throw new AccountInvariantViolationException("HTI-03", "Self-reference prohibited.");
+        if (UuidValue.isEquals(this.id, this.parentId)) throw new AccountInvariantViolationException("HTI-03", "Self-reference prohibited.");
 
         // HTI-04: Restrição de Paternidade Exclusiva para Contas de Sintéticas 
         if (!this.parent.isSummary) {
@@ -218,16 +218,16 @@ export class AccountEntity {
 
     // Valida os tipos e obrigatoriedade em runtime
     private validateSchema(): void {
-        Assert.isInstanceOf(this._id, UuidValue, 'id');
-        Assert.isInstanceOf(this._name, AccountNameValue, 'name');
-        Assert.isType(this._description, 'string', 'description', true);
-        Assert.isType(this._localIndex, 'number', 'localIndex');
-        Assert.isInstanceOf(this._parent, AccountEntity, 'parent', true);
-        Assert.isInstanceOf(this._structuralCode, StructuralCodeValue, 'structuralCode');
-        Assert.isEnum(this._accountClass, AccountClassEnum, 'accountClass');
-        Assert.isType(this._isSummary, 'boolean', 'isSummary');
-        Assert.isType(this._isContra, 'boolean', 'isContra');
-        Assert.isType(this._isActive, 'boolean', 'isActive');
+        Ensure.isInstanceOf(this._id, UuidValue, 'id');
+        Ensure.isInstanceOf(this._name, AccountNameValue, 'name');
+        Ensure.isType(this._description, 'string', 'description', true);
+        Ensure.isType(this._localIndex, 'number', 'localIndex');
+        Ensure.isInstanceOf(this._parent, AccountEntity, 'parent', true);
+        Ensure.isInstanceOf(this._structuralCode, StructuralCodeValue, 'structuralCode');
+        Ensure.isEnum(this._accountClass, AccountClassEnum, 'accountClass');
+        Ensure.isType(this._isSummary, 'boolean', 'isSummary');
+        Ensure.isType(this._isContra, 'boolean', 'isContra');
+        Ensure.isType(this._isActive, 'boolean', 'isActive');
     }
 
     compareTo(other: AccountEntity) {

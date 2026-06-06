@@ -2,7 +2,7 @@ import { AccountEntity } from "../entities/account.entity.js";
 import { AccountRepository } from "../interfaces/account-repository.interface.js";
 import { IHierarchyCheckerService } from "../interfaces/hierarchy-checker.interface.js";
 
-export class HierarchyCheckerService implements IHierarchyCheckerService {
+export class DefaultHierarchyCheckerService implements IHierarchyCheckerService {
 
     constructor(
         private readonly repository: AccountRepository

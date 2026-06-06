@@ -1,11 +1,7 @@
+import { ValueObject, ValueObjectOptionalFactoryFn } from "../../../shared/bases/value-object.base.js";
 import { ValueObjectMalformedException } from "../../../shared/exception/domain.exception.js";
 
-export class AccountNameValue {
-    private readonly _value: string;
-
-    private constructor(value: string) {
-        this._value = value;
-    }
+export class AccountNameValue extends ValueObject<string> {
 
     /**
      * Factory: Higieniza e valida o nome da conta
@@ -43,29 +39,6 @@ export class AccountNameValue {
         return new AccountNameValue(sanitized);
     }
 
-    /**
-      * Factory Opcional: Se receber um valor nulo, vazio ou indefinido, 
-      * retorna undefined de forma segura sem tentar validar.
-      */
-    public static createOptional(value: string | null | undefined): AccountNameValue | undefined {
-        if (value === null || value === undefined || value.trim() === '') {
-            return undefined;
-        }
+    public static readonly createOptional = super.defineOptional(this.create);
 
-        // Se o valor existir, delega para a factory principal que possui a validação
-        return AccountNameValue.create(value);
-    }
-
-    get value(): string {
-        return this._value;
-    }
-
-    public equals(other?: AccountNameValue): boolean {
-        if (!other) return false;
-        return this.value.toUpperCase() === other.value.toUpperCase();
-    }
-
-    public toString(): string {
-        return this.value;
-    }
 }

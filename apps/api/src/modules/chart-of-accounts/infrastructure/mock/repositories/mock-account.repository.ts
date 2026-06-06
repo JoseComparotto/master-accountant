@@ -81,16 +81,16 @@ export class MockAccountRepository extends AccountRepository {
     }
 
     async findById(id: UuidValue): Promise<AccountEntity | null> {
-        return this.accounts.find(account => UuidValue.equals(account.id, id)) ?? null;
+        return this.accounts.find(account => UuidValue.isEquals(account.id, id)) ?? null;
     }
 
     async findByParent(account: AccountEntity): Promise<AccountEntity[]> {
-        return this.accounts.filter(acc => UuidValue.equals(acc.parentId, account.id));
+        return this.accounts.filter(acc => UuidValue.isEquals(acc.parentId, account.id));
     }
 
     async findLastLocalIndex(parentId: UuidValue | null): Promise<number> {
         const siblings = parentId
-            ? this.accounts.filter(acc => UuidValue.equals(acc.parentId, parentId))
+            ? this.accounts.filter(acc => UuidValue.isEquals(acc.parentId, parentId))
             : this.accounts.filter(acc => !acc.parent);
         return siblings.reduce((max, acc) => acc.localIndex > max ? acc.localIndex : max, 0);
     }
@@ -102,7 +102,7 @@ export class MockAccountRepository extends AccountRepository {
     async findByParentAndIndex(parent: AccountEntity | null, localIndex: number): Promise<AccountEntity | null> {
         const parentId = parent?.id ?? null;
         return this.accounts.find(acc =>
-            UuidValue.equals(acc.parentId, parentId)
+            UuidValue.isEquals(acc.parentId, parentId)
             && acc.localIndex === localIndex) ?? null;
     }
 

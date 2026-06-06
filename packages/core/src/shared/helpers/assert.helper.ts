@@ -1,6 +1,7 @@
-import { AtributeConstraintViolationException } from "../exception/domain.exception.js";
+import { ValueObject } from "../bases/value-object.base.js";
+import { AtributeConstraintViolationException, ValueObjectMalformedException } from "../exception/domain.exception.js";
 
-export class Assert {
+export class Ensure {
 
     /**
      * Valida tipos primitivos permitindo ou não nulos.
@@ -17,7 +18,7 @@ export class Assert {
         // Se for undefined (campo esquecido no mock/objeto), sempre estoura erro
         if (value === undefined) {
             throw new AtributeConstraintViolationException(
-                fieldName,`O campo '${fieldName}' deve ser definido (mesmo que nulo).`
+                fieldName, `O campo '${fieldName}' deve ser definido (mesmo que nulo).`
             );
         }
 
@@ -81,6 +82,21 @@ export class Assert {
                 fieldName,
                 `O campo '${fieldName}' possui um valor inválido. Valores aceitos: ${validValues.join(', ')}`
             );
+        }
+    }
+
+    /**
+     * Captura falhas de Value Objects e as contextualiza com o nome do atributo da Entidade.
+     * Excelente para responder à API exatamente qual campo do formulário falhou.
+     */
+    public static vo<T>(attributeName: string, factory: () => T): T{
+        try {
+            return factory();
+        } catch (error) {
+            if (error instanceof ValueObjectMalformedException) {
+                error.withAttribute(attributeName);
+            }
+            throw error;
         }
     }
 }

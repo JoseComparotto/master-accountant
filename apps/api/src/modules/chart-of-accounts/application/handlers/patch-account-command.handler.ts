@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, AccountNameValue, AccountRepository, UuidValue, wrapVO } from "@repo/core";
+import { AccountDomainService, AccountNameValue, AccountRepository, Ensure, UuidValue } from "@repo/core";
 import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { PatchAccountCommand } from "../commands/patch-account.command";
@@ -12,14 +12,14 @@ export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountC
     ) { }
 
     async execute(command: PatchAccountCommand): Promise<AccountFlatDto> {
-        const id = wrapVO('id', () => UuidValue.create(command.id));
+        const id = Ensure.vo('id', () => UuidValue.create(command.id));
         const { data } = command;
 
         const account = await this.accountRepository.getById(id);
 
         if (data.name !== undefined || data.description !== undefined) {
             this.accountDomainService.patchAccountMetadata(account, {
-                name: wrapVO('name', ()=> AccountNameValue.createOptional(data.name)),
+                name: Ensure.vo('name', ()=> AccountNameValue.createOptional(data.name)),
                 description: data.description,
             })
         }

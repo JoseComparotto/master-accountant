@@ -1,12 +1,25 @@
+import { ValueObject } from "../../../shared/bases/value-object.base.js";
 import { ValueObjectMalformedException } from "../../../shared/exception/domain.exception.js";
 
-export class StructuralCodeValue {
-    private readonly segments: readonly number[];
+export class StructuralCodeValue extends ValueObject<number[]>  {
 
-    // O Construtor privado agora protege as invariantes centralizadamente
     private constructor(segments: number[]) {
         StructuralCodeValue.validate(segments);
-        this.segments = Object.freeze([...segments]);
+        super(segments);
+    }
+
+    /**
+     * Retorna a representação primitiva em string unida por pontos (ex: "1.1.2")
+     */
+    public override get value(): string {
+        return this._value.join('.');
+    }
+
+    /**
+     * Retorna uma cópia dos segmentos numéricos protegendo a imutabilidade interna
+     */
+    public get segments(): number[] {
+        return [...this._value];
     }
 
     /**
@@ -50,7 +63,8 @@ export class StructuralCodeValue {
         const segments = code.split('.').map(s => parseInt(s, 10));
         return new StructuralCodeValue(segments);
     }
-/**
+
+    /**
      * Factory: Cria a partir de um array de números
      */
     public static fromSegments(segments: number[]): StructuralCodeValue {
@@ -69,35 +83,6 @@ export class StructuralCodeValue {
      */
     public createChild(localIndex: number): StructuralCodeValue {
         return new StructuralCodeValue([...this.segments, localIndex]);
-    }
-
-    /**
-     * Retorna a representação primitiva em string unida por pontos (ex: "1.1.2")
-     */
-    public get value(): string {
-        return this.segments.join('.');
-    }
-
-    /**
-     * Retorna uma cópia dos segmentos numéricos protegendo a imutabilidade interna
-     */
-    public getSegments(): number[] {
-        return [...this.segments];
-    }
-
-    /**
-     * Comparação por valor (Pilar fundamental de um Value Object)
-     */
-    public equals(other?: StructuralCodeValue): boolean {
-        if (!other) return false;
-        return this.value === other.value;
-    }
-
-    /**
-     * Permite a conversão implícita para string
-     */
-    public toString(): string {
-        return this.value;
     }
 
     /**
