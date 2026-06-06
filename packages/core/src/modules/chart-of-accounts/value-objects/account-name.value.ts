@@ -39,6 +39,19 @@ export class AccountNameValue extends ValueObject<string> {
         return new AccountNameValue(sanitized);
     }
 
+    public override equals(other: string | AccountNameValue | null | undefined): boolean {
+
+        if (other === null || other === undefined) return false;
+
+        const otherIsAccountName = other instanceof AccountNameValue;
+
+        if (typeof other !== 'string' && !otherIsAccountName) return false;
+
+        const otherRaw = other instanceof AccountNameValue ? other._value : other.trim();
+
+        return this._value.toLocaleLowerCase() === otherRaw.toLocaleLowerCase();
+    }
+
     public static readonly createOptional = super.defineOptional(this.create);
 
 }
