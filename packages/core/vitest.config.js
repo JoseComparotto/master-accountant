@@ -1,5 +1,7 @@
 import { defineConfig } from 'vitest/config';
 
+// TODO: Unificar configurações num pacote só
+
 export default defineConfig({
     test: {
         include: ['src/**/*.spec.ts'],
