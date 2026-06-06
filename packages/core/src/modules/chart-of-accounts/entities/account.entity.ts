@@ -1,4 +1,4 @@
-import { Ensure } from '../../../shared/helpers/assert.helper.js';
+import { Ensure } from '../../../shared/helpers/ensure.helper.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
 import { AccountInvariantViolationException } from '../exceptions/account.exception.js';

@@ -1,4 +1,3 @@
-import { ValueObject } from "../bases/value-object.base.js";
 import { AtributeConstraintViolationException, ValueObjectMalformedException } from "../exception/domain.exception.js";
 
 export class Ensure {

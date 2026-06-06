@@ -2,7 +2,7 @@
 
 export * from './shared/bases/value-object.base.js';
 export * from './shared/exception/domain.exception.js';
-export * from './shared/helpers/assert.helper.js';
+export * from './shared/helpers/ensure.helper.js';
 export * from './shared/value-objects/uuid.value.js';
 export * from './modules/chart-of-accounts/entities/account.entity.js';
 export * from './modules/chart-of-accounts/enums/account-class.enum.js';
