@@ -79,18 +79,13 @@ export abstract class ValueObject<T> {
             return false;
         }
 
-        // 3. Tratamento semântico específico para objetos de Data (essencial em sistemas contábeis)
-        if (a instanceof Date && b instanceof Date) {
-            return a.getTime() === b.getTime();
-        }
-
-        // 4. Extração e comparação do tamanho das chaves do objeto
+        // 3. Extração e comparação do tamanho das chaves do objeto
         const keysA = Object.keys(a);
         const keysB = Object.keys(b);
 
         if (keysA.length !== keysB.length) return false;
 
-        // 5. Verificação recursiva de cada chave (ignora totalmente a ordem de inserção física das propriedades)
+        // 4. Verificação recursiva de cada chave (ignora totalmente a ordem de inserção física das propriedades)
         for (const key of keysA) {
             if (!keysB.includes(key) || !this.isDeepEqual(a[key], b[key])) {
                 return false;
