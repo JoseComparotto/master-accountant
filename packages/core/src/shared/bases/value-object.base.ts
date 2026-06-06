@@ -6,10 +6,39 @@ export abstract class ValueObject<T> {
     protected readonly _value: T;
 
     protected constructor(value: T) {
-        // Aplica o congelamento de estado para garantir a imutabilidade do pilar DDD
-        this._value = typeof value === 'object' && value !== null
-            ? (Object.freeze(Array.isArray(value) ? [...value] : { ...value }) as T)
-            : value;
+        if (typeof value === 'object' && value !== null) {
+            // 1. Isola totalmente de mutações externas através do Deep Clone nativo
+            const deepCloned = structuredClone(value);
+
+            // 2. Bloqueia alterações internas aninhadas aplicando o Deep Freeze recursivo
+            this._value = ValueObject.deepFreeze(deepCloned);
+        } else {
+            this._value = value;
+        }
+    }
+
+    /**
+     * Utilitário recursivo privado para congelar objetos e arrays profundamente.
+     * Impede qualquer tentativa de alteração em estruturas aninhadas sob Strict Mode.
+     */
+    private static deepFreeze(obj: any): any {
+        if (obj === null || typeof obj !== 'object') {
+            return obj;
+        }
+
+        // Recupera todas as propriedades da instância (incluindo chaves do tipo Symbol)
+        const propNames = Reflect.ownKeys(obj);
+
+        for (const name of propNames) {
+            const value = obj[name];
+            // Se a subpropriedade for um objeto ou array, mergulha recursivamente
+            if (typeof value === 'object' && value !== null) {
+                ValueObject.deepFreeze(value);
+            }
+        }
+
+        // Congela o nível atual do nó da árvore estrutural
+        return Object.freeze(obj);
     }
 
     /**
