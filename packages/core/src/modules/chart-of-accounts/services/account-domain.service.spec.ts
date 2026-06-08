@@ -197,4 +197,6 @@ describe('AccountDomainService', () => {
             expect(mockAccount.applyContraLogic).toHaveBeenCalledTimes(1);
         });
     });
+
+    // TODO: Construir testes unitários para updateAccount
 });

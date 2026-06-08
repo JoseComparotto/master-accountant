@@ -283,4 +283,9 @@ export type CreateChildAccountProps = BaseCreateProps & {
     accountClass?: AccountClassEnum;
 };
 
+export type UpdateAccountProps = Omit<AccountProps, 'id' | 'name' | 'structuralCode' | 'parent'> & {
+    name: string,
+    parentId: string | null,
+};
+
 export type AccountMetadataPatch = Partial<Pick<BaseCreateProps, 'name' | 'description'>>;

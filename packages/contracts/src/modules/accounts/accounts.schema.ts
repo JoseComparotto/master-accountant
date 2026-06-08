@@ -32,6 +32,13 @@ export const CreateAccountInputSchema = AccountSchema
         })
     );
 
+export const UpsertAccountInputSchema = AccountSchema
+    .omit({
+        id: true,
+        formattedCode: true,
+        balanceType: true,
+    })
+
 export const PatchAccountInputSchema = AccountSchema.pick({
     name: true,
     description: true,
@@ -40,5 +47,6 @@ export const PatchAccountInputSchema = AccountSchema.pick({
 }).partial();
 
 export type AccountDto = z.infer<typeof AccountSchema>;
-export type CreateAccountInputDto = z.infer<typeof CreateAccountInputSchema>
-export type PatchAccountInputDto = z.infer<typeof PatchAccountInputSchema>
+export type CreateAccountInputDto = z.infer<typeof CreateAccountInputSchema>;
+export type PatchAccountInputDto = z.infer<typeof PatchAccountInputSchema>;
+export type UpsertAccountInputDto = z.infer<typeof UpsertAccountInputSchema>;

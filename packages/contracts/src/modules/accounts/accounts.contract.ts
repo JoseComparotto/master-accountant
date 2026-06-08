@@ -1,5 +1,5 @@
 import { initContract } from "@ts-rest/core";
-import { AccountSchema, CreateAccountInputSchema, PatchAccountInputSchema } from "./accounts.schema.js";
+import { AccountSchema, CreateAccountInputSchema, PatchAccountInputSchema, UpsertAccountInputSchema } from "./accounts.schema.js";
 import z from "zod";
 import { ApiErrorSchema } from "../../shared/error.schema.js";
 
@@ -40,6 +40,19 @@ export const accountsContract = c.router({
             422: ApiErrorSchema.describe('O objeto enviado viola invariantes de domínio.'),
         }
     },
+
+    upsert: {
+        method: 'PUT', path: '/:id',
+        pathParams: ByIdParam,
+        body: UpsertAccountInputSchema,
+        responses: {
+            201: AccountSchema.describe('Conta criada com sucesso.'),
+            200: AccountSchema.describe('Conta atualizada com sucesso.'),
+            404: ApiErrorSchema.describe('O parentId fornecido não existe.'),
+            422: ApiErrorSchema.describe('O objeto enviado viola invariantes de domínio.'),
+        }
+    },
+
     patch: {
         method: 'PATCH', path: '/:id',
         pathParams: ByIdParam,

@@ -11,6 +11,7 @@ import { PatchAccountCommand } from "../../../application/commands/patch-account
 import { AccountDto, apiContract } from "@repo/contracts";
 
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest'
+import { UpsertAccontResult, UpsertAccountCommand } from "../../../application/commands/upsert-account.command";
 
 @Controller()
 export class AccountsController {
@@ -42,6 +43,16 @@ export class AccountsController {
         const created = await this.commandBus.execute(command);
         return { status: 201, body: created };
     };
+
+    async upsert({ params: { id }, body }): Promise<{ status: 200 | 201, body: AccountDto }> {
+        const command = new UpsertAccountCommand(id, body);
+        const result: UpsertAccontResult = await this.commandBus.execute(command);
+
+        if (result.action === 'created')
+            return { status: 201, body: result.account };
+        else
+            return { status: 200, body: result.account };
+    }
 
     async patch({ params: { id }, body }): Promise<{ status: 200, body: AccountDto }> {
         const command = new PatchAccountCommand(id, body);

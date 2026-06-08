@@ -71,6 +71,12 @@ export class AtributeConstraintViolationException extends BusinessRuleViolationE
   }
 }
 
+export class AttributeImmutableViolationException extends AtributeConstraintViolationException {
+  constructor(attribute: string) {
+    super(attribute, `O campo ${attribute} é imutável.`)
+  }
+}
+
 export class ValueObjectMalformedException extends BusinessRuleViolationException {
   constructor(
     public readonly valueObjectName: string,
