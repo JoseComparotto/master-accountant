@@ -2,7 +2,7 @@ import { AccountDto } from "@repo/contracts";
 import { AccountEntity } from "@repo/core";
 
 export class AccountMapper {
-    static toFlatDto(account: AccountEntity): AccountDto {
+    static toDto(account: AccountEntity): AccountDto {
         return {
             id: account.id.value,
             name: account.name.value,

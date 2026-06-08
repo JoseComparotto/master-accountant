@@ -31,6 +31,6 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
         await this.accountRepository.save(account);
 
-        return AccountMapper.toFlatDto(account);
+        return AccountMapper.toDto(account);
     }
 }

@@ -15,7 +15,7 @@ export class GetAccountByIdQueryHandler implements IQueryHandler<GetAccountByIdQ
         const id =  Ensure.vo('id', () => UuidValue.create(query.id));
 
         const account = await this.accountRepository.getById(id);
-        return AccountMapper.toFlatDto(account);
+        return AccountMapper.toDto(account);
     }
 
 }

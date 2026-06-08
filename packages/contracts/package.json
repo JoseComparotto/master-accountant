@@ -12,14 +12,16 @@
         }
     },
     "scripts": {
-        "dev": "tsc --watch",
+        "dev": "concurrently \"tsc --watch\" \"npm run dev:spec\"",
+        "build": "tsc && npm run build:spec",
+        "dev:spec": "tsx --watch ./scripts/generate-spec.js",
+        "build:spec": "tsx ./scripts/generate-spec.js",
         "lint": "eslint . --max-warnings 0",
         "check-types": "tsc --noEmit",
-        "build": "tsc",
-        "build:spec": "tsx ./scripts/generate-spec.js",
         "generate-barrels": "node ../../tools/generate-barrels.js"
     },
     "dependencies": {
+        "@anatine/zod-openapi": "^2.2.8",
         "@repo/core": "workspace:*",
         "@ts-rest/core": "^3.52.1",
         "@ts-rest/open-api": "^3.52.1",
@@ -28,6 +30,7 @@
     "devDependencies": {
         "@repo/typescript-config": "workspace:*",
         "@types/node": "^25.9.2",
+        "concurrently": "^10.0.3",
         "typescript": "^6.0.3"
     }
 }

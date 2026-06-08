@@ -37,7 +37,7 @@ export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountC
 
         await this.accountRepository.save(account);
 
-        return AccountMapper.toFlatDto(account);
+        return AccountMapper.toDto(account);
     }
 
 }

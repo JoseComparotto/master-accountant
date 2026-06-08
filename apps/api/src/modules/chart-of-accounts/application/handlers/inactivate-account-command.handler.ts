@@ -20,6 +20,6 @@ export class InactivateAccountCommandHandler implements ICommandHandler<Inactiva
 
         await this.accountRepository.save(account);
 
-        return AccountMapper.toFlatDto(account);
+        return AccountMapper.toDto(account);
     }
 }

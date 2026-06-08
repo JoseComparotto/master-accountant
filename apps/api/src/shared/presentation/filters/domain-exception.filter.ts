@@ -1,7 +1,7 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Type, Logger } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { BusinessRuleViolationException, DomainException, EntityAlreadyExistsException, EntityNotExistsException } from '@repo/core';
-import { ApiErrorResponseDto } from '../../presentation/dto/api-error-response.dto';
+import { ApiErrorDto } from '@repo/contracts';
 
 const DOMAIN_STATUS_MAP = new Map<Type<DomainException>, HttpStatus>([
   [EntityNotExistsException, HttpStatus.NOT_FOUND], // 404
@@ -30,10 +30,9 @@ export class DomainExceptionFilter implements ExceptionFilter {
       }
     }
 
-    const errorBody: ApiErrorResponseDto = { 
+    const errorBody: ApiErrorDto = { 
       statusCode: status,
       path: request.url,
-      error: exception.name,
       message: exception.message,
       details: exception.metadata,
       timestamp: new Date().toISOString(),
@@ -41,7 +40,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
 
     // Log estratégico para monitoramento de saúde da API em produção
     this.logger.warn(
-      `[${errorBody.error}] ${request.method} ${request.url} - Status: ${status} - Message: ${errorBody.message}`
+      `${request.method} ${request.url} - Status: ${status} - Message: ${errorBody.message}`
     );
     
     // Retorna a resposta tipada

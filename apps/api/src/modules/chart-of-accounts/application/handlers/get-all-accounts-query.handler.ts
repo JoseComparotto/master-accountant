@@ -15,7 +15,7 @@ export class GetAllAccountsQueryHandler implements IQueryHandler<GetAllAccountsQ
 
         accounts.sort(AccountEntity.sortByCode);
 
-        return accounts.map(AccountMapper.toFlatDto);
+        return accounts.map(AccountMapper.toDto);
     }
 
 }

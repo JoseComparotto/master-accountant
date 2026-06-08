@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post } from "@nestjs/common";
+import { Controller } from "@nestjs/common";
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { GetAllAccountsQuery } from "../../../application/queries/get-all-accounts.query";
@@ -6,16 +6,13 @@ import { GetAccountByIdQuery } from "../../../application/queries/get-account-by
 import { CreateAccountCommand } from "../../../application/commands/create-account.command";
 import { InactivateAccountCommand } from "../../../application/commands/inactivate-account.command";
 
-import { AccountResponseDto } from "../dtos/account-response.dto";
-import { CreateAccountRequestDto } from "../dtos/create-account-request.dto";
 import { ActivateAccountCommand } from "../../../application/commands/activate-account.command";
-import { ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { SwaggerTag } from "../../../../../shared/constants/swagger.constants";
-import { PatchAccountRequestDto } from "../dtos/patch-account-request.dto";
 import { PatchAccountCommand } from "../../../application/commands/patch-account.command";
+import { AccountDto, apiContract } from "@repo/contracts";
 
-@Controller('accounts')
-@ApiTags(SwaggerTag.CHART_OF_ACCOUNTS)
+import { tsRestHandler, TsRestHandler } from '@ts-rest/nest'
+
+@Controller()
 export class AccountsController {
 
     constructor(
@@ -23,99 +20,44 @@ export class AccountsController {
         private readonly commandBus: CommandBus,
     ) { }
 
-    // GET /accounts
-    @Get()
-    @ApiOperation({ operationId: 'getAllAccounts' })
-    @ApiResponse({
-        status: 200,
-        description: 'Lista de contas',
-        type: [AccountResponseDto]
-    })
-    async getAllAccounts(): Promise<AccountResponseDto[]> {
-        return this.queryBus.execute(new GetAllAccountsQuery());
+    @TsRestHandler(apiContract.accounts)
+    async handleAccounts() {
+        return tsRestHandler(apiContract.accounts, this);
     }
 
-    // GET /accounts/:id
-    @Get(':id')
-    @ApiOperation({ operationId: 'getAccountById' })
-    @ApiResponse({
-        status: 200,
-        description: 'Dados da conta',
-        type: AccountResponseDto
-    })
-    async getAccountById(
-        @Param('id') id: string
-    ): Promise<AccountResponseDto> {
-        return this.queryBus.execute(new GetAccountByIdQuery(id));
-    }
+    async getAll(): Promise<{ status: 200, body: AccountDto[] }> {
+        const query = new GetAllAccountsQuery();
+        const res: AccountDto[] = await this.queryBus.execute(query);
+        return { status: 200, body: res };
+    };
 
-    // POST /accounts
-    @Post()
-    @ApiOperation({ operationId: 'createAccount' })
-    @ApiResponse({
-        status: 201,
-        description: 'Conta criada com sucesso',
-        type: AccountResponseDto
-    })
-    async createAccount(
-        @Body() body: CreateAccountRequestDto
-    ): Promise<AccountResponseDto> {
-        return this.commandBus.execute(new CreateAccountCommand(body));
-    }
+    async getById({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
+        const query = new GetAccountByIdQuery(id);
+        const res = await this.queryBus.execute(query);
+        return { status: 200, body: res };
+    };
 
-    // PATCH /accounts/:id
-    @Patch(':id')
-    @ApiOperation({ operationId: 'patchAccount' })
-    @ApiResponse({
-        status: 200,
-        description: 'Conta atualizada com sucesso.'
-    })
-    async patchAccount(
-        @Param('id') id: string,
-        @Body() body: PatchAccountRequestDto
-    ): Promise<AccountResponseDto> {
-        return this.commandBus.execute(new PatchAccountCommand(id, body));
-    }
+    async create({ body }): Promise<{ status: 201, body: AccountDto }> {
+        const command = new CreateAccountCommand(body);
+        const created = await this.commandBus.execute(command);
+        return { status: 201, body: created };
+    };
 
-    // PATCH /accounts/:id/inactivate
-    @Patch(':id/inactivate')
-    @ApiOperation({ operationId: 'inactivateAccount' })
-    @ApiResponse({
-        status: 200,
-        description: 'Conta inativada com sucesso.',
-        type: AccountResponseDto,
-        example: {
-            "id": "123e4567-e89b-12d3-a456-426614174000",
-            "name": "Ativo Circulante",
-            "description": "Bens e direitos com expctativa de liquidação dentro do exercício corrente.",
-            "parentId": "123e4567-e89b-12d3-a456-426614174000",
-            "localIndex": 1,
-            "formattedCode": "1.1",
-            "accountClass": "asset",
-            "balanceType": "debit",
-            "isSummary": true,
-            "isContra": false,
-            "isActive": false
-        } as AccountResponseDto
-    })
-    async inactivateAccount(
-        @Param('id') id: string
-    ): Promise<AccountResponseDto> {
-        return await this.commandBus.execute(new InactivateAccountCommand(id));
-    }
+    async patch({ params: { id }, body }): Promise<{ status: 200, body: AccountDto }> {
+        const command = new PatchAccountCommand(id, body);
+        const updated: AccountDto = await this.commandBus.execute(command);
+        return { status: 200, body: updated };
+    };
 
-    // PATCH /accounts/:id/activate
-    @Patch(':id/activate')
-    @ApiOperation({ operationId: 'activateAccount' })
-    @ApiResponse({
-        status: 200,
-        description: 'Conta ativada com sucesso.',
-        type: AccountResponseDto
-    })
-    async activateAccount(
-        @Param('id') id: string
-    ): Promise<AccountResponseDto> {
-        return await this.commandBus.execute(new ActivateAccountCommand(id));
-    }
+    async activate({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
+        const command = new ActivateAccountCommand(id);
+        const activated: AccountDto = await this.commandBus.execute(command);
+        return { status: 200, body: activated };
+    };
 
+    async inactivate({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
+        const command = new InactivateAccountCommand(id);
+        const inactivated: AccountDto = await this.commandBus.execute(command);
+        return { status: 200, body: inactivated };
+    };
 }

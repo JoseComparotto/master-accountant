@@ -20,6 +20,6 @@ export class ActivateAccountCommandHandler implements ICommandHandler<ActivateAc
 
         await this.accountRepository.save(account);
 
-        return AccountMapper.toFlatDto(account);
+        return AccountMapper.toDto(account);
     }
 }
