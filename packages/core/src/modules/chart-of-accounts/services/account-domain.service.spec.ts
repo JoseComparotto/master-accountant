@@ -5,6 +5,9 @@ import { AccountInvariantViolationException } from '../exceptions/account.except
 import type { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
 import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { IAccountRepository } from '../interfaces/account-repository.interface.js';
+import { AttributeImmutableViolationException } from '../../../shared/exception/domain.exception.js';
+import { AccountNameValue } from '../value-objects/account-name.value.js';
+import { UuidValue } from '../../../shared/value-objects/uuid.value.js';
 
 describe('AccountDomainService', () => {
     let service: AccountDomainService;
@@ -198,5 +201,129 @@ describe('AccountDomainService', () => {
         });
     });
 
-    // TODO: Construir testes unitários para updateAccount
+    describe('updateAccount - Atualização e Validação de Mutabilidade', () => {
+        let mockAccount: any;
+
+        beforeEach(() => {
+            // Configura uma instância mockada da entidade com valores padrão
+            mockAccount = {
+                parentId: 'parent-123',
+                name: 'Nome Antigo',
+                description: 'Descrição Antiga',
+                localIndex: 1,
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: false,
+                isContra: false,
+                isActive: true,
+                patchMetadata: vi.fn(),
+                activate: vi.fn(),
+                inactivate: vi.fn().mockResolvedValue(undefined),
+                applyContraLogic: vi.fn().mockResolvedValue(undefined)
+            };
+
+            // Como o método usa métodos estáticos de Value Objects, criamos spies para controlar o comportamento do diffMap
+            vi.spyOn(UuidValue, 'isEquals').mockImplementation((a, b) => a === b);
+            vi.spyOn(AccountNameValue, 'isEquals').mockImplementation((a, b) => a === b);
+        });
+
+        test('deve lançar AttributeImmutableViolationException se tentar alterar um campo imutável (ex: localIndex)', async () => {
+            const targetPayload = {
+                parentId: 'parent-123',
+                name: 'Nome Antigo',
+                description: 'Descrição Antiga',
+                localIndex: 99, // Alterado ilegalmente
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: false,
+                isContra: false,
+                isActive: true
+            };
+
+            await expect(service.updateAccount(mockAccount, targetPayload)).rejects.toThrow(
+                AttributeImmutableViolationException
+            );
+        });
+
+        test('deve alterar o nome e a descrição com sucesso quando forem os únicos modificados', async () => {
+            const targetPayload = {
+                parentId: 'parent-123',
+                name: 'Novo Nome Alterado', // Alterado
+                description: 'Nova Descrição Alterada', // Alterado
+                localIndex: 1,
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: false,
+                isContra: false,
+                isActive: true
+            };
+
+            await service.updateAccount(mockAccount, targetPayload);
+
+            // Garante que delegou a alteração de metadados para a entidade
+            expect(mockAccount.patchMetadata).toHaveBeenCalledWith({
+                name: 'Novo Nome Alterado',
+                description: 'Nova Descrição Alterada'
+            });
+            
+            // Garante que não disparou outros efeitos colaterais
+            expect(mockAccount.applyContraLogic).not.toHaveBeenCalled();
+            expect(mockAccount.activate).not.toHaveBeenCalled();
+            expect(mockAccount.inactivate).not.toHaveBeenCalled();
+        });
+
+        test('deve aplicar a lógica de contra-conta se o campo isContra sofrer alteração', async () => {
+            const targetPayload = {
+                parentId: 'parent-123',
+                name: 'Nome Antigo',
+                description: 'Descrição Antiga',
+                localIndex: 1,
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: false,
+                isContra: true, // Alterado de false para true
+                isActive: true
+            };
+
+            await service.updateAccount(mockAccount, targetPayload);
+
+            expect(mockAccount.applyContraLogic).toHaveBeenCalledWith(true, hierarchyCheckerMock);
+        });
+
+        test('deve ativar a conta se o campo isActive mudar para true', async () => {
+            mockAccount.isActive = false; // Estado inicial na entidade é inativo
+
+            const targetPayload = {
+                parentId: 'parent-123',
+                name: 'Nome Antigo',
+                description: 'Descrição Antiga',
+                localIndex: 1,
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: false,
+                isContra: false,
+                isActive: true // Alterado para ativo
+            };
+
+            await service.updateAccount(mockAccount, targetPayload);
+
+            expect(mockAccount.activate).toHaveBeenCalledTimes(1);
+            expect(mockAccount.inactivate).not.toHaveBeenCalled();
+        });
+
+        test('deve inativar a conta injetando o hierarchyChecker se o campo isActive mudar para false', async () => {
+            mockAccount.isActive = true; // Estado inicial na entidade é ativo
+
+            const targetPayload = {
+                parentId: 'parent-123',
+                name: 'Nome Antigo',
+                description: 'Descrição Antiga',
+                localIndex: 1,
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: false,
+                isContra: false,
+                isActive: false // Alterado para inativo
+            };
+
+            await service.updateAccount(mockAccount, targetPayload);
+
+            expect(mockAccount.inactivate).toHaveBeenCalledWith(hierarchyCheckerMock);
+            expect(mockAccount.activate).not.toHaveBeenCalled();
+        });
+    });
 });

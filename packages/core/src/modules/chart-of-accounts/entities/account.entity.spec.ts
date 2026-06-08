@@ -4,6 +4,9 @@ import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
 import { AccountInvariantViolationException } from '../exceptions/account.exception.js';
 import type { IHierarchyCheckerService } from '../interfaces/hierarchy-checker.interface.js';
+import { UuidValue } from '../../../shared/value-objects/uuid.value.js';
+import { AccountNameValue } from '../value-objects/account-name.value.js';
+import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 
 describe('AccountEntity - O Coração do Domínio (Aggregate Root)', () => {
     let hierarchyCheckerMock: {
@@ -182,6 +185,212 @@ describe('AccountEntity - O Coração do Domínio (Aggregate Root)', () => {
             expect(orderedList[1].structuralCode.value).toBe('1.1');
             expect(orderedList[2].structuralCode.value).toBe('1.1.1');
             expect(orderedList[3].structuralCode.value).toBe('1.2');
+        });
+    });
+
+    describe('Reconstituição de Estado e Validação de Getters', () => {
+        test('reconstitute - deve remontar a entidade perfeitamente a partir do estado persistido e validar todos os getters', () => {
+            const id = UuidValue.generate();
+            const name = AccountNameValue.create('CONTA RECONSTITUIDA');
+            const structuralCode = StructuralCodeValue.createRoot(1);
+
+            const props = {
+                id,
+                name,
+                description: 'Descrição de teste reconstituição',
+                parent: null,
+                structuralCode,
+                localIndex: 1,
+                accountClass: AccountClassEnum.ASSET,
+                isSummary: true,
+                isContra: false,
+                isActive: true,
+            };
+
+            const account = AccountEntity.reconstitute(props);
+
+            // Garante o mapeamento individual de cada getter público
+            expect(account.id).toBe(id);
+            expect(account.name).toBe(name);
+            expect(account.description).toBe('Descrição de teste reconstituição');
+            expect(account.parent).toBeNull();
+            expect(account.parentId).toBeNull(); // Testa o fallback do parentId para nulo
+            expect(account.localIndex).toBe(1);
+            expect(account.structuralCode).toBe(structuralCode);
+            expect(account.accountClass).toBe(AccountClassEnum.ASSET);
+            expect(account.isSummary).toBe(true);
+            expect(account.isContra).toBe(false);
+            expect(account.isActive).toBe(true);
+        });
+
+        test('parentId - deve retornar o id do pai corretamente quando a conta possuir um pai associado', async () => {
+            const parentProps = { name: 'CONTA PAI', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            const child = await AccountEntity.createChild(
+                { name: 'CONTA FILHA', localIndex: 1, isSummary: false, parent },
+                hierarchyCheckerMock as unknown as IHierarchyCheckerService
+            );
+
+            expect(child.parentId).toEqual(parent.id);
+        });
+    });
+
+    describe('patchMetadata - Branches Alternativas (Campos Omitidos/Undefined)', () => {
+        test('deve atualizar apenas o nome se a descrição for omitida no patch', async () => {
+            const props = { name: 'Nome Original', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: false, description: 'Desc Original' };
+            const account = await AccountEntity.createRoot(props, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            account.patchMetadata({ name: 'Nome Alterado' });
+
+            expect(account.name.value).toBe('Nome Alterado');
+            expect(account.description).toBe('Desc Original'); // Permaneceu intacto
+        });
+
+        test('deve atualizar apenas a descrição se o nome for omitido no patch', async () => {
+            const props = { name: 'Nome Original', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: false, description: 'Desc Original' };
+            const account = await AccountEntity.createRoot(props, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            account.patchMetadata({ description: 'Desc Alterada' });
+
+            expect(account.name.value).toBe('Nome Original'); // Permaneceu intacto
+            expect(account.description).toBe('Desc Alterada');
+        });
+    });
+
+    describe('applyContraLogic - Caminho Feliz e Invariante de Pai Contra', () => {
+        test('deve alterar o status de contra-conta com sucesso (Caminho Feliz)', async () => {
+            const props = { name: 'Conta Padrão', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: false };
+            const account = await AccountEntity.createRoot(props, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            await account.applyContraLogic(true, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+            expect(account.isContra).toBe(true);
+        });
+
+        test('deve lançar exceção COA-02 se tentar desmarcar isContra quando o pai for uma conta Contra', async () => {
+            const parentProps = { name: 'Pai Contra', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true, isContra: true };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            // O filho herda por padrão o isContra: true do pai
+            const child = await AccountEntity.createChild(
+                { name: 'Filho Herdeiro', localIndex: 1, isSummary: false, parent },
+                hierarchyCheckerMock as unknown as IHierarchyCheckerService
+            );
+
+            // Tenta forçar isContra para false no filho
+            await expect(
+                child.applyContraLogic(false, hierarchyCheckerMock as unknown as IHierarchyCheckerService)
+            ).rejects.toThrow(AccountInvariantViolationException);
+        });
+    });
+
+    describe('activate - Ativação do Ciclo de Vida', () => {
+        test('deve ativar uma conta inativa com sucesso quando ela não possuir pai', async () => {
+            const props = { name: 'Raiz Inativa', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: false, isActive: false };
+            const account = await AccountEntity.createRoot(props, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            expect(account.isActive).toBe(false);
+            account.activate();
+            expect(account.isActive).toBe(true);
+        });
+
+        test('deve lançar exceção HTI-07 ao tentar ativar uma conta cujo pai está inativo', async () => {
+            const parentProps = { name: 'Pai Inativo', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true, isActive: false };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            // Criamos o filho explicitamente inativo para passar na validação de criação
+            const child = await AccountEntity.createChild(
+                { name: 'Filho Inativo', localIndex: 1, isSummary: false, parent, isActive: false },
+                hierarchyCheckerMock as unknown as IHierarchyCheckerService
+            );
+
+            expect(() => child.activate()).toThrow(AccountInvariantViolationException);
+        });
+    });
+
+    describe('Factories Estáticas - Geração de UUID no Fallback', () => {
+        test('createRoot - deve gerar um UuidValue autônomo válido se id for omitido', async () => {
+            const props = { name: 'Sem Id', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: false };
+            const account = await AccountEntity.createRoot(props, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            expect(account.id).toBeInstanceOf(UuidValue);
+            expect(account.id.value).toBeDefined();
+        });
+
+        test('createChild - deve gerar um UuidValue autônomo válido se id for omitido', async () => {
+            const parentProps = { name: 'Pai Conectado', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            const child = await AccountEntity.createChild(
+                { name: 'Filho Sem Id', localIndex: 1, isSummary: false, parent },
+                hierarchyCheckerMock as unknown as IHierarchyCheckerService
+            );
+
+            expect(child.id).toBeInstanceOf(UuidValue);
+            expect(child.id.value).toBeDefined();
+        });
+    });
+
+    describe('validateHierarchicalRules - Exceções e Barreiras Não Dependentes de Serviços Externos', () => {
+        test('HTI-03 - deve lançar exceção se o ID fornecido for idêntico ao do pai (Proibição de Auto-referência)', async () => {
+            const parentProps = { name: 'Pai Sintético', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            // Envia propositalmente o ID do pai como ID do novo filho
+            await expect(
+                AccountEntity.createChild(
+                    { id: parent.id.value, name: 'Filho Mutante', localIndex: 1, isSummary: false, parent },
+                    hierarchyCheckerMock as unknown as IHierarchyCheckerService
+                )
+            ).rejects.toThrow(AccountInvariantViolationException);
+        });
+
+        test('HTI-04 - deve lançar exceção se tentar criar um filho sob um pai analítico/não-resumo', async () => {
+            const parentProps = { name: 'Pai Analítico Final', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: false };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            await expect(
+                AccountEntity.createChild(
+                    { name: 'Filho Impossível', localIndex: 1, isSummary: false, parent },
+                    hierarchyCheckerMock as unknown as IHierarchyCheckerService
+                )
+            ).rejects.toThrow(AccountInvariantViolationException);
+        });
+
+        test('HTI-07 - deve lançar exceção ao tentar criar/nascer uma conta filha ativa sob um pai já inativo', async () => {
+            const parentProps = { name: 'Pai Congelado', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true, isActive: false };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            await expect(
+                AccountEntity.createChild(
+                    { name: 'Filho Rebelde Ativo', localIndex: 1, isSummary: false, parent, isActive: true },
+                    hierarchyCheckerMock as unknown as IHierarchyCheckerService
+                )
+            ).rejects.toThrow(AccountInvariantViolationException);
+        });
+
+        test('COA-01 - deve lançar exceção se uma classe contábil for informada e divergir da classe do pai', async () => {
+            const parentProps = { name: 'Pai Ativo', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            await expect(
+                AccountEntity.createChild(
+                    { name: 'Filho Conflitante', localIndex: 1, isSummary: false, parent, accountClass: AccountClassEnum.LIABILITY },
+                    hierarchyCheckerMock as unknown as IHierarchyCheckerService
+                )
+            ).rejects.toThrow(AccountInvariantViolationException);
+        });
+
+        test('COA-02 - deve lançar exceção se o pai for Contra mas o filho for forçado como Não-Contra na instanciação', async () => {
+            const parentProps = { name: 'Pai Reverso', accountClass: AccountClassEnum.ASSET, localIndex: 1, isSummary: true, isContra: true };
+            const parent = await AccountEntity.createRoot(parentProps, hierarchyCheckerMock as unknown as IHierarchyCheckerService);
+
+            await expect(
+                AccountEntity.createChild(
+                    { name: 'Filho Normal Ilegal', localIndex: 1, isSummary: false, parent, isContra: false },
+                    hierarchyCheckerMock as unknown as IHierarchyCheckerService
+                )
+            ).rejects.toThrow(AccountInvariantViolationException);
         });
     });
 });
