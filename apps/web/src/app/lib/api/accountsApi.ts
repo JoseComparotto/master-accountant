@@ -1,55 +1,65 @@
 import type { AccountsApi } from "./contract";
+import { apiContract } from '@repo/contracts'
+import { initClient } from '@ts-rest/core';
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? "/api";
 
-function notImplemented(method: string): never {
-  throw new Error(
-    `accountsApi.${method} not implemented. Set VITE_USE_MOCK_API=true or wire up the backend at ${BASE_URL}.`,
-  );
+const { accounts } = initClient(apiContract, {
+  baseUrl: BASE_URL
+})
+
+function throwError(body?: any): never {
+  if (body && typeof body === 'object' && 'message' in body && typeof body.message === 'string') {
+    throw new Error(body.message);
+  }
+  console.warn(body);
+  throw new Error('Um erro inesperado aconteceu.');
 }
 
-
-
 export const accountsApi: AccountsApi = {
+
   async list() {
-    const res = await fetch(`${BASE_URL}/accounts`);
-    return await res.json();
+    const { status, body } = await accounts.getAll();
+    if (status === 200) return body;
+    throwError();
   },
+
   async usedLocalIndexes(parentId) {
     const accounts = await this.list();
     const children = accounts.filter(acc => acc.parentId === parentId)
     return children.map(acc => acc.localIndex)
   },
+
   async create(input) {
-    const res = await fetch(`${BASE_URL}/accounts`, {
-      method: 'POST',
-      body: JSON.stringify(input),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const { status, body } = await accounts.create({
+      body: input
     });
-    return await res.json();
+    if (status === 201) return body;
+    throwError(body);
   },
-  async update({id, ...input}) {    
-    const res = await fetch(`${BASE_URL}/accounts/${id}/`, {
-      method: 'PATCH',
-      body: JSON.stringify(input),
-      headers: {
-        'Content-Type': 'application/json'
-      }
+
+  async update({ id, ...input }) {
+    const { status, body } = await accounts.patch({
+      params: { id },
+      body: input
     });
-    return await res.json();
+    if (status === 200) return body;
+    throwError(body);
   },
-  async inactivate(id) {
-    const res = await fetch(`${BASE_URL}/accounts/${id}/inactivate`, {
-      method: 'PATCH'
-    });
-    return await res.json();
-  },
+
   async activate(id) {
-    const res = await fetch(`${BASE_URL}/accounts/${id}/activate`, {
-      method: 'PATCH'
+    const { status, body } = await accounts.activate({
+      params: { id },
     });
-    return await res.json();
+    if (status === 200) return body;
+    throwError(body);
   },
-};
+
+  async inactivate(id) {
+    const { status, body } = await accounts.inactivate({
+      params: { id },
+    });
+    if (status === 200) return body;
+    throwError(body);
+  },
+}

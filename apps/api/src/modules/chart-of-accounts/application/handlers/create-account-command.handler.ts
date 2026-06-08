@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { AccountDomainService, BaseAccountRepository, AccountAlreadyExistsException, UuidValue, Ensure } from "@repo/core";
-import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
+import { AccountDto } from "@repo/contracts";
 
 @CommandHandler(CreateAccountCommand)
 export class CreateAccountCommandHandler implements ICommandHandler<CreateAccountCommand> {
@@ -11,7 +11,7 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
         private readonly accountDomainService: AccountDomainService,
     ) { }
 
-    async execute({ data }: CreateAccountCommand): Promise<AccountFlatDto> {
+    async execute({ data }: CreateAccountCommand): Promise<AccountDto> {
 
         const id =  Ensure.vo('id', () => UuidValue.createOptional(data.id));
         const parentId =  Ensure.vo('parentId', () => UuidValue.createOptional(data.parentId!));

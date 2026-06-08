@@ -1,13 +1,13 @@
+import { AccountDto } from "@repo/contracts";
 import { AccountEntity } from "@repo/core";
-import { AccountFlatDto } from "../types/accounts.types";
 
 export class AccountMapper {
-    static toFlatDto(account: AccountEntity): AccountFlatDto {
+    static toFlatDto(account: AccountEntity): AccountDto {
         return {
             id: account.id.value,
             name: account.name.value,
             description: account.description,
-            parentId: account.parentId?.value,
+            parentId: account.parentId?.value ?? null,
             accountClass: account.accountClass,
             localIndex: account.localIndex,
             formattedCode: account.structuralCode.value,

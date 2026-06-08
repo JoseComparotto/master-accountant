@@ -1,6 +1,6 @@
 import { ICommand } from "@nestjs/cqrs";
-import { AccountCreateDto } from '../types/accounts.types';
+import { CreateAccountInputDto } from "@repo/contracts";
 
 export class CreateAccountCommand implements ICommand {
-    constructor(public readonly data: AccountCreateDto) {}
+    constructor(public readonly data: CreateAccountInputDto) {}
 }

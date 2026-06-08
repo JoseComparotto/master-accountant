@@ -1,16 +1,10 @@
-import type {
-  Account,
-  CreateAccountInput,
-  UpdateAccountInput,
-} from "../../features/accounts/types";
+import { AccountDto, CreateAccountInputDto, PatchAccountInputDto } from "@repo/contracts";
 
-// REST contract for Chart of Accounts. Both the in-memory mock and the future
-// HTTP client must satisfy this interface.
 export interface AccountsApi {
-  list(): Promise<Account[]>;
+  list(): Promise<AccountDto[]>;
   usedLocalIndexes(parentId: string): Promise<number[]>;
-  create(input: CreateAccountInput): Promise<Account>;
-  update(input: UpdateAccountInput): Promise<Account>;
-  inactivate(id: string): Promise<Account>;
-  activate(id: string): Promise<Account>;
+  create(input: CreateAccountInputDto): Promise<AccountDto>;
+  update(input: {id: string} & PatchAccountInputDto): Promise<AccountDto>;
+  inactivate(id: string): Promise<AccountDto>;
+  activate(id: string): Promise<AccountDto>;
 }

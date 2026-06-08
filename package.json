@@ -6,6 +6,7 @@
     "test": "turbo run test",
     "test:cov": "turbo run test:cov",
     "build": "turbo run build",
+    "build:spec": "turbo run build:spec",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
     "check-types": "turbo run check-types",

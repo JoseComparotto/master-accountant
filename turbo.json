@@ -12,6 +12,7 @@
         ".env*"
       ],
       "outputs": [
+        "dist/**",
         ".next/**",
         "!.next/cache/**"
       ]
@@ -53,6 +54,18 @@
       ],
       "outputs": [
         "src/index.ts"
+      ],
+      "cache": true
+    },
+    "build:spec": {
+      "inputs": [
+        "src/**/*.ts",
+        "!src/index.ts",
+        "!src/**/*.spec.ts",
+        "!src/**/*.test.ts"
+      ],
+      "outputs": [
+        "dist/openapi.json"
       ],
       "cache": true
     }

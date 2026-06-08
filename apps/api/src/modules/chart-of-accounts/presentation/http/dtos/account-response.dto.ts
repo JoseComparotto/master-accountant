@@ -1,8 +1,8 @@
 import { AccountClassEnum, BalanceTypeEnum } from '@repo/core';
-import { AccountFlatDto } from '../../../application/types/accounts.types';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { AccountDto } from '@repo/contracts';
 
-export class AccountResponseDto implements AccountFlatDto {
+export class AccountResponseDto implements AccountDto {
 
     @ApiProperty({
         description: 'UUID da conta',
@@ -26,7 +26,7 @@ export class AccountResponseDto implements AccountFlatDto {
         description: 'UUID da conta superior',
         example: '123e4567-e89b-12d3-a456-426614174000'
     })
-    parentId?: string | null;
+    parentId!: string | null;
 
     @ApiProperty({
         description: 'Código da conta no nível atual (sem considerar os níveis superiores)',

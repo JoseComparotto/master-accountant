@@ -33,16 +33,6 @@ function setupSwagger(app: INestApplication<any>) {
   SwaggerModule.setup('api', app, document);
 }
 
-function setupClassValidator(app: INestApplication<any>){
-  app.useGlobalPipes(
-    new ValidationPipe({
-      whitelist: true, // Remove qualquer campo que venha no JSON mas que não tenha decorador no DTO (Evita injeção de dados)
-      forbidNonWhitelisted: true, // Retorna erro se o usuário mandar campos extras não mapeados
-      transform: true, // Transforma automaticamente os tipos (ex: string '1' para number 1)
-    }),
-  );
-}
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
@@ -51,8 +41,6 @@ async function bootstrap() {
   app.useGlobalFilters(new DomainExceptionFilter());
 
   setupSwagger(app);
-
-  setupClassValidator(app);
 
   await app.listen(process.env.PORT ?? 3000);
 }

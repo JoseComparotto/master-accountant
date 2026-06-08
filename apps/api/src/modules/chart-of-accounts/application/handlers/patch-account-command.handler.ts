@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
 import { AccountDomainService, BaseAccountRepository, Ensure, UuidValue } from "@repo/core";
-import { AccountFlatDto } from "../types/accounts.types";
 import { AccountMapper } from "../mappers/account.mapper";
 import { PatchAccountCommand } from "../commands/patch-account.command";
+import { AccountDto } from "@repo/contracts";
 
 @CommandHandler(PatchAccountCommand)
 export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountCommand> {
@@ -11,7 +11,7 @@ export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountC
         private readonly accountDomainService: AccountDomainService,
     ) { }
 
-    async execute(command: PatchAccountCommand): Promise<AccountFlatDto> {
+    async execute(command: PatchAccountCommand): Promise<AccountDto> {
         const id = Ensure.vo('id', () => UuidValue.create(command.id));
         const { data } = command;
 
