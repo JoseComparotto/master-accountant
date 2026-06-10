@@ -1,5 +1,5 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, BaseAccountRepository, AccountAlreadyExistsException, UuidValue, Ensure } from "@repo/core";
+import { AccountDomainService, BaseAccountRepository, AccountAlreadyExistsException, UuidValue, Ensure, IndexGeneratorService } from "@repo/core";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
 import { AccountDto } from "@repo/contracts";
@@ -9,12 +9,13 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
     constructor(
         private readonly accountRepository: BaseAccountRepository,
         private readonly accountDomainService: AccountDomainService,
+        private readonly indexGenerator: IndexGeneratorService,
     ) { }
 
     async execute({ data }: CreateAccountCommand): Promise<AccountDto> {
 
-        const id =  Ensure.vo('id', () => UuidValue.createOptional(data.id));
-        const parentId =  Ensure.vo('parentId', () => UuidValue.createOptional(data.parentId!));
+        const id = Ensure.vo('id', () => UuidValue.createOptional(data.id));
+        const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(data.parentId!));
 
         if (id) {
             const existing = await this.accountRepository.findById(id);
@@ -23,14 +24,18 @@ export class CreateAccountCommandHandler implements ICommandHandler<CreateAccoun
 
         const parent = parentId ? await this.accountRepository.getById(parentId) : null;
 
+        const localIndex = data.localIndex ?? await this.indexGenerator.generateNextIndex(parentId ?? null);
+
         const account = await this.accountDomainService.createAccount({
             ...data,
             parent,
+            localIndex,
             id: id?.value
         });
 
         await this.accountRepository.save(account);
 
         return AccountMapper.toDto(account);
+
     }
 }

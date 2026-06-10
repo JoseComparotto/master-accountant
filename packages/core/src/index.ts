@@ -12,6 +12,6 @@ export * from './modules/chart-of-accounts/exceptions/account.exception.js';
 export * from './modules/chart-of-accounts/interfaces/account-repository.interface.js';
 export * from './modules/chart-of-accounts/interfaces/hierarchy-checker.interface.js';
 export * from './modules/chart-of-accounts/services/account-domain.service.js';
-export * from './modules/chart-of-accounts/services/default-hierarchy-checker.service.js';
+export * from './modules/chart-of-accounts/services/index-generator.service.js';
 export * from './modules/chart-of-accounts/value-objects/account-name.value.js';
 export * from './modules/chart-of-accounts/value-objects/structural-code.value.js';
