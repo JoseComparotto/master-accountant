@@ -1,11 +1,11 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Type, Logger } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { BusinessRuleViolationException, DomainException, EntityAlreadyExistsException, EntityNotExistsException } from '@repo/core';
+import { BusinessRuleViolationException, DomainException, DuplicatedEntityException, EntityNotExistsException } from '@repo/core';
 import { ApiErrorDto } from '@repo/contracts';
 
-const DOMAIN_STATUS_MAP = new Map<Type<DomainException>, HttpStatus>([
+const DOMAIN_STATUS_MAP = new Map<Type<Error>, HttpStatus>([
   [EntityNotExistsException, HttpStatus.NOT_FOUND], // 404
-  [EntityAlreadyExistsException, HttpStatus.CONFLICT], // 409
+  [DuplicatedEntityException, HttpStatus.CONFLICT], // 409
   [BusinessRuleViolationException, HttpStatus.UNPROCESSABLE_ENTITY], // 422
 ]);
 

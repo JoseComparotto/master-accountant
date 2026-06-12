@@ -4,8 +4,7 @@
   "tasks": {
     "build": {
       "dependsOn": [
-        "^build",
-        "generate-barrels"
+        "^build"
       ],
       "inputs": [
         "$TURBO_DEFAULT$",
@@ -33,29 +32,11 @@
     },
     "test": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "generate-barrels"
-      ]
+      "persistent": true
     },
     "test:cov": {
       "cache": false,
-      "persistent": true,
-      "dependsOn": [
-        "generate-barrels"
-      ]
-    },
-    "generate-barrels": {
-      "inputs": [
-        "src/**/*.ts",
-        "!src/index.ts",
-        "!src/**/*.spec.ts",
-        "!src/**/*.test.ts"
-      ],
-      "outputs": [
-        "src/index.ts"
-      ],
-      "cache": true
+      "persistent": true
     }
   }
 }

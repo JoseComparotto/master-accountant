@@ -1,20 +1,27 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { AccountMapper } from "../mappers/account.mapper";
 import { GetAccountByIdQuery } from "../queries/get-account-by-id.query";
-import { BaseAccountRepository, UuidValue, Ensure } from "@repo/core";
 import { AccountDto } from "@repo/contracts";
-
-
+import { Inject } from "@nestjs/common";
+import { Ensure, UuidValue, type IChartOfAccountsRepository } from "@repo/core";
 @QueryHandler(GetAccountByIdQuery)
 export class GetAccountByIdQueryHandler implements IQueryHandler<GetAccountByIdQuery> {
     constructor(
-        private readonly accountRepository: BaseAccountRepository,
+        @Inject('IChartOfAccountsRepository')
+        private readonly repo: IChartOfAccountsRepository,
     ) { }
 
     async execute(query: GetAccountByIdQuery): Promise<AccountDto> {
-        const id =  Ensure.vo('id', () => UuidValue.create(query.id));
 
-        const account = await this.accountRepository.getById(id);
+        const chartId = Ensure.vo('chartId', () => UuidValue.create(query.chartId));
+        const accountId = Ensure.vo('accountId', () => UuidValue.create(query.accountId));
+        
+        const chart = await this.repo.getById(chartId);
+
+        const account = chart.getAccountById(accountId);
+
+        await this.repo.save(chart);
+
         return AccountMapper.toDto(account);
     }
 

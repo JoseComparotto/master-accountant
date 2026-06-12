@@ -7,15 +7,30 @@ extendZodWithOpenApi(z);
 export const AccountClassSchema = z.nativeEnum(AccountClassEnum);
 export const BalanceTypeSchema = z.nativeEnum(BalanceTypeEnum);
 
+// Nota: .openapi({readOnly: true}) faz com o que o campo seja omitido de córpos de requisição.
 export const AccountSchema = z.object({
     id: z.string().uuid(),
-    name: z.string().min(3).max(100).openapi({ example: 'Ativo Circulante' }),
-    description: z.string().nullable().openapi({ example: 'Bens e direitos com expctativa de liquidação dentro do exercício corrente.' }),
+    name: z.string().min(3).max(100).openapi({
+        example: 'Ativo Circulante'
+    }),
+    description: z.string().nullable().openapi({
+        example: 'Bens e direitos com expctativa de liquidação dentro do exercício corrente.'
+    }),
     parentId: z.string().uuid().nullable(),
-    localIndex: z.number().int().min(1).openapi({ example: 1 }),
-    formattedCode: z.string().regex(/[1-9]\d*(\.[1-9]\d*)*/).openapi({ example: '1.1' }),
-    accountClass: AccountClassSchema.openapi({ example: AccountClassEnum.ASSET }),
-    balanceType: BalanceTypeSchema.openapi({ example: BalanceTypeEnum.DEBIT }),
+    localIndex: z.number().int().min(1).openapi({
+        example: 1
+    }),
+    formattedCode: z.string().regex(/[1-9]\d*(\.[1-9]\d*)*/).openapi({
+        example: '1.1',
+        readOnly: true
+    }),
+    accountClass: AccountClassSchema.openapi({
+        example: AccountClassEnum.ASSET
+    }),
+    balanceType: BalanceTypeSchema.openapi({
+        example: BalanceTypeEnum.DEBIT,
+        readOnly: true
+    }),
     isSummary: z.boolean().openapi({ example: true }),
     isContra: z.boolean().openapi({ example: false }),
     isActive: z.boolean().openapi({ example: true }),
@@ -27,8 +42,7 @@ export const CreateAccountInputSchema = AccountSchema
         balanceType: true,
     }).partial().and(
         AccountSchema.pick({
-            name: true,
-            isSummary: true
+            name: true
         })
     );
 

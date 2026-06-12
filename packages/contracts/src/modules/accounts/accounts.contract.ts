@@ -9,7 +9,7 @@ const ByIdParam = z.object({
     id: z.string().uuid()
 })
 
-const PREFIX = '/accounts';
+const PREFIX = '/coa/accounts';
 
 export const accountsContract = c.router({
 

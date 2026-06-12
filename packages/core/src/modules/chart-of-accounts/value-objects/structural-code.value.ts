@@ -1,7 +1,6 @@
-import { ValueObject } from "../../../shared/bases/value-object.base.js";
-import { ValueObjectMalformedException } from "../../../shared/exception/domain.exception.js";
+import { ValueObject, ValueObjectMalformedException } from "../../../shared/index.js";
 
-export class StructuralCodeValue extends ValueObject<number[]>  {
+export class StructuralCodeValue extends ValueObject<number[], string> {
 
     private constructor(segments: number[]) {
         StructuralCodeValue.validate(segments);
@@ -20,6 +19,14 @@ export class StructuralCodeValue extends ValueObject<number[]>  {
      */
     public get segments(): number[] {
         return [...this._value];
+    }
+
+    public get level():number {
+        return this.segments.length;
+    }
+
+    public get localIndex(): number {
+        return this.segments.at(-1)!;
     }
 
     /**
@@ -45,6 +52,12 @@ export class StructuralCodeValue extends ValueObject<number[]>  {
                 );
             }
         }
+    }
+
+    public static create(value: string | number[]): StructuralCodeValue {
+        if (typeof value === 'string') return this.fromString(value);
+
+        else return this.fromSegments(value);
     }
 
     /**

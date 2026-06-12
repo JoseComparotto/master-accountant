@@ -1,5 +1,10 @@
-import { ICommand } from "@nestjs/cqrs";
+import { BaseAccountCommand } from "../bases/account-command-handler.base";
 
-export class ActivateAccountCommand implements ICommand {
-    constructor(public readonly id: string) {}
+export class ActivateAccountCommand extends BaseAccountCommand {
+    constructor(
+        public readonly chartId: string,
+        public readonly accountId: string
+    ) {
+        super(chartId);
+    }
 }

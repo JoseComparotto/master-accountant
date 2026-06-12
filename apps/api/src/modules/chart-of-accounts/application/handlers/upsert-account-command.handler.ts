@@ -1,60 +1,41 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, BaseAccountRepository, Ensure, UuidValue } from "@repo/core";
+import { CommandHandler } from "@nestjs/cqrs";
+import { AccountEntity, AccountNameValue, Ensure, UuidValue } from "@repo/core";
 import { AccountMapper } from "../mappers/account.mapper";
-import { IUpsertAccountCommandHandler, UpsertAccontResult, UpsertAccountCommand } from "../commands/upsert-account.command";
+import { BaseUpsertAccountCommandHandler, UpsertAccontResult, UpsertAccountCommand } from "../commands/upsert-account.command";
 
 @CommandHandler(UpsertAccountCommand)
-export class UpsertAccountCommandHandler implements IUpsertAccountCommandHandler {
-    constructor(
-        private readonly accountRepository: BaseAccountRepository,
-        private readonly accountDomainService: AccountDomainService,
-    ) { }
-
+export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler {
     async execute(command: UpsertAccountCommand): Promise<UpsertAccontResult> {
-        const { data } = command;
+        const chart = await this.getChart(command);
 
-        const id = Ensure.vo('id', () => UuidValue.create(command.id));
-        const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(data.parentId));
+        const { accountId, data: primitiveData } = command;
 
-        const existingAccount = await this.accountRepository.findById(id);
+        const id = Ensure.vo('id', () => UuidValue.create(accountId));
+        const name = Ensure.vo('name', () => AccountNameValue.create(primitiveData.name));
+        const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(primitiveData.parentId)) ?? null;
 
-        if (existingAccount) {
-            await this.accountDomainService.updateAccount(existingAccount, {
-                name: data.name,
-                description: data.description,
-                isContra: data.isContra,
-                isActive: data.isActive,
-                parentId: data.parentId,
-                localIndex: data.localIndex,
-                accountClass: data.accountClass,
-                isSummary: data.isSummary
+        if (chart.hasAccountId(id)) {
+            const updated: Readonly<AccountEntity> = chart.updateAccount(id, {
+                ...primitiveData,
+                name, parentId
             });
 
-            await this.accountRepository.save(existingAccount);
+            await this.repo.save(chart);
             return {
                 action: 'updated',
-                account: AccountMapper.toDto(existingAccount)
+                account: AccountMapper.toDto(updated)
             };
         }
 
-        const parent = parentId ? await this.accountRepository.getById(parentId) : null;
-
-        const newAccount = await this.accountDomainService.createAccount({
-            id: id.value,
-            name: data.name,
-            description: data.description,
-            parent,
-            localIndex: data.localIndex,
-            accountClass: data.accountClass,
-            isSummary: data.isSummary,
-            isContra: data.isContra,
-            isActive: data.isActive
+        const created = chart.createAccount({
+            ...primitiveData,
+            id, name, parentId            
         });
 
-        await this.accountRepository.save(newAccount);
+        await this.repo.save(chart);
         return {
             action: 'created',
-            account: AccountMapper.toDto(newAccount)
+            account: AccountMapper.toDto(created)
         };
     }
 }

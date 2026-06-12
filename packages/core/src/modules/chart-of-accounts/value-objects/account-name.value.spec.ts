@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { AccountNameValue } from './account-name.value.js';
-import { ValueObjectMalformedException } from '../../../shared/exception/domain.exception.js';
+import { ValueObjectMalformedException } from '../../../shared/index.js';
 
 describe('AccountNameValue', () => {
 

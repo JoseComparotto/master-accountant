@@ -1,7 +1,7 @@
 export type ValueObjectFactoryFn<P, V extends ValueObject<P>> = (p: P) => V;
 export type ValueObjectOptionalFactoryFn<P, V extends ValueObject<P>> = (p: P | null | undefined) => V | undefined;
 
-export abstract class ValueObject<T> {
+export abstract class ValueObject<T, U = T> {
     // O estado interno é protegido e imutável
     protected readonly _value: T;
 
@@ -21,7 +21,7 @@ export abstract class ValueObject<T> {
      * Utilitário recursivo privado para congelar objetos e arrays profundamente.
      * Impede qualquer tentativa de alteração em estruturas aninhadas sob Strict Mode.
      */
-    private static deepFreeze(obj: any): any {
+    private static deepFreeze<T extends {[k:(string | symbol)]:any} | null >(obj: T): Readonly<T> {
         if (obj === null || typeof obj !== 'object') {
             return obj;
         }
@@ -45,14 +45,14 @@ export abstract class ValueObject<T> {
      * Retorna a representação primitiva ou estrutural interna.
      * Pode ser sobrescrita caso o contrato público divirja do armazenamento interno.
      */
-    public get value(): any {
+    public get value(): T | U {
         return this._value;
     }
 
     /**
      * Comparação estrutural profunda por valor (Pilar fundamental de um Value Object).
      */
-    public equals(other: ValueObject<T> | T | null | undefined): boolean {
+    public equals(other: typeof this | T | null | undefined): boolean {
         if (other === null || other === undefined) return false;
 
         // Se for outra instância de Value Object, garante a integridade de classes idênticas

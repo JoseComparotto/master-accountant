@@ -1,25 +1,23 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, BaseAccountRepository, UuidValue, Ensure } from "@repo/core";
+import { Ensure, type IChartOfAccountsRepository, UuidValue } from "@repo/core";
 import { AccountMapper } from "../mappers/account.mapper";
 import { ActivateAccountCommand } from "../commands/activate-account.command";
 import { AccountDto } from "@repo/contracts";
+import { BaseAccountCommandHandler } from "../bases/account-command-handler.base";
 
 @CommandHandler(ActivateAccountCommand)
-export class ActivateAccountCommandHandler implements ICommandHandler<ActivateAccountCommand> {
-    constructor(
-        private readonly accountRepository: BaseAccountRepository,
-        private readonly accountDomainService: AccountDomainService,
-    ) { }
+export class ActivateAccountCommandHandler extends BaseAccountCommandHandler<ActivateAccountCommand, AccountDto> {
 
     async execute(command: ActivateAccountCommand): Promise<AccountDto> {
-        const id =  Ensure.vo('id', () => UuidValue.create(command.id));
+        const chart = await this.getChart(command);
 
-        const account = await this.accountRepository.getById(id);
+        const accountId = Ensure.vo('accountId', () => UuidValue.create(command.accountId));
 
-        this.accountDomainService.activateAccount(account);
+        chart.activateAccount(accountId);
 
-        await this.accountRepository.save(account);
+        await this.repo.save(chart);
 
+        const account = chart.getAccountById(accountId);
         return AccountMapper.toDto(account);
     }
 }

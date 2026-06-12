@@ -1,25 +1,23 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, BaseAccountRepository, Ensure, UuidValue } from "@repo/core";
+import { Ensure, type IChartOfAccountsRepository, UuidValue } from "@repo/core";
 import { AccountMapper } from "../mappers/account.mapper";
 import { InactivateAccountCommand } from "../commands/inactivate-account.command";
 import { AccountDto } from "@repo/contracts";
+import { Inject } from "@nestjs/common";
+import { BaseAccountCommandHandler } from "../bases/account-command-handler.base";
 
 @CommandHandler(InactivateAccountCommand)
-export class InactivateAccountCommandHandler implements ICommandHandler<InactivateAccountCommand> {
-    constructor(
-        private readonly accountRepository: BaseAccountRepository,
-        private readonly accountDomainService: AccountDomainService,
-    ) { }
-
+export class InactivateAccountCommandHandler extends BaseAccountCommandHandler<InactivateAccountCommand, AccountDto> {
     async execute(command: InactivateAccountCommand): Promise<AccountDto> {
-        const id =  Ensure.vo('id', () => UuidValue.create(command.id));
+        const chart = await this.getChart(command);
 
-        const account = await this.accountRepository.getById(id);
+        const accountId = Ensure.vo('accountId', () => UuidValue.create(command.accountId));
 
-        await this.accountDomainService.inactivateAccount(account);
+        chart.inactivateAccount(accountId);
 
-        await this.accountRepository.save(account);
+        await this.repo.save(chart);
 
+        const account = chart.getAccountById(accountId);
         return AccountMapper.toDto(account);
     }
 }

@@ -1,5 +1,4 @@
-import { ValueObject, ValueObjectOptionalFactoryFn } from "../../../shared/bases/value-object.base.js";
-import { ValueObjectMalformedException } from "../../../shared/exception/domain.exception.js";
+import { ValueObject, ValueObjectMalformedException } from "../../../shared/index.js";
 
 export class AccountNameValue extends ValueObject<string> {
 

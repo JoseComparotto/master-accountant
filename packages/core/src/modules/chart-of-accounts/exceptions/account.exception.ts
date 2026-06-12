@@ -1,19 +1,38 @@
-import { DomainInvariantViolationException, EntityAlreadyExistsException, EntityNotExistsException } from "../../../shared/exception/domain.exception.js";
-import { UuidValue } from "../../../shared/value-objects/uuid.value.js";
+import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
+import {
+    DomainInvariantViolationException,
+    DuplicatedEntityIdException,
+    DuplicatedUniqueAttributeException,
+    EntityNotExistsWithIdException,
+    EntityNotExistsWithUniqueAttributeException
+} from "../../../shared/index.js";
 
 const ENTITY_NAME = 'Account';
 
-export class AccountAlreadyExistsException extends EntityAlreadyExistsException {
-    constructor(accountId: UuidValue) {
+export class DuplicatedAccountIdException extends DuplicatedEntityIdException {
+    constructor(accountId: string) {
         super(ENTITY_NAME, accountId)
     }
 }
 
-export class AccountExistsException extends EntityNotExistsException {
-    constructor(accountId: UuidValue) {
+export class DuplicatedAccountCodeException extends DuplicatedUniqueAttributeException<StructuralCodeValue> {
+    constructor(structuralCode: StructuralCodeValue) {
+        super(ENTITY_NAME, 'structuralCode', structuralCode)
+    }
+}
+
+export class AccountNotExistsWithIdException extends EntityNotExistsWithIdException {
+    constructor(accountId: string) {
         super(ENTITY_NAME, accountId)
     }
 }
+
+export class AccountNotExistsWithCodeException extends EntityNotExistsWithUniqueAttributeException<string> {
+    constructor(structuralCode: string) {
+        super(ENTITY_NAME, 'structuralCode', structuralCode)
+    }
+}
+
 export class AccountInvariantViolationException extends DomainInvariantViolationException {
     constructor(
         ruleId: string,

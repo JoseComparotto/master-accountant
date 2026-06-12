@@ -1,5 +1,3 @@
-import { UuidValue } from "../value-objects/uuid.value.js";
-
 export abstract class DomainException extends Error {
 
   // Metadados genéricos opcionais para enriquecer o payload da API externa
@@ -22,10 +20,27 @@ export abstract class DomainException extends Error {
   }
 }
 
-export class EntityAlreadyExistsException extends DomainException {
+export class DuplicatedEntityException extends DomainException {
+}
+export class EntityNotExistsException extends DomainException {
+}
+
+export class DuplicatedUniqueAttributeException<T> extends DuplicatedEntityException {
   constructor(
     public readonly entityName: string,
-    public readonly identifier: UuidValue
+    public readonly attributeName: string,
+    public readonly attributeValue: T,
+  ) {
+    super(
+      `${entityName} with unique attribute ${attributeName}: ${attributeValue} already exists.`,
+      { entityName, attributeName, attributeValue } // Metadados expostos para a Infraestrutura/API
+    );
+  }
+}
+export class DuplicatedEntityIdException extends DuplicatedEntityException {
+  constructor(
+    public readonly entityName: string,
+    public readonly identifier: string
   ) {
     super(
       `${entityName} with ID ${identifier} already exists.`,
@@ -34,14 +49,28 @@ export class EntityAlreadyExistsException extends DomainException {
   }
 }
 
-export class EntityNotExistsException extends DomainException {
+
+export class EntityNotExistsWithIdException extends EntityNotExistsException {
   constructor(
     public readonly entityName: string,
-    public readonly identifier: UuidValue
+    public readonly identifier: string
   ) {
     super(
       `${entityName} with ID ${identifier} not found.`,
       { entityName, identifier }
+    );
+  }
+}
+
+export class EntityNotExistsWithUniqueAttributeException<T> extends EntityNotExistsException {
+  constructor(
+    public readonly entityName: string,
+    public readonly attributeName: string,
+    public readonly attributeValue: T,
+  ) {
+    super(
+      `${entityName} with unique ${attributeName}: ${attributeValue} not found.`,
+      { entityName, attributeName, attributeValue }
     );
   }
 }
@@ -58,7 +87,7 @@ export class DomainInvariantViolationException extends BusinessRuleViolationExce
     message: string,
     entityName?: string,
   ) {
-    super(message, { ruleId, entityName });
+    super(`${ruleId}: ${message}`, { ruleId, entityName });
   }
 }
 

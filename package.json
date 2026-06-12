@@ -9,8 +9,7 @@
     "build:spec": "turbo run build:spec",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types",
-    "generate-barrels": "turbo run generate-barrels"
+    "check-types": "turbo run check-types"
   },
   "devDependencies": {
     "prettier": "^3.7.4",

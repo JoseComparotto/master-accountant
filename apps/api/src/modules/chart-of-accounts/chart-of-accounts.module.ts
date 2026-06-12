@@ -14,12 +14,9 @@ import { InactivateAccountCommandHandler } from "./application/handlers/inactiva
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
 
 // Repositories
-import { MockAccountRepository } from "./infrastructure/mock/repositories/mock-account.repository";
-import { BaseAccountRepository } from "@repo/core";
+import { MockChartOfAccountsRepository } from "./infrastructure/mock/repositories/mock-chart-of-accounts.repository";
 
 // Services
-import { AccountDomainService, IndexGeneratorService, IHierarchyCheckerService } from "@repo/core";
-import { MockHierarchyCheckerService } from "./infrastructure/mock/services/mock-hierarchy-checker.service";
 
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
@@ -36,31 +33,12 @@ const CommandHandlers = [
 
 const Repositories = [
     {
-        provide: BaseAccountRepository,
-        useClass: MockAccountRepository
+        provide: 'IChartOfAccountsRepository',
+        useClass: MockChartOfAccountsRepository
     }
 ];
 
 const Services = [
-    {
-        provide: 'IHierarchyCheckerService',
-        useFactory: (repo: BaseAccountRepository) =>
-            new MockHierarchyCheckerService(repo),
-        inject: [BaseAccountRepository]
-    },
-    {
-        provide: IndexGeneratorService,
-        useFactory: (repo: BaseAccountRepository) =>
-            new IndexGeneratorService(repo),
-        inject: [BaseAccountRepository]
-    },
-    {
-        provide: AccountDomainService,
-        useFactory: (
-            checker: IHierarchyCheckerService,
-        ) => new AccountDomainService(checker),
-        inject: ['IHierarchyCheckerService']
-    },
 ];
 
 @Module({

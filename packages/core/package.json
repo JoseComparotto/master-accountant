@@ -17,8 +17,7 @@
     "test:cov": "vitest run --coverage",
     "lint": "eslint . --max-warnings 0",
     "check-types": "tsc --noEmit",
-    "build": "tsc",
-    "generate-barrels": "node ../../tools/generate-barrels.js"
+    "build": "tsc"
   },
   "devDependencies": {
     "@jest/globals": "^30.4.1",

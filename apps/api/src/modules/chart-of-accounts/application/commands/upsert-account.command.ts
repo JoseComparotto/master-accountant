@@ -1,11 +1,15 @@
 import { ICommand, ICommandHandler } from "@nestjs/cqrs";
 import { AccountDto, UpsertAccountInputDto } from "@repo/contracts";
+import { BaseAccountCommand, BaseAccountCommandHandler } from "../bases/account-command-handler.base";
 
-export class UpsertAccountCommand implements ICommand {
+export class UpsertAccountCommand extends BaseAccountCommand {
     constructor(
-        public readonly id: string,
+        public readonly chartId: string,
+        public readonly accountId: string,
         public readonly data: UpsertAccountInputDto
-    ) {}
+    ) {
+        super(chartId);
+    }
 }
 
 export interface UpsertAccontResult {
@@ -13,6 +17,6 @@ export interface UpsertAccontResult {
     account: AccountDto;
 }
 
-export interface IUpsertAccountCommandHandler extends ICommandHandler<UpsertAccountCommand>{
-    execute(command: UpsertAccountCommand): Promise<UpsertAccontResult>;
+export abstract class BaseUpsertAccountCommandHandler extends BaseAccountCommandHandler<UpsertAccountCommand, UpsertAccontResult>{
+
 }

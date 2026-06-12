@@ -1,39 +1,30 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, BaseAccountRepository, AccountAlreadyExistsException, UuidValue, Ensure, IndexGeneratorService } from "@repo/core";
 import { AccountMapper } from "../mappers/account.mapper";
 import { CreateAccountCommand } from "../commands/create-account.command";
 import { AccountDto } from "@repo/contracts";
+import { AccountNameValue, Ensure, UuidValue } from "@repo/core";
+import { BaseAccountCommandHandler } from "../bases/account-command-handler.base";
 
 @CommandHandler(CreateAccountCommand)
-export class CreateAccountCommandHandler implements ICommandHandler<CreateAccountCommand> {
-    constructor(
-        private readonly accountRepository: BaseAccountRepository,
-        private readonly accountDomainService: AccountDomainService,
-        private readonly indexGenerator: IndexGeneratorService,
-    ) { }
+export class CreateAccountCommandHandler extends BaseAccountCommandHandler<CreateAccountCommand> {
+    async execute(command: CreateAccountCommand): Promise<AccountDto> {
 
-    async execute({ data }: CreateAccountCommand): Promise<AccountDto> {
+        const primitiveData = command.data;
 
-        const id = Ensure.vo('id', () => UuidValue.createOptional(data.id));
-        const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(data.parentId!));
+        const id = Ensure.vo('id', () => UuidValue.createOptional(primitiveData.id));
+        const name = Ensure.vo('name', () => AccountNameValue.create(primitiveData.name));
+        const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(primitiveData.parentId)) ?? null;
 
-        if (id) {
-            const existing = await this.accountRepository.findById(id);
-            if (existing) throw new AccountAlreadyExistsException(id);
-        }
+        const chart = await this.getChart(command);
 
-        const parent = parentId ? await this.accountRepository.getById(parentId) : null;
-
-        const localIndex = data.localIndex ?? await this.indexGenerator.generateNextIndex(parentId ?? null);
-
-        const account = await this.accountDomainService.createAccount({
-            ...data,
-            parent,
-            localIndex,
-            id: id?.value
+        const account = chart.createAccount({
+            ...primitiveData,
+            id,
+            name,
+            parentId,
         });
 
-        await this.accountRepository.save(account);
+        await this.repo.save(chart);
 
         return AccountMapper.toDto(account);
 

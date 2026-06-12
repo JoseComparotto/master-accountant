@@ -1,42 +1,43 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountDomainService, BaseAccountRepository, Ensure, UuidValue } from "@repo/core";
+import { CommandHandler } from "@nestjs/cqrs";
+import { AccountNameValue, Ensure, UuidValue } from "@repo/core";
 import { AccountMapper } from "../mappers/account.mapper";
 import { PatchAccountCommand } from "../commands/patch-account.command";
 import { AccountDto } from "@repo/contracts";
+import { BaseAccountCommandHandler } from "../bases/account-command-handler.base";
 
 @CommandHandler(PatchAccountCommand)
-export class PatchAccountCommandHandler implements ICommandHandler<PatchAccountCommand> {
-    constructor(
-        private readonly accountRepository: BaseAccountRepository,
-        private readonly accountDomainService: AccountDomainService,
-    ) { }
-
+export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchAccountCommand, AccountDto> {
     async execute(command: PatchAccountCommand): Promise<AccountDto> {
-        const id = Ensure.vo('id', () => UuidValue.create(command.id));
-        const { data } = command;
+        const chart = await this.getChart(command);
 
-        const account = await this.accountRepository.getById(id);
+        const { accountId, data: primitiveData } = command;
 
-        if (data.name !== undefined || data.description !== undefined) {
-            this.accountDomainService.patchAccountMetadata(account, {
-                name: data.name,
-                description: data.description,
-            })
-        }
+        const id = Ensure.vo('id', () => UuidValue.create(accountId));
+        const name = Ensure.vo('name', () => AccountNameValue.createOptional(primitiveData.name));
 
-        if (data.isContra !== undefined) {
-            await this.accountDomainService.applyContraLogic(account, data.isContra)
-        }
+        if (name !== undefined)
+            chart.updateAccountName(id, name);
 
-        if (data.isActive !== undefined) {
-            if (data.isActive)
-                this.accountDomainService.activateAccount(account)
+        if (primitiveData.description !== undefined)
+            chart.updateAccountDescription(id, primitiveData.description);
+
+        if (primitiveData.isContra !== undefined) {
+            if (primitiveData.isContra)
+                chart.convertToContraAccount(id);
             else
-                await this.accountDomainService.inactivateAccount(account)
+                chart.convertToNormalAccount(id);
         }
 
-        await this.accountRepository.save(account);
+        if (primitiveData.isActive !== undefined) {
+            if (primitiveData.isActive)
+                chart.activateAccount(id)
+            else
+                chart.inactivateAccount(id)
+        }
 
+        await this.repo.save(chart);
+
+        const account = chart.getAccountById(id);
         return AccountMapper.toDto(account);
     }
 

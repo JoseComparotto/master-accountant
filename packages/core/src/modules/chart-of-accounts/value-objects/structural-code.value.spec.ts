@@ -1,27 +1,27 @@
 import { describe, it, expect } from 'vitest';
 import { StructuralCodeValue } from './structural-code.value.js';
-import { ValueObjectMalformedException } from '../../../shared/exception/domain.exception.js';
+import { ValueObjectMalformedException } from '../../../shared/index.js';
 
 describe('StructuralCodeValue', () => {
 
     describe('Criação com Sucesso e Fábricas (Factories)', () => {
         it('deve criar uma conta raiz válida usando createRoot', () => {
             const vo = StructuralCodeValue.createRoot(1);
-            
+
             expect(vo.value).toBe('1');
             expect(vo.segments).toEqual([1]);
         });
 
         it('deve criar uma instância a partir de um array numérico bruto usando fromSegments', () => {
             const vo = StructuralCodeValue.fromSegments([1, 1, 2]);
-            
+
             expect(vo.value).toBe('1.1.2');
             expect(vo.segments).toEqual([1, 1, 2]);
         });
 
         it('deve fazer o parse correto de uma string contábil válida usando fromString', () => {
             const vo = StructuralCodeValue.fromString('1.1.03');
-            
+
             // Note que "03" é convertido para o inteiro 3 pelo parseInt interno
             expect(vo.value).toBe('1.1.3');
             expect(vo.segments).toEqual([1, 1, 3]);
@@ -30,17 +30,55 @@ describe('StructuralCodeValue', () => {
         it('deve gerar uma instância filha correta a partir de um nó pai usando createChild', () => {
             const pai = StructuralCodeValue.fromSegments([1, 1]);
             const filho = pai.createChild(5);
-            
+
             expect(filho.value).toBe('1.1.5');
             expect(filho.segments).toEqual([1, 1, 5]);
             // Garante que o pai permaneceu imutável
             expect(pai.value).toBe('1.1');
         });
+
+        // --- NOVOS TESTES: Fábrica Flexível (create) ---
+        it('deve aceitar uma string na fábrica flexível "create" e delegar para fromString', () => {
+            const vo = StructuralCodeValue.create('2.3.4');
+
+            expect(vo.value).toBe('2.3.4');
+            expect(vo.segments).toEqual([2, 3, 4]);
+        });
+
+        it('deve aceitar um array de números na fábrica flexível "create" e delegar para fromSegments', () => {
+            const vo = StructuralCodeValue.create([2, 3, 4]);
+
+            expect(vo.value).toBe('2.3.4');
+            expect(vo.segments).toEqual([2, 3, 4]);
+        });
+    });
+
+
+    describe('Getters de Análise Estrutural (level e localIndex)', () => {
+        it('deve retornar o nível (level) correto baseado na profundidade da árvore', () => {
+            const raiz = StructuralCodeValue.createRoot(1);            // [1]
+            const nivelTres = StructuralCodeValue.fromString('1.4.2'); // [1, 4, 2]
+            const nivelCinco = StructuralCodeValue.create([1, 2, 3, 4, 5]);
+
+            expect(raiz.level).toBe(1);
+            expect(nivelTres.level).toBe(3);
+            expect(nivelCinco.level).toBe(5);
+        });
+
+        it('deve retornar o índice local (localIndex) extraído do último segmento do código', () => {
+            const raiz = StructuralCodeValue.createRoot(4);            // Último é 4
+            const contaFilha = StructuralCodeValue.fromString('1.1.9'); // Último é 9
+            const contaLonga = StructuralCodeValue.create([2, 5, 1, 42]); // Último é 42
+
+            expect(raiz.localIndex).toBe(4);
+            expect(contaFilha.localIndex).toBe(9);
+            expect(contaLonga.localIndex).toBe(42);
+        });
     });
 
     describe('Invariantes de Domínio (Testes Parametrizados de Segmentos)', () => {
         it.each([
-            { input: [],          cenario: 'um array vazio' },
+            { input: [], cenario: 'um array vazio' },
             { input: null as any, cenario: 'nulo' },
         ])('deve lançar ValueObjectMalformedException se receber $cenario', ({ input }) => {
             expect(() => {
@@ -49,8 +87,8 @@ describe('StructuralCodeValue', () => {
         });
 
         it.each([
-            { input: [1, -2, 3],  cenario: 'número negativo' },
-            { input: [1, 0, 2],   cenario: 'zero' },
+            { input: [1, -2, 3], cenario: 'número negativo' },
+            { input: [1, 0, 2], cenario: 'zero' },
             { input: [1, 1.5, 3], cenario: 'número decimal' },
         ])('deve lançar ValueObjectMalformedException se algum segmento for $cenario', ({ input }) => {
             expect(() => {
@@ -61,12 +99,12 @@ describe('StructuralCodeValue', () => {
 
     describe('Validação de Strings Incorretas (fromString)', () => {
         it.each([
-            { input: '',        cenario: 'vazia' },
-            { input: '   ',     cenario: 'apenas espaços' },
-            { input: '1..2',    cenario: 'pontos duplicados sem segmento' },
-            { input: '1.a.3',   cenario: 'caracteres alfabéticos' },
-            { input: '1.2.',    cenario: 'ponto órfão no final' },
-            { input: 'abc',     cenario: 'texto arbitrário' }
+            { input: '', cenario: 'vazia' },
+            { input: '   ', cenario: 'apenas espaços' },
+            { input: '1..2', cenario: 'pontos duplicados sem segmento' },
+            { input: '1.a.3', cenario: 'caracteres alfabéticos' },
+            { input: '1.2.', cenario: 'ponto órfão no final' },
+            { input: 'abc', cenario: 'texto arbitrário' }
         ])('deve lançar ValueObjectMalformedException se a string for $cenario', ({ input }) => {
             expect(() => {
                 StructuralCodeValue.fromString(input);
