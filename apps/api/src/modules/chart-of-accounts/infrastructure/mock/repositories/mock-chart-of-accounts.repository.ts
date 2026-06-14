@@ -12,6 +12,8 @@ import {
 } from "@repo/core";
 import { OptimisticLockException } from "../../../../../shared/infrastructure/exceptions/infrastructure.exception";
 import { MockChartOfAccountsFiller } from "./mock-chart-of-accounts.filler";
+import { ConfigService } from "@nestjs/config";
+import { AppConfig } from "../../../../../config/configuration";
 
 export interface ChartStorageSnapshot {
     chartId: string;
@@ -35,8 +37,12 @@ export interface AccountStorageSnapshot {
 export class MockChartOfAccountsRepository implements IChartOfAccountsRepository {
     private readonly _database = new Map<string, ChartStorageSnapshot>();
 
-    constructor(){
-        MockChartOfAccountsFiller.fill(this._database);
+    constructor(
+        configService: ConfigService<AppConfig>
+    ) {
+        const mockConfig = configService.getOrThrow('mock', { infer: true });
+
+        MockChartOfAccountsFiller.fill(this._database, mockConfig);
     }
 
     /**

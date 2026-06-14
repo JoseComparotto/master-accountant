@@ -1,9 +1,14 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpStatus, Type, Logger } from '@nestjs/common';
 import { Response, Request } from 'express';
-import { BusinessRuleViolationException, DomainException, DuplicatedEntityException, EntityNotExistsException } from '@repo/core';
+import {
+  BusinessRuleViolationException,
+  DomainException,
+  DuplicatedEntityException,
+  EntityNotExistsException
+} from '@repo/core';
 import { ApiErrorDto } from '@repo/contracts';
 
-const DOMAIN_STATUS_MAP = new Map<Type<Error>, HttpStatus>([
+const DOMAIN_STATUS_MAP = new Map<Type<DomainException>, HttpStatus>([
   [EntityNotExistsException, HttpStatus.NOT_FOUND], // 404
   [DuplicatedEntityException, HttpStatus.CONFLICT], // 409
   [BusinessRuleViolationException, HttpStatus.UNPROCESSABLE_ENTITY], // 422
@@ -30,7 +35,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
       }
     }
 
-    const errorBody: ApiErrorDto = { 
+    const errorBody: ApiErrorDto = {
       statusCode: status,
       path: request.url,
       message: exception.message,
@@ -42,7 +47,7 @@ export class DomainExceptionFilter implements ExceptionFilter {
     this.logger.warn(
       `${request.method} ${request.url} - Status: ${status} - Message: ${errorBody.message}`
     );
-    
+
     // Retorna a resposta tipada
     return response.status(status).json(errorBody);
   }

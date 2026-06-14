@@ -5,26 +5,28 @@ import { DomainExceptionFilter } from './shared/presentation/filters/domain-exce
 import { openApiDocument } from '@repo/contracts';
 import { TsRestValidationFilter } from './shared/presentation/filters/ts-rest-validation.filter';
 import { INestApplication } from '@nestjs/common';
-
-const globalPrefix = process.env.GLOBAL_PREFIX ?? '/api';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from './config/configuration';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  const configService: ConfigService<AppConfig> = app.get(ConfigService);
+  const { port, globalPrefix } = configService.getOrThrow('api', { infer: true });
 
   app.setGlobalPrefix(globalPrefix, { exclude: ['/', '/api'] });
 
-  app.enableCors();
-
-  setupSwagger(app);
-
-  await app.listen(process.env.PORT ?? 3000);
-}
-bootstrap();
-
-function setupSwagger(app: INestApplication<any>) {
   app.useGlobalFilters(new TsRestValidationFilter());
   app.useGlobalFilters(new DomainExceptionFilter());
 
+  app.enableCors();
+
+  setupSwagger(app, globalPrefix);
+
+  await app.listen(port);
+}
+bootstrap();
+
+function setupSwagger(app: INestApplication<any>, globalPrefix: string) {
   const docs: OpenAPIObject = {
     ...openApiDocument,
     servers: [

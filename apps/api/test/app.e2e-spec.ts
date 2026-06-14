@@ -1,32 +1,117 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
 import request from 'supertest';
-import { App } from 'supertest/types';
-import { AppModule } from './../src/app.module';
-import { afterEach, beforeEach, describe, it } from 'node:test';
+import { AppModule } from '../src/app.module';
+import { DomainExceptionFilter } from '../src/shared/presentation/filters/domain-exception.filter';
 
-// TODO: Construir testes e2e
+const accountSeeds = [
+  {
+    key: 'ativo_raiz',
+    name: 'Ativo',
+    description: 'Bens e direitos da entidade.',
+    formattedCode: '1',
+    isSummary: true,
+    getParentId: () => null, // Raiz
+  },
+  {
+    key: 'ativo_circulante',
+    name: 'Ativo Circulante',
+    description: 'Disponibilidades e direitos realizáveis no curto prazo.',
+    formattedCode: '1.1',
+    isSummary: true,
+    getParentId: (ids: Record<string, string>) => ids['ativo_raiz'],
+  },
+  {
+    key: 'caixa',
+    name: 'Caixa e Equivalentes de Caixa',
+    description: 'Moeda em poder da entidade e depósitos bancários imediatos.',
+    formattedCode: '1.1.1',
+    isSummary: false, // Analítica
+    getParentId: (ids: Record<string, string>) => ids['ativo_circulante'],
+  },
+];
 
-describe('AppController (e2e)', () => {
-  let app: INestApplication<App>;
+describe('Contas Contábeis - /coa/accounts (e2e - Caminho Feliz)', () => {
+  let app: INestApplication;
 
-  beforeEach(async () => {
+  const createdIds: Record<string, string> = {};
+
+  beforeAll(async () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
     app = moduleFixture.createNestApplication();
+    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+    app.useGlobalFilters(new DomainExceptionFilter());
+
     await app.init();
   });
 
-  it('/ (GET)', async () => {
-    await request(app.getHttpServer())
-      .get('/')
-      .expect(200)
-      .expect('Hello World!');
+  afterAll(async () => {
+    await app.close();
   });
 
-  afterEach(async () => {
-    await app.close();
+  // ==========================================================================
+  // EXECUÇÃO DO PROVISIONAMENTO (CAMINHO FELIZ)
+  // ==========================================================================
+  describe('Provisionamento Inicial (Caminho Feliz)', () => {
+    for (const seed of accountSeeds) {
+      const tipoConta = seed.isSummary ? 'Sintética' : 'Analítica';
+
+      it(`POST /coa/accounts/ -> Deve criar a conta "${seed.name}" (${tipoConta})`, async () => {
+        const parentId = seed.getParentId(createdIds);
+
+        const payload = {
+          name: seed.name,
+          description: seed.description,
+          parentId: parentId,
+          accountClass: 'asset',
+          isSummary: seed.isSummary,
+          isContra: false,
+          isActive: true
+        };
+
+        const response = await request(app.getHttpServer())
+          .post('/coa/accounts/')
+          .send(payload)
+          .expect(201);
+
+        expect(response.body.id).toBeDefined();
+        expect(response.body.formattedCode).toBe(seed.formattedCode);
+        expect(response.body.name).toBe(payload.name);
+        expect(response.body.isSummary).toBe(payload.isSummary);
+        expect(response.body.parentId).toBe(payload.parentId);
+
+        createdIds[seed.key] = response.body.id;
+      });
+    }
+  });
+
+  // ==========================================================================
+  // VALIDAÇÃO DE INVARIANTES DE DOMÍNIO (REGRAS DE NEGÓCIO)
+  // ==========================================================================
+  describe('Invariantes de Domínio - Restrições de Raiz', () => {
+    it('POST /coa/accounts/ -> Deve rejeitar com 422 a criação de uma segunda conta raiz com a mesma classe (asset)', async () => {
+      const segundaRaizInvalida = {
+        name: 'Outro Ativo Independente',
+        description: 'Tentativa ilegal de duplicar a raiz da classe asset na árvore.',
+        parentId: null, // Força tentativa de criar como raiz
+        accountClass: 'asset', // Mesma classe que o 'Ativo' criado no loop acima
+        isSummary: true,
+        isContra: false,
+        isActive: true
+      };
+
+      const response = await request(app.getHttpServer())
+        .post('/coa/accounts/')
+        .send(segundaRaizInvalida)
+        .expect(422);
+
+      expect(response.body.statusCode).toBe(422);
+      expect(response.body.message).toBeDefined();
+      expect(response.body.path).toBeDefined();
+    });
   });
 });
