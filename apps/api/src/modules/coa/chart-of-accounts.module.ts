@@ -14,9 +14,12 @@ import { InactivateAccountCommandHandler } from "./application/commands/inactiva
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
 
 // Repositories
-import { MockChartOfAccountsRepository } from "./infrastructure/mock/repositories/mock-chart-of-accounts.repository";
+import { InMemoryChartOfAccountsRepository } from "./infrastructure/in-memory/repositories/in-memory-chart-of-accounts.repository";
 
 // Services
+import { InMemoryAccountQueryService } from "./infrastructure/in-memory/services/in-memory-account-query.service";
+import { InMemoryChartOfAccountsFillerService } from "./infrastructure/in-memory/services/in-memory-account-filler.service";
+import { InMemoryChartOfAccountsDatabase } from "./infrastructure/in-memory/in-memory.database";
 
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
@@ -34,11 +37,18 @@ const CommandHandlers = [
 const Repositories = [
     {
         provide: 'IChartOfAccountsRepository',
-        useClass: MockChartOfAccountsRepository
+        useFactory: (db: InMemoryChartOfAccountsDatabase) => new InMemoryChartOfAccountsRepository(db),
+        inject: [InMemoryChartOfAccountsDatabase]
     }
 ];
 
 const Services = [
+    {
+        provide: 'IAccountQueryService',
+        useClass: InMemoryAccountQueryService
+    },
+    InMemoryChartOfAccountsFillerService,
+    InMemoryChartOfAccountsDatabase
 ];
 
 @Module({

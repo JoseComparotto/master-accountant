@@ -1,28 +1,22 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
 import { GetAllAccountsQuery } from "./get-all-accounts.query";
-import { type IChartOfAccountsRepository } from "@repo/coa-core";
 import { AccountMapper } from "../../mappers/account.mapper";
 import { AccountDto } from "@repo/coa-contracts";
 import { Inject } from "@nestjs/common";
 import { Ensure, UuidValue } from "@repo/shared-core";
+import type { IAccountQueryService } from "../../interfaces/account-query-service.interface";
 
 @QueryHandler(GetAllAccountsQuery)
 export class GetAllAccountsQueryHandler implements IQueryHandler<GetAllAccountsQuery> {
     constructor(
-        @Inject('IChartOfAccountsRepository')
-        private readonly repo: IChartOfAccountsRepository,
+        @Inject('IAccountQueryService')
+        private readonly service: IAccountQueryService,
     ) { }
 
     async execute(query: GetAllAccountsQuery): Promise<AccountDto[]> {
-
         const chartId = Ensure.vo('chartId', () => UuidValue.create(query.chartId));
 
-        const chart = await this.repo.getById(chartId);
-
-        const { accounts } = chart;
-
-        return accounts.sort((a, b) => a.structuralCode.compareTo(b.structuralCode))
-            .map(AccountMapper.toDto);
+        return await this.service.getAllAccountsByChartId(chartId);
     }
 
 }

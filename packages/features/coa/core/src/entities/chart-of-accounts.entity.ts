@@ -116,6 +116,7 @@ export class ChartOfAccountsEntity {
         );
 
         const account = AccountEntity.createRoot({
+            chartId: this.id,
             id: input.id,
             structuralCode,
             name: input.name,
@@ -140,6 +141,7 @@ export class ChartOfAccountsEntity {
         const structuralCode = this.generateCode(parent, input.localIndex);
 
         const account = AccountEntity.createChild({
+            chartId: this.id,
             id: input.id,
             structuralCode,
             name: input.name,
@@ -163,6 +165,7 @@ export class ChartOfAccountsEntity {
         const account = this._collection.getById(accountId);
 
         const diffMap: Record<FieldName, boolean> = {
+            chartId: !UuidValue.isEquals(target.parentId, account.parentId),
             parentId: !UuidValue.isEquals(target.parentId, account.parentId),
             name: !AccountNameValue.isEquals(target.name, account.name),
             description: target.description !== account.description,
@@ -319,11 +322,11 @@ export class ChartOfAccountsEntity {
 type WithIndex = { localIndex?: number; }
 
 export type CreateAccountInput =
-    Omit<CreateAccountProps, 'structuralCode' | 'isContra' | 'isActive' | 'accountClass'>
+    Omit<CreateAccountProps, 'chartId' | 'structuralCode' | 'isContra' | 'isActive' | 'accountClass'>
     & Partial<Pick<AccountProps, 'isContra' | 'isActive' | 'accountClass'>>;
-export type CreateRootAccountInput = Omit<CreateRootAccountProps, 'structuralCode'> & WithIndex;
+export type CreateRootAccountInput = Omit<CreateRootAccountProps, 'chartId' | 'structuralCode'> & WithIndex;
 export type CreateChildAccountInput =
-    Omit<CreateChildAccountProps, 'structuralCode' | 'isContra' | 'isActive' | 'accountClass'>
+    Omit<CreateChildAccountProps, 'chartId' | 'structuralCode' | 'isContra' | 'isActive' | 'accountClass'>
     & Partial<Pick<AccountProps, 'isContra' | 'isActive' | 'accountClass'>>
     & WithIndex;
 

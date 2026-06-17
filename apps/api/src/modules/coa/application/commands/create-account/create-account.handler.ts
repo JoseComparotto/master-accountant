@@ -20,9 +20,7 @@ export class CreateAccountCommandHandler extends BaseAccountCommandHandler<Creat
 
         const account = chart.createAccount({
             ...primitiveData,
-            id,
-            name,
-            parentId,
+            id, name, parentId,
         });
 
         await this.repo.save(chart);

@@ -1,21 +1,21 @@
-import { AccountClassEnum } from "@repo/coa-core";
-import { AccountStorageSnapshot, ChartStorageSnapshot } from "./mock-chart-of-accounts.repository";
+import { AccountClassEnum, BalanceTypeEnum } from "@repo/coa-core";
 import { AppConfig } from "../../../../../config/configuration";
+import { AccountStorageSnapshot, ChartStorageSnapshot, InMemoryChartOfAccountsDatabase } from "../in-memory.database";
+import { Injectable } from "@nestjs/common";
 
-export class MockChartOfAccountsFiller {
+@Injectable()
+export class InMemoryChartOfAccountsFillerService {
 
-    public static readonly DEFAULT_CHART_ID = process.env.DEFAULT_CHART_ID!;
-
-    /**
-     * Helper privado para gerar o UUID determinístico baseado em um número de sequência
-     */
-    private static generateDeterministicId(sequence: number): string {
-        return `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`;
-    }
-
-    public static fill(database: Map<string, ChartStorageSnapshot>, mockConfig: AppConfig['mock']): void {
+    public fill(database: InMemoryChartOfAccountsDatabase, mockConfig: AppConfig['mock']): void {
 
         const { autoSeed, defaultChartId: chartId } = mockConfig;
+
+        database.chartsById.set(chartId, {
+            chartId,
+            version: 1,
+        });
+
+        if (!autoSeed) return;
 
         // Helper Factory estendido para gerenciar as sequências determinísticas de ID
         const createGroup = (
@@ -25,12 +25,14 @@ export class MockChartOfAccountsFiller {
             accountClass: `${AccountClassEnum}`,
             parentSeq: number | null = null // Sequência da conta pai (opcional)
         ): AccountStorageSnapshot => ({
-            id: this.generateDeterministicId(seq),
+            chartId,
+            id: InMemoryChartOfAccountsFillerService.generateDeterministicId(seq),
             structuralCode: code,
-            parentId: parentSeq ? this.generateDeterministicId(parentSeq) : null,
+            parentId: parentSeq ? InMemoryChartOfAccountsFillerService.generateDeterministicId(parentSeq) : null,
             name,
             description: `Grupo estrutural de ${name}`,
             accountClass,
+            balanceType: InMemoryChartOfAccountsFillerService.calculateBalanceType(accountClass, false),
             isSummary: true,
             isContra: false,
             isActive: true
@@ -58,10 +60,20 @@ export class MockChartOfAccountsFiller {
             createGroup(9, [2, 2], 'Passivo Não Circulante', 'liability', 2),
         ];
 
-        database.set(chartId, {
-            chartId,
-            version: 1, 
-            accounts: autoSeed ? accounts : [],
-        });
+        for (const account of accounts) 
+            database.accountsById.set(account.id,account);
     }
+
+    /**
+    * Helper privado para gerar o UUID determinístico baseado em um número de sequência
+    */
+    private static generateDeterministicId(sequence: number): string {
+        return `00000000-0000-4000-8000-${sequence.toString().padStart(12, '0')}`;
+    }
+
+    private static calculateBalanceType(accountClass: AccountClassEnum | `${AccountClassEnum}`, isContra: boolean): BalanceTypeEnum {
+        return [AccountClassEnum.ASSET, AccountClassEnum.EXPENSE]
+            .includes(accountClass as AccountClassEnum) !== isContra ? BalanceTypeEnum.DEBIT : BalanceTypeEnum.CREDIT;
+    }
+
 }
