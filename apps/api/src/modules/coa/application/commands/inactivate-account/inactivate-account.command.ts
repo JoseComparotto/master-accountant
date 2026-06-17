@@ -1,4 +1,4 @@
-import { BaseAccountCommand } from "../bases/account-command-handler.base";
+import { BaseAccountCommand } from "../../bases/account-command-handler.base";
 
 export class InactivateAccountCommand extends BaseAccountCommand {
     constructor(

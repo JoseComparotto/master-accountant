@@ -2,13 +2,13 @@ import { Module } from "@nestjs/common";
 import { CqrsModule } from "@nestjs/cqrs";
 
 // Handlers
-import { GetAllAccountsQueryHandler } from "./application/handlers/get-all-accounts-query.handler";
-import { GetAccountByIdQueryHandler } from "./application/handlers/get-account-by-id-query.handler";
-import { CreateAccountCommandHandler } from "./application/handlers/create-account-command.handler";
-import { PatchAccountCommandHandler } from "./application/handlers/patch-account-command.handler";
-import { UpsertAccountCommandHandler } from "./application/handlers/upsert-account-command.handler";
-import { ActivateAccountCommandHandler } from "./application/handlers/activate-account-command.handler"
-import { InactivateAccountCommandHandler } from "./application/handlers/inactivate-account-command.handler"
+import { GetAllAccountsQueryHandler } from "./application/queries/get-all-accounts/get-all-accounts-query.handler";
+import { GetAccountByIdQueryHandler } from "./application/queries/get-account-by-id/get-account-by-id.handler";
+import { CreateAccountCommandHandler } from "./application/commands/create-account/create-account.handler";
+import { PatchAccountCommandHandler } from "./application/commands/patch-account/patch-account.handler";
+import { UpsertAccountCommandHandler } from "./application/commands/upsert-account/upsert-account-command.handler";
+import { ActivateAccountCommandHandler } from "./application/commands/activate-account/activate-account.handler"
+import { InactivateAccountCommandHandler } from "./application/commands/inactivate-account/inactivate-account.handler"
 
 // Controllers
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";

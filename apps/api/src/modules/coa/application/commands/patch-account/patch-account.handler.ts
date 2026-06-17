@@ -1,9 +1,9 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { AccountNameValue } from "@repo/coa-core";
-import { AccountMapper } from "../mappers/account.mapper";
-import { PatchAccountCommand } from "../commands/patch-account.command";
+import { AccountMapper } from "../../mappers/account.mapper";
+import { PatchAccountCommand } from "./patch-account.command";
 import { AccountDto } from "@repo/coa-contracts";
-import { BaseAccountCommandHandler } from "../bases/account-command-handler.base";
+import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
 
 @CommandHandler(PatchAccountCommand)

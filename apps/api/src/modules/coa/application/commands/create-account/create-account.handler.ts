@@ -1,10 +1,10 @@
 import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
-import { AccountMapper } from "../mappers/account.mapper";
-import { CreateAccountCommand } from "../commands/create-account.command";
+import { AccountMapper } from "../../mappers/account.mapper";
 import { AccountDto } from "@repo/coa-contracts";
 import { AccountNameValue } from "@repo/coa-core";
-import { BaseAccountCommandHandler } from "../bases/account-command-handler.base";
+import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
+import { CreateAccountCommand } from "./create-account.command";
 
 @CommandHandler(CreateAccountCommand)
 export class CreateAccountCommandHandler extends BaseAccountCommandHandler<CreateAccountCommand> {

@@ -1,7 +1,7 @@
 import { IQueryHandler, QueryHandler } from "@nestjs/cqrs";
-import { GetAllAccountsQuery } from "../queries/get-all-accounts.query";
+import { GetAllAccountsQuery } from "./get-all-accounts.query";
 import { type IChartOfAccountsRepository } from "@repo/coa-core";
-import { AccountMapper } from "../mappers/account.mapper";
+import { AccountMapper } from "../../mappers/account.mapper";
 import { AccountDto } from "@repo/coa-contracts";
 import { Inject } from "@nestjs/common";
 import { Ensure, UuidValue } from "@repo/shared-core";

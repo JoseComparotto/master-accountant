@@ -1,5 +1,5 @@
 import { CreateAccountInputDto } from "@repo/coa-contracts";
-import { BaseAccountCommand } from "../bases/account-command-handler.base";
+import { BaseAccountCommand } from "../../bases/account-command-handler.base";
 
 export class CreateAccountCommand extends BaseAccountCommand {
     constructor(

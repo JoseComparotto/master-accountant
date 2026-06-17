@@ -1,17 +1,17 @@
 import { Controller } from "@nestjs/common";
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
-import { GetAllAccountsQuery } from "../../../application/queries/get-all-accounts.query";
-import { GetAccountByIdQuery } from "../../../application/queries/get-account-by-id.query";
-import { CreateAccountCommand } from "../../../application/commands/create-account.command";
-import { InactivateAccountCommand } from "../../../application/commands/inactivate-account.command";
+import { GetAllAccountsQuery } from "../../../application/queries/get-all-accounts/get-all-accounts.query";
+import { GetAccountByIdQuery } from "../../../application/queries/get-account-by-id/get-account-by-id.query";
 
-import { ActivateAccountCommand } from "../../../application/commands/activate-account.command";
-import { PatchAccountCommand } from "../../../application/commands/patch-account.command";
 import { AccountDto, apiContract } from "@repo/coa-contracts";
 
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest'
-import { UpsertAccontResult, UpsertAccountCommand } from "../../../application/commands/upsert-account.command";
+import { ActivateAccountCommand } from "../../../application/commands/activate-account/activate-account.command";
+import { CreateAccountCommand } from "../../../application/commands/create-account/create-account.command";
+import { InactivateAccountCommand } from "../../../application/commands/inactivate-account/inactivate-account.command";
+import { PatchAccountCommand } from "../../../application/commands/patch-account/patch-account.command";
+import { UpsertAccountCommand, UpsertAccontResult } from "../../../application/commands/upsert-account/upsert-account.command";
 
 const DEFAULT_CHART_ID = process.env.DEFAULT_CHART_ID!;
 

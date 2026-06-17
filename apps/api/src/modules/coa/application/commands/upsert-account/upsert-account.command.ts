@@ -1,6 +1,5 @@
-import { ICommand, ICommandHandler } from "@nestjs/cqrs";
 import { AccountDto, UpsertAccountInputDto } from "@repo/coa-contracts";
-import { BaseAccountCommand, BaseAccountCommandHandler } from "../bases/account-command-handler.base";
+import { BaseAccountCommand, BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 
 export class UpsertAccountCommand extends BaseAccountCommand {
     constructor(

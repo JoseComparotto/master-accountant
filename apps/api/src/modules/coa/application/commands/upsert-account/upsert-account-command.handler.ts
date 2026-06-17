@@ -1,7 +1,11 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { AccountEntity, AccountNameValue } from "@repo/coa-core";
-import { AccountMapper } from "../mappers/account.mapper";
-import { BaseUpsertAccountCommandHandler, UpsertAccontResult, UpsertAccountCommand } from "../commands/upsert-account.command";
+import { AccountMapper } from "../../mappers/account.mapper";
+import {
+    BaseUpsertAccountCommandHandler,
+    UpsertAccontResult,
+    UpsertAccountCommand
+} from "./upsert-account.command";
 import { Ensure, UuidValue } from "@repo/shared-core";
 
 @CommandHandler(UpsertAccountCommand)
@@ -30,7 +34,7 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
 
         const created = chart.createAccount({
             ...primitiveData,
-            id, name, parentId            
+            id, name, parentId
         });
 
         await this.repo.save(chart);
