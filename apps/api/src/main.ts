@@ -2,7 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
 import { DomainExceptionFilter } from './shared/presentation/filters/domain-exception.filter';
-import { openApiDocument } from '@repo/contracts';
+import { openApiDocument } from '@repo/coa-contracts';
 import { TsRestValidationFilter } from './shared/presentation/filters/ts-rest-validation.filter';
 import { INestApplication } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';

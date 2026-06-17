@@ -43,7 +43,6 @@ describe('Contas Contábeis - /coa/accounts (e2e - Caminho Feliz)', () => {
     }).compile();
 
     app = moduleFixture.createNestApplication();
-    app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
     app.useGlobalFilters(new DomainExceptionFilter());
 
     await app.init();

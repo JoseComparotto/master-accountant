@@ -5,8 +5,8 @@ import {
   DomainException,
   DuplicatedEntityException,
   EntityNotExistsException
-} from '@repo/core';
-import { ApiErrorDto } from '@repo/contracts';
+} from '@repo/shared-core';
+import { ApiErrorDto } from '@repo/coa-contracts';
 
 const DOMAIN_STATUS_MAP = new Map<Type<DomainException>, HttpStatus>([
   [EntityNotExistsException, HttpStatus.NOT_FOUND], // 404

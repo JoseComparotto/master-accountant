@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Response, Request } from 'express';
 import { RequestValidationError } from '@ts-rest/nest';
-import { ApiErrorDto } from "@repo/contracts"
+import { ApiErrorDto } from "@repo/coa-contracts"
 
 const MESSAGE_FALLBACK = 'Falha na validação dos dados enviados.';
 

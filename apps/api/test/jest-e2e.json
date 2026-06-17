@@ -17,8 +17,8 @@
     ]
   },
   "moduleNameMapper": {
-    "^@repo/core$": "<rootDir>/../../../packages/core/src/index.ts",
-    "^@repo/contracts$": "<rootDir>/../../../packages/contracts/src/index.ts",
+    "^@repo/coa-core$": "<rootDir>/../../../packages/features/coa/core/src/index.ts",
+    "^@repo/coa-contracts$": "<rootDir>/../../../packages/features/coa/contracts/src/index.ts",
     "^(\\.{1,2}/.*)\\.js$": "$1"
   }
 }
