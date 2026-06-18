@@ -1,0 +1,7 @@
+<div class="accounts-container">
+    @if (loading()) {
+    <p>Carregando...</p>
+    } @else {
+    <app-accounts-table [accounts]="accounts()"></app-accounts-table>
+    }
+</div>

@@ -1,0 +1,14 @@
+<table>
+    <thead>
+        <th>Código</th>
+        <td>Conta</td>
+    </thead>
+    <tbody>
+        @for (account of accounts(); track account.id) {
+        <tr>
+            <td>{{account.formattedCode}}</td>
+            <td>{{account.name}}</td>
+        </tr>
+        }
+    </tbody>
+</table>
