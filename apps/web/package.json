@@ -12,17 +12,23 @@
   "private": true,
   "packageManager": "pnpm@9.0.0",
   "dependencies": {
+    "@angular/cdk": "^22",
     "@angular/common": "^22.0.0",
     "@angular/compiler": "^22.0.0",
     "@angular/core": "^22.0.0",
     "@angular/forms": "^22.0.0",
     "@angular/platform-browser": "^22.0.0",
     "@angular/router": "^22.0.0",
+    "@ng-icons/core": "^33.2.4",
+    "@ng-icons/lucide": "^33.2.4",
     "@repo/coa-contracts": "workspace:^",
     "@repo/coa-core": "workspace:*",
     "@repo/shared-core": "workspace:^",
     "@ts-rest/core": "^3.52.1",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
     "rxjs": "~7.8.0",
+    "tailwind-merge": "^3.6.0",
     "tslib": "^2.3.0",
     "zod": "3.25.76"
   },
@@ -35,6 +41,7 @@
     "postcss": "^8.5.3",
     "prettier": "^3.8.1",
     "tailwindcss": "^4.1.12",
+    "tailwindcss-animate": "^1.0.7",
     "typescript": "~6.0.2",
     "vitest": "^4.0.8"
   }
