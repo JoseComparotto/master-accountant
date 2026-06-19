@@ -3,6 +3,7 @@ import { CqrsModule } from "@nestjs/cqrs";
 
 // Handlers
 import { GetAllAccountsQueryHandler } from "./application/queries/get-all-accounts/get-all-accounts-query.handler";
+import { GetAccountsTreeQueryHandler } from "./application/queries/get-accounts-tree/get-accounts-tree.handler";
 import { GetAccountByIdQueryHandler } from "./application/queries/get-account-by-id/get-account-by-id.handler";
 import { CreateAccountCommandHandler } from "./application/commands/create-account/create-account.handler";
 import { PatchAccountCommandHandler } from "./application/commands/patch-account/patch-account.handler";
@@ -24,6 +25,7 @@ import { InMemoryChartOfAccountsDatabase } from "./infrastructure/in-memory/in-m
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
     GetAccountByIdQueryHandler,
+    GetAccountsTreeQueryHandler
 ];
 
 const CommandHandlers = [

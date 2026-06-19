@@ -1,5 +1,5 @@
 import { initContract } from "@ts-rest/core";
-import { AccountSchema, CreateAccountInputSchema, PatchAccountInputSchema, UpsertAccountInputSchema } from "./accounts.schema.js";
+import { AccountNodeSchema, AccountSchema, CreateAccountInputSchema, PatchAccountInputSchema, UpsertAccountInputSchema } from "./accounts.schema.js";
 import z from "zod";
 import { ApiErrorSchema } from "../shared/error.schema.js";
 
@@ -17,6 +17,13 @@ export const accountsContract = c.router({
         method: 'GET', path: '/',
         responses: {
             200: AccountSchema.array().describe('Lista de contas.')
+        }
+    },
+
+    getTree: {
+        method: 'GET', path: '/tree',
+        responses: {
+            200: AccountNodeSchema.array().describe('Árvore de contas.')
         }
     },
 

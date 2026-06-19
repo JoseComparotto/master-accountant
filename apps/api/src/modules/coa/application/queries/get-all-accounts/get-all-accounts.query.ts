@@ -1,7 +1,7 @@
-import { IQuery } from "@nestjs/cqrs";
+import { AccountDto } from "@repo/coa-contracts";
+import { BaseAccountQuery, BaseAccountQueryHandler } from "../../bases/account-query-handler.base";
 
-export class GetAllAccountsQuery implements IQuery {
-    constructor(
-        public readonly chartId: string
-    ){}
-}
+export class GetAllAccountsQuery extends BaseAccountQuery { }
+
+export abstract class BaseGetAllAccountsQueryHandler
+    extends BaseAccountQueryHandler<GetAllAccountsQuery, AccountDto[]> { }

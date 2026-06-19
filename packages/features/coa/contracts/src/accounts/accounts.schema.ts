@@ -20,9 +20,10 @@ export const AccountSchema = z.object({
     localIndex: z.number().int().min(1).openapi({
         example: 1
     }),
-    codeDepth:z.number().int().min(1).openapi({
-        example: 2
-    }), 
+    codeDepth: z.number().int().min(1).openapi({
+        example: 2,
+        readOnly: true
+    }),
     formattedCode: z.string().regex(/[1-9]\d*(\.[1-9]\d*)*/).openapi({
         example: '1.1',
         readOnly: true
@@ -43,6 +44,7 @@ export const CreateAccountInputSchema = AccountSchema
     .omit({
         formattedCode: true,
         balanceType: true,
+        codeDepth: true,
     }).partial().and(
         AccountSchema.pick({
             name: true
@@ -54,6 +56,7 @@ export const UpsertAccountInputSchema = AccountSchema
         id: true,
         formattedCode: true,
         balanceType: true,
+        codeDepth: true,
     })
 
 export const PatchAccountInputSchema = AccountSchema.pick({
@@ -67,3 +70,11 @@ export type AccountDto = z.infer<typeof AccountSchema>;
 export type CreateAccountInputDto = z.infer<typeof CreateAccountInputSchema>;
 export type PatchAccountInputDto = z.infer<typeof PatchAccountInputSchema>;
 export type UpsertAccountInputDto = z.infer<typeof UpsertAccountInputSchema>;
+
+export type AccountNodeDto = AccountDto & {
+    children?: AccountNodeDto[];
+}
+
+export const AccountNodeSchema: z.ZodType<AccountNodeDto> = AccountSchema.and(z.object({
+    children: z.lazy(() => AccountNodeSchema.array()).openapi({example: []})
+}))

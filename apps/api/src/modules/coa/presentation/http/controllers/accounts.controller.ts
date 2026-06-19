@@ -2,9 +2,10 @@ import { Controller } from "@nestjs/common";
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 
 import { GetAllAccountsQuery } from "../../../application/queries/get-all-accounts/get-all-accounts.query";
+import { GetAccountsTreeQuery } from "../../../application/queries/get-accounts-tree/get-accounts-tree.query";
 import { GetAccountByIdQuery } from "../../../application/queries/get-account-by-id/get-account-by-id.query";
 
-import { AccountDto, apiContract } from "@repo/coa-contracts";
+import { AccountDto, AccountNodeDto, apiContract } from "@repo/coa-contracts";
 
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest'
 import { ActivateAccountCommand } from "../../../application/commands/activate-account/activate-account.command";
@@ -33,6 +34,12 @@ export class AccountsController {
         const res: AccountDto[] = await this.queryBus.execute(query);
         return { status: 200, body: res };
     };
+
+    async getTree(): Promise<{status: 200, body: AccountNodeDto[]}>{
+        const query = new GetAccountsTreeQuery(DEFAULT_CHART_ID);
+        const res: AccountNodeDto[] = await this.queryBus.execute(query);
+        return { status: 200, body: res };        
+    }
 
     async getById({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
         const query = new GetAccountByIdQuery(DEFAULT_CHART_ID, id);
