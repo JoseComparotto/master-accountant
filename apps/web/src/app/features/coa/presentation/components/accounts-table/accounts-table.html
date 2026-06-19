@@ -1,14 +1,28 @@
-<table>
-    <thead>
-        <th>Código</th>
-        <td>Conta</td>
-    </thead>
-    <tbody>
-        @for (account of accounts(); track account.id) {
-        <tr>
-            <td>{{account.formattedCode}}</td>
-            <td>{{account.name}}</td>
-        </tr>
-        }
-    </tbody>
-</table>
+<div class="w-full">
+    <div class="rounded-xl border bg-card overflow-hidden">
+        <table z-table>
+            <thead z-table-header>
+                <tr z-table-row>
+                    <th z-table-head>Conta</th>
+                    <th z-table-head class="w-px whitespace-nowrap text-right">Ações</th>
+                </tr>
+            </thead>
+            <tbody z-table-body>
+                @for (acc of accounts(); track acc.id) {
+                <tr z-table-row>
+                    <td z-table-cell class="w-full tree-row" [style.--row-depth]="acc.codeDepth">
+                        <app-account-title class="min-w-0 truncate" [account]="acc"
+                            [ngClass]="getWeigthClass(acc.isSummary)" [appAccountTheme]="acc.accountClass"
+                            variant="text" [isContra]="acc.isContra" />
+                    </td>
+                    <td z-table-cell>
+                        <z-button zType="ghost" title="Hide">
+                            <ng-icon name="lucideEye" />
+                        </z-button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

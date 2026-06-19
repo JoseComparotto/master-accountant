@@ -7,7 +7,8 @@
     "dev": "ng serve --watch",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "zard:add":"zard-cli add"
   },
   "private": true,
   "packageManager": "pnpm@9.0.0",
@@ -43,6 +44,7 @@
     "tailwindcss": "^4.1.12",
     "tailwindcss-animate": "^1.0.7",
     "typescript": "~6.0.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "zard-cli": "1.0.0-beta.70"
   }
 }

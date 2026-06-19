@@ -21,7 +21,7 @@ export class StructuralCodeValue extends ValueObject<number[], string> {
         return [...this._value];
     }
 
-    public get level():number {
+    public get depth():number {
         return this.segments.length;
     }
 

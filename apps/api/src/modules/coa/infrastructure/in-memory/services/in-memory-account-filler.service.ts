@@ -42,11 +42,11 @@ export class InMemoryChartOfAccountsFillerService {
             // ========================================================
             // 1. AS 5 CLASSES RAÍZES (Nível 1) - Sequências de 1 a 5
             // ========================================================
-            createGroup(1, [1], 'Ativo', 'asset'),
-            createGroup(2, [2], 'Passivo', 'liability'),
-            createGroup(3, [3], 'Patrimônio Líquido', 'equity'),
-            createGroup(4, [4], 'Receitas', 'income'),
-            createGroup(5, [5], 'Despesas', 'expense'),
+            createGroup(1, [1], 'ATIVO', 'asset'),
+            createGroup(2, [2], 'PASSIVO', 'liability'),
+            createGroup(3, [3], 'PATRIMÔNIO LÍQUIDO', 'equity'),
+            createGroup(4, [4], 'RECEITAS', 'income'),
+            createGroup(5, [5], 'DESPESAS', 'expense'),
 
             // ========================================================
             // 2. OS 4 GRUPOS OBRIGATÓRIOS (Nível 2) - Sequências de 6 a 9

@@ -43,6 +43,7 @@ export class AccountStorageMapper {
             name: snapshot.name,
             description: snapshot.description,
             localIndex: structuralCode.localIndex,
+            codeDepth: structuralCode.depth,
             formattedCode: structuralCode.value,
             accountClass: snapshot.accountClass as AccountClassEnum,
             balanceType: snapshot.balanceType as BalanceTypeEnum,

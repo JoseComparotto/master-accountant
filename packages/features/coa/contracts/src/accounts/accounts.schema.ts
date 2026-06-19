@@ -20,6 +20,9 @@ export const AccountSchema = z.object({
     localIndex: z.number().int().min(1).openapi({
         example: 1
     }),
+    codeDepth:z.number().int().min(1).openapi({
+        example: 2
+    }), 
     formattedCode: z.string().regex(/[1-9]\d*(\.[1-9]\d*)*/).openapi({
         example: '1.1',
         readOnly: true
