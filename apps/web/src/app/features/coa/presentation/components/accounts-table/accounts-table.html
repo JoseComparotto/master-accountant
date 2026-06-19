@@ -8,17 +8,31 @@
                 </tr>
             </thead>
             <tbody z-table-body>
-                @for (acc of accounts(); track acc.id) {
+                @for (row of rows(); track row.id) {
                 <tr z-table-row>
-                    <td z-table-cell class="w-full tree-row" [style.--row-depth]="acc.codeDepth">
-                        <app-account-title class="min-w-0 truncate" [account]="acc"
-                            [ngClass]="getWeigthClass(acc.isSummary)" [appAccountTheme]="acc.accountClass"
-                            variant="text" [isContra]="acc.isContra" />
+                    <td z-table-cell class="w-full tree-row" [style.--row-depth]="row.codeDepth">
+
+                        <z-button zType="ghost" (click)="toggleCollapsed(row.id)"
+                            class="p-0.5 rounded hover:bg-muted shrink-0" [ngClass]="hasChildren(row)?'':'invisible'">
+                            @if (isCollepsed(row.id)){
+                            <ng-icon name="lucideChevronDown" />
+                            } @else{
+                            <ng-icon name="lucideChevronRight" />
+                            }
+                        </z-button>
+                        <app-account-title class="min-w-0 truncate" [account]="row"
+                            [ngClass]="getWeigthClass(row.isSummary)" [appAccountTheme]="row.accountClass"
+                            variant="text" [isContra]="row.isContra" />
                     </td>
                     <td z-table-cell>
-                        <z-button zType="ghost" title="Hide">
+                        @if(row.isActive){
+                        <z-button zType="ghost" title="Inativar" (click)="toggleActive.emit(row)">
                             <ng-icon name="lucideEye" />
                         </z-button>
+                        }@else {
+                        <z-button zType="ghost" title="Ativar" (click)="toggleActive.emit(row)">
+                            <ng-icon name="lucideEyeOff" />
+                        </z-button>}
                     </td>
                 </tr>
                 }

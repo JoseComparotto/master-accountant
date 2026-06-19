@@ -2,6 +2,6 @@
     @if (loading()) {
     <p>Carregando...</p>
     } @else {
-    <app-accounts-table [accounts]="accounts()"></app-accounts-table>
+    <app-accounts-table [tree]="accountsTree()" (toggleActive)="toggleActive($event)"></app-accounts-table>
     }
 </div>
