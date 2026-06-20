@@ -1,0 +1,9 @@
+@if(account().isActive){
+<z-button zType="ghost" title="Inativar" [zDisabled]="canInactivate()" (click)="toggle.emit()">
+    <ng-icon name="lucideEyeOff" />
+</z-button>
+}@else {
+<z-button zType="ghost" title="Ativar" [zDisabled]="canActivate()" (click)="toggle.emit()">
+    <ng-icon name="lucideEye" />
+</z-button>
+}

@@ -7,6 +7,7 @@ import { lucideChevronDown, lucideChevronRight, lucideCopy, lucideEye, lucideEye
 import { ZardButtonComponent } from '@/shared/presentation/components/button';
 import { AccountTheme } from '../../directives/account-theme';
 import { AccountTitle } from '../account-title/account-title';
+import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
 
 @Component({
   selector: 'app-accounts-table',
@@ -20,8 +21,9 @@ import { AccountTitle } from '../account-title/account-title';
     ZardTableRowComponent,
     ZardTableCellComponent,
     ZardButtonComponent,
-    NgClass, NgIcon
-  ],
+    NgClass, NgIcon,
+    ToggleAccountActiveButton
+],
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
 
@@ -79,10 +81,4 @@ export class AccountsTable {
     })
   }
 
-  canInactivate(account: AccountNodeDto): boolean {
-    return !account.capabilities.canInactivate
-  }
-  canActivate(account: AccountNodeDto): boolean {
-    return !account.capabilities.canActivate
-  }
 }

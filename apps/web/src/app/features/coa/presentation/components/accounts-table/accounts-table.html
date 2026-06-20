@@ -10,29 +10,25 @@
             <tbody z-table-body>
                 @for (row of rows(); track row.id) {
                 <tr z-table-row>
-                    <td z-table-cell class="w-full tree-row" [style.--row-depth]="row.codeDepth">
-
-                        <z-button zType="ghost" (click)="toggleCollapsed(row.id)"
-                            class="p-0.5 rounded hover:bg-muted shrink-0" [ngClass]="hasChildren(row)?'':'invisible'">
-                            @if (isCollepsed(row.id)){
-                            <ng-icon name="lucideChevronDown" />
-                            } @else{
-                            <ng-icon name="lucideChevronRight" />
-                            }
-                        </z-button>
-                        <app-account-title class="min-w-0 truncate" [account]="row"
-                            [ngClass]="getWeigthClass(row.isSummary)" [appAccountTheme]="row.accountClass"
-                            variant="text" [isContra]="row.isContra" />
+                    <td z-table-cell class="w-full max-w-0">
+                        <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.codeDepth">
+                            <z-button zType="ghost" (click)="toggleCollapsed(row.id)"
+                                class="p-0.5 rounded hover:bg-muted shrink-0"
+                                [ngClass]="hasChildren(row)?'':'invisible'">
+                                @if (isCollepsed(row.id)){
+                                <ng-icon name="lucideChevronDown" />
+                                } @else{
+                                <ng-icon name="lucideChevronRight" />
+                                }
+                            </z-button>
+                            <div class="min-w-0 truncate">
+                                <app-account-title [account]="row" [ngClass]="getWeigthClass(row.isSummary)"
+                                    [appAccountTheme]="row.accountClass" variant="text" [isContra]="row.isContra" />
+                            </div>
+                        </div>
                     </td>
                     <td z-table-cell>
-                        @if(row.isActive){
-                        <z-button zType="ghost" title="Inativar" [zDisabled]="canInactivate(row)" (click)="toggleActive.emit(row)">
-                            <ng-icon name="lucideEye" />
-                        </z-button>
-                        }@else {
-                        <z-button zType="ghost" title="Ativar" [zDisabled]="canActivate(row)" (click)="toggleActive.emit(row)">
-                            <ng-icon name="lucideEyeOff" />
-                        </z-button>}
+                        <app-toggle-account-active-button [account]="row" (toggle)="toggleActive.emit(row)" />
                     </td>
                 </tr>
                 }
