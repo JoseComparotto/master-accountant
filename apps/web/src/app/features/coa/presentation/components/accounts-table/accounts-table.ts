@@ -5,14 +5,12 @@ import { NgClass } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideChevronRight, lucideCopy, lucideEye, lucideEyeOff } from '@ng-icons/lucide';
 import { ZardButtonComponent } from '@/shared/presentation/components/button';
-import { AccountTheme } from '../../directives/account-theme';
 import { AccountTitle } from '../account-title/account-title';
 import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
 
 @Component({
   selector: 'app-accounts-table',
   imports: [
-    AccountTheme,
     AccountTitle,
     ZardTableComponent,
     ZardTableHeaderComponent,
@@ -55,10 +53,6 @@ export class AccountsTable {
     walk(this.tree());
     return rows;
   });
-
-  getWeigthClass(isSummary: boolean): string {
-    return isSummary ? 'font-semibold' : '';
-  }
 
   hasChildren(account: AccountNodeDto) {
     return account.children && account.children?.length > 0;

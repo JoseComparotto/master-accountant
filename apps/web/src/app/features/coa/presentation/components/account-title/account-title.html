@@ -1,4 +1,9 @@
-<span>
+<span
+    [appAccountActiveEffect]="account().isActive"
+    [appAccountSummaryWeigth]="account().isSummary"
+    [appAccountClassTheme]="account().accountClass" variant="text"
+    [isContra]="account().isContra"
+>    
     {{account().formattedCode}}.
     @if (account().isContra) {(-)}
     {{account().name}}

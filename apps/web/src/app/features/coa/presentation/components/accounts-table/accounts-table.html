@@ -16,14 +16,13 @@
                                 class="p-0.5 rounded hover:bg-muted shrink-0"
                                 [ngClass]="hasChildren(row)?'':'invisible'">
                                 @if (isCollepsed(row.id)){
-                                <ng-icon name="lucideChevronDown" />
-                                } @else{
                                 <ng-icon name="lucideChevronRight" />
+                                } @else{
+                                <ng-icon name="lucideChevronDown" />
                                 }
                             </z-button>
                             <div class="min-w-0 truncate">
-                                <app-account-title [account]="row" [ngClass]="getWeigthClass(row.isSummary)"
-                                    [appAccountTheme]="row.accountClass" variant="text" [isContra]="row.isContra" />
+                                <app-account-title [account]="row"/>
                             </div>
                         </div>
                     </td>

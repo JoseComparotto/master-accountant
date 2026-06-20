@@ -1,21 +1,21 @@
-import { computed, Directive, effect, ElementRef, inject, input, Renderer2 } from '@angular/core';
+import { computed, Directive, input } from '@angular/core';
 import { AccountClassEnum } from '@repo/coa-core';
 import { getAccountTheme, ThemeVariant } from '../constants/account-theme.constants';
 
 @Directive({
-  selector: '[appAccountTheme]',
+  selector: '[appAccountClassTheme]',
   host: {
     '[class]': 'themeClasses()'
   }
 })
-export class AccountTheme {
+export class AccountClassTheme {
 
-  appAccountTheme = input.required<AccountClassEnum>();
-  isContra = input<boolean>(false);
+  appAccountClassTheme = input.required<AccountClassEnum>();
   variant = input.required<ThemeVariant>();
+  isContra = input<boolean>(false);
 
   protected themeClasses = computed(() => {
-    const theme = getAccountTheme(this.appAccountTheme(), this.isContra());
+    const theme = getAccountTheme(this.appAccountClassTheme(), this.isContra());
     return theme[this.variant()];
   });
 
