@@ -29,7 +29,7 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
             await this.repo.save(chart);
             return {
                 action: 'updated',
-                account: AccountMapper.toDto(updated)
+                account: AccountMapper.toDto(updated, chart)
             };
         }
 
@@ -41,7 +41,7 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
         await this.repo.save(chart);
         return {
             action: 'created',
-            account: AccountMapper.toDto(created)
+            account: AccountMapper.toDto(created, chart)
         };
     }
 }

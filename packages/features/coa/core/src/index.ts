@@ -5,5 +5,6 @@ export * from './value-objects/version.value.js';
 export * from './enums/account-class.enum.js';
 export * from './enums/balance-type.enum.js';
 export * from './exceptions/account.exception.js';
+export * from './rules/account.rules.js';
 export type * from './entities/account.entity.js';
 export type * from './interfaces/chart-of-accounts-repository.interface.js';

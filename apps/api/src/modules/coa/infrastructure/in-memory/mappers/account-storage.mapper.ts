@@ -1,6 +1,6 @@
 import { AccountProps, StructuralCodeValue, AccountNameValue, AccountClassEnum, type AccountEntity, BalanceTypeEnum } from "@repo/coa-core"
 import { UuidValue } from "@repo/shared-core"
-import { AccountDto } from "@repo/coa-contracts"
+import { AccountDto, AccountsCapabilitiesDto } from "@repo/coa-contracts"
 import { AccountStorageSnapshot } from "../in-memory.database"
 
 export class AccountStorageMapper {
@@ -35,7 +35,12 @@ export class AccountStorageMapper {
 
     }
 
-    static toDto(snapshot: AccountStorageSnapshot): AccountDto {
+    static toDto({
+        capabilities,
+        ...snapshot
+    }: AccountStorageSnapshot & {
+        capabilities: AccountsCapabilitiesDto
+    }): AccountDto {
         const structuralCode = StructuralCodeValue.fromSegments(snapshot.structuralCode);
         return {
             id: snapshot.id,
@@ -50,6 +55,7 @@ export class AccountStorageMapper {
             isContra: snapshot.isContra,
             isSummary: snapshot.isSummary,
             isActive: snapshot.isActive,
-        }
+            capabilities
+        };
     }
 }

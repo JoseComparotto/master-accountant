@@ -26,11 +26,11 @@
                     </td>
                     <td z-table-cell>
                         @if(row.isActive){
-                        <z-button zType="ghost" title="Inativar" (click)="toggleActive.emit(row)">
+                        <z-button zType="ghost" title="Inativar" [zDisabled]="canInactivate(row)" (click)="toggleActive.emit(row)">
                             <ng-icon name="lucideEye" />
                         </z-button>
                         }@else {
-                        <z-button zType="ghost" title="Ativar" (click)="toggleActive.emit(row)">
+                        <z-button zType="ghost" title="Ativar" [zDisabled]="canActivate(row)" (click)="toggleActive.emit(row)">
                             <ng-icon name="lucideEyeOff" />
                         </z-button>}
                     </td>

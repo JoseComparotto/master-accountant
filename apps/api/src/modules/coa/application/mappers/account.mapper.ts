@@ -1,8 +1,13 @@
 import { AccountDto } from "@repo/coa-contracts";
-import { AccountEntity } from "@repo/coa-core";
+import { AccountEntity, canActivateAccount, canInactivateAccount, ChartOfAccountsEntity } from "@repo/coa-core";
 
 export class AccountMapper {
-    static toDto(account: Readonly<AccountEntity>): AccountDto {
+    static toDto(account: Readonly<AccountEntity>, chart: ChartOfAccountsEntity): AccountDto {
+
+        const parent = account.parentId ? chart.getAccountById(account.parentId) : null;
+
+        const children = chart.getAccountsByParentId(account.id);
+
         return {
             id: account.id.value,
             name: account.name.value,
@@ -16,6 +21,16 @@ export class AccountMapper {
             isSummary: account.isSummary,
             isContra: account.isContra,
             isActive: account.isActive,
+            capabilities:{
+                canActivate: canActivateAccount({
+                    isAlreadyActive: account.isActive,
+                    isParentInactive: !!parent && !parent.isActive
+                }).can,
+                canInactivate: canInactivateAccount({
+                    isAlreadyInactive: !account.isActive,
+                    hasAnyActiveChild: children.some(c=>c.isActive)
+                }).can
+            }
         };
     }
 }

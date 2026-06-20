@@ -17,6 +17,6 @@ export class InactivateAccountCommandHandler extends BaseAccountCommandHandler<I
         await this.repo.save(chart);
 
         const account = chart.getAccountById(accountId);
-        return AccountMapper.toDto(account);
+        return AccountMapper.toDto(account, chart);
     }
 }

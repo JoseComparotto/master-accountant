@@ -29,7 +29,7 @@ import { AccountTitle } from '../account-title/account-title';
   viewProviders: [provideIcons({
     lucideChevronDown,
     lucideChevronRight,
-    lucideEye,lucideEyeOff
+    lucideEye, lucideEyeOff
   })],
 })
 export class AccountsTable {
@@ -78,5 +78,11 @@ export class AccountsTable {
       return next;
     })
   }
-  
+
+  canInactivate(account: AccountNodeDto): boolean {
+    return !account.capabilities.canInactivate
+  }
+  canActivate(account: AccountNodeDto): boolean {
+    return !account.capabilities.canActivate
+  }
 }

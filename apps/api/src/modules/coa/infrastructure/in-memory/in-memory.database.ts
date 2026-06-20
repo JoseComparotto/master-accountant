@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
-import { AccountClassEnum, BalanceTypeEnum } from "@repo/coa-core";
+import { AccountClassEnum, BalanceTypeEnum, canActivateAccount, canInactivateAccount } from "@repo/coa-core";
 import { UuidValue } from "@repo/shared-core";
 import { AppConfig } from "../../../../config/configuration";
 import { InMemoryChartOfAccountsFillerService } from "./services/in-memory-account-filler.service";
+import { AccountsCapabilitiesDto } from "@repo/coa-contracts";
 
 export interface ChartStorageSnapshot {
     chartId: string;
@@ -40,6 +41,26 @@ export class InMemoryChartOfAccountsDatabase {
         const config = configService.getOrThrow("mock", { infer: true });
 
         filler.fill(this, config);
+    }
+
+    withCapabilities(account: AccountStorageSnapshot): AccountStorageSnapshot & { capabilities: AccountsCapabilitiesDto } {
+
+        const parent = account.parentId ? this.accountsById.get(account.parentId) : null;
+        const hasAnyActiveChild = this.accounts.some(a=>a.parentId===account.id && a.isActive);
+
+        return {
+            ...account,
+            capabilities: {
+                canActivate: canActivateAccount({
+                    isAlreadyActive: account.isActive,
+                    isParentInactive: !!parent && !parent.isActive
+                }).can,
+                canInactivate: canInactivateAccount({
+                    isAlreadyInactive: !account.isActive,
+                    hasAnyActiveChild
+                }).can
+            }
+        }
     }
 
 }

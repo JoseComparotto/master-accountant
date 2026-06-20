@@ -25,7 +25,7 @@ export class CreateAccountCommandHandler extends BaseAccountCommandHandler<Creat
 
         await this.repo.save(chart);
 
-        return AccountMapper.toDto(account);
+        return AccountMapper.toDto(account, chart);
 
     }
 }

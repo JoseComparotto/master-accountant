@@ -14,6 +14,7 @@ import {
     CreateRootAccountProps,
 } from "./account.entity.js";
 import { AccountNameValue } from "../value-objects/account-name.value.js";
+import { canActivateAccount, canInactivateAccount } from "../rules/account.rules.js";
 
 const MUTABLE_FIELDS = new Set<keyof UpdateAccountInput>([
     'name',
@@ -217,14 +218,16 @@ export class ChartOfAccountsEntity {
 
     public inactivateAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
-        if (!account.isActive) return;
 
         const children = this._collection.getByParentId(account.id);
-        const hasActiveChildren = children.some(c => c.isActive);
+        const { can, reasons } = canInactivateAccount({
+            hasAnyActiveChild: children.some(c => c.isActive),
+            isAlreadyInactive: !account.isActive
+        });
 
-        if (hasActiveChildren)
+        if (!can)
             throw new AccountInvariantViolationException(
-                "HTI-07", "Cannot inactivate an account that has active child accounts."
+                "HTI-07", `Cannot inactivate account: ${reasons.join(', ')}`
             );
 
         account.inactivate();
@@ -232,12 +235,17 @@ export class ChartOfAccountsEntity {
 
     public activateAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
-        if (account.isActive) return;
 
         const parent = account.parentId ? this._collection.getById(account.parentId) : null;
-        if (parent && !parent.isActive)
+
+        const { can, reasons } = canActivateAccount({
+            isAlreadyActive: account.isActive,
+            isParentInactive: !!parent && !parent.isActive
+        });
+
+        if (!can)
             throw new AccountInvariantViolationException(
-                "HTI-07", "Cannot activate an account with an inactive parent."
+                "HTI-07", `Cannot activate account: ${reasons.join(', ')}`
             );
 
         account.activate();

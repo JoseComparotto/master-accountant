@@ -7,6 +7,11 @@ extendZodWithOpenApi(z);
 export const AccountClassSchema = z.nativeEnum(AccountClassEnum);
 export const BalanceTypeSchema = z.nativeEnum(BalanceTypeEnum);
 
+const AccountsCapabilitiesSchema = z.object({
+    canActivate: z.boolean(),
+    canInactivate: z.boolean(),
+});
+
 // Nota: .openapi({readOnly: true}) faz com o que o campo seja omitido de córpos de requisição.
 export const AccountSchema = z.object({
     id: z.string().uuid(),
@@ -38,6 +43,8 @@ export const AccountSchema = z.object({
     isSummary: z.boolean().openapi({ example: true }),
     isContra: z.boolean().openapi({ example: false }),
     isActive: z.boolean().openapi({ example: true }),
+
+    capabilities: AccountsCapabilitiesSchema
 })
 
 export const CreateAccountInputSchema = AccountSchema
@@ -70,6 +77,8 @@ export type AccountDto = z.infer<typeof AccountSchema>;
 export type CreateAccountInputDto = z.infer<typeof CreateAccountInputSchema>;
 export type PatchAccountInputDto = z.infer<typeof PatchAccountInputSchema>;
 export type UpsertAccountInputDto = z.infer<typeof UpsertAccountInputSchema>;
+
+export type AccountsCapabilitiesDto = z.infer<typeof AccountsCapabilitiesSchema>;
 
 export type AccountNodeDto = AccountDto & {
     children?: AccountNodeDto[];

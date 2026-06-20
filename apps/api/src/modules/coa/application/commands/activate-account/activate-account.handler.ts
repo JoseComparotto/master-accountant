@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from "@nestjs/cqrs";
+import { CommandHandler } from "@nestjs/cqrs";
 import { AccountMapper } from "../../mappers/account.mapper";
 import { AccountDto } from "@repo/coa-contracts";
 import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
@@ -18,6 +18,6 @@ export class ActivateAccountCommandHandler extends BaseAccountCommandHandler<Act
         await this.repo.save(chart);
 
         const account = chart.getAccountById(accountId);
-        return AccountMapper.toDto(account);
+        return AccountMapper.toDto(account, chart);
     }
 }

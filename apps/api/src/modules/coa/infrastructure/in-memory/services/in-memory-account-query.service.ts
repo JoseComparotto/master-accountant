@@ -1,9 +1,9 @@
-import { AccountDto, AccountNodeDto } from "@repo/coa-contracts";
+import { AccountDto, AccountNodeDto, AccountsCapabilitiesDto } from "@repo/coa-contracts";
 import { UuidValue } from "@repo/shared-core";
 import { IAccountQueryService } from "../../../application/interfaces/account-query-service.interface";
-import { InMemoryChartOfAccountsDatabase } from "../in-memory.database";
+import { AccountStorageSnapshot, InMemoryChartOfAccountsDatabase } from "../in-memory.database";
 import { AccountStorageMapper } from "../mappers/account-storage.mapper";
-import { AccountNotExistsWithIdException, StructuralCodeValue } from "@repo/coa-core";
+import { AccountNotExistsWithIdException, canActivateAccount, canInactivateAccount, StructuralCodeValue } from "@repo/coa-core";
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
@@ -17,7 +17,7 @@ export class InMemoryAccountQueryService implements IAccountQueryService {
         const snapshot = this.db.accountsById.get(accountId.value);
         if (!snapshot || !UuidValue.isEquals(snapshot.chartId, chartId))
             return null;
-        return AccountStorageMapper.toDto(snapshot);
+        return AccountStorageMapper.toDto(this.db.withCapabilities(snapshot));
     }
 
     async getAccountById(chartId: UuidValue, accountId: UuidValue): Promise<AccountDto> {
@@ -33,6 +33,7 @@ export class InMemoryAccountQueryService implements IAccountQueryService {
                 const codeB = StructuralCodeValue.fromSegments(b.structuralCode);
                 return codeA.compareTo(codeB);
             })
+            .map(a=>this.db.withCapabilities(a))
             .map(AccountStorageMapper.toDto);
     }
 
@@ -40,6 +41,7 @@ export class InMemoryAccountQueryService implements IAccountQueryService {
     async getAccountsTreeByChartId(chartId: UuidValue): Promise<AccountNodeDto[]> {
         const flatList: AccountNodeDto[] = this.db.accounts
             .filter(a => UuidValue.isEquals(a.chartId, chartId))
+            .map(a=>this.db.withCapabilities(a))
             .map(AccountStorageMapper.toDto)
             .map(account => ({
                 ...account,
