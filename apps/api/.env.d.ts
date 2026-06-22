@@ -6,7 +6,8 @@ declare global {
         PORT: `${number}`,
         GLOBAL_PREFIX: `/${string}`,
         DEFAULT_CHART_ID: UUID,
-        MOCK_AUTO_SEED: `${boolean}`
+        DATABASE_URL: string,
+        SEED_ACCOUNTS: `${boolean}` | undefined
     }
   }
 }

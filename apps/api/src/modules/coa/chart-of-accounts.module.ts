@@ -14,13 +14,9 @@ import { InactivateAccountCommandHandler } from "./application/commands/inactiva
 // Controllers
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
 
-// Repositories
-import { InMemoryChartOfAccountsRepository } from "./infrastructure/in-memory/repositories/in-memory-chart-of-accounts.repository";
-
 // Services
-import { InMemoryAccountQueryService } from "./infrastructure/in-memory/services/in-memory-account-query.service";
-import { InMemoryChartOfAccountsFillerService } from "./infrastructure/in-memory/services/in-memory-account-filler.service";
-import { InMemoryChartOfAccountsDatabase } from "./infrastructure/in-memory/in-memory.database";
+import { AccountQueryService } from "./application/services/account-query.service";
+import { CoaDatabaseModule } from "./infrastructure/db";
 
 const QueryHandlers = [
     GetAllAccountsQueryHandler,
@@ -36,26 +32,18 @@ const CommandHandlers = [
     ActivateAccountCommandHandler
 ];
 
-const Repositories = [
-    {
-        provide: 'IChartOfAccountsRepository',
-        useFactory: (db: InMemoryChartOfAccountsDatabase) => new InMemoryChartOfAccountsRepository(db),
-        inject: [InMemoryChartOfAccountsDatabase]
-    }
-];
-
 const Services = [
     {
         provide: 'IAccountQueryService',
-        useClass: InMemoryAccountQueryService
-    },
-    InMemoryChartOfAccountsFillerService,
-    InMemoryChartOfAccountsDatabase
+        useFactory: repo => new AccountQueryService(repo),
+        inject: ['IChartOfAccountsRepository']
+    }
 ];
 
 @Module({
     imports: [
-        CqrsModule
+        CqrsModule,
+        CoaDatabaseModule
     ],
     controllers: [
         AccountsController
@@ -63,7 +51,6 @@ const Services = [
     providers: [
         ...CommandHandlers,
         ...QueryHandlers,
-        ...Repositories,
         ...Services
     ],
 })

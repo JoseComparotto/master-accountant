@@ -279,6 +279,26 @@ export class ChartOfAccountsEntity {
         account.convertToContra();
     }
 
+    public canActivate(accountId: UuidValue) {
+        const account = this.getAccountById(accountId);
+        const parent = account.parentId ? this.getAccountById(account.parentId) : null;
+
+        return canActivateAccount({
+            isAlreadyActive: account.isActive,
+            isParentInactive: !!parent && !parent.isActive
+        }).can;
+    }
+
+    public canInactivate(accountId: UuidValue) {
+        const account = this.getAccountById(accountId);
+        const children = this.getAccountsByParentId(accountId);
+
+        return canInactivateAccount({
+            isAlreadyInactive: !account.isActive,
+            hasAnyActiveChild: children.some(c => c.isActive)
+        }).can;
+    }
+
     private generateCode(parent: AccountEntity, localIndex?: number): StructuralCodeValue {
         const siblings = this._collection.getByParentId(parent.id);
 

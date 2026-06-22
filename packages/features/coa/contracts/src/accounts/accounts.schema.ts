@@ -52,6 +52,7 @@ export const CreateAccountInputSchema = AccountSchema
         formattedCode: true,
         balanceType: true,
         codeDepth: true,
+        capabilities: true,
     }).partial().and(
         AccountSchema.pick({
             name: true
@@ -64,6 +65,7 @@ export const UpsertAccountInputSchema = AccountSchema
         formattedCode: true,
         balanceType: true,
         codeDepth: true,
+        capabilities: true,
     })
 
 export const PatchAccountInputSchema = AccountSchema.pick({

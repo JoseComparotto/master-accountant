@@ -17,18 +17,27 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json"
+    "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json",
+    "db:migrate": "dotenv -e .env -- pnpm mikro-orm migration:create",
+    "db:up": "dotenv -e .env -- pnpm mikro-orm migration:up",
+    "db:seed": "dotenv -e .env -- pnpm mikro-orm seeder:run"
   },
   "dependencies": {
-    "@repo/shared-core": "workspace:*",
-    "@repo/coa-core": "workspace:*",
-    "@repo/coa-contracts": "workspace:*",
+    "@mikro-orm/core": "^7.1.4",
+    "@mikro-orm/decorators": "^7.1.4",
+    "@mikro-orm/migrations": "^7.1.4",
+    "@mikro-orm/nestjs": "^7.0.2",
+    "@mikro-orm/reflection": "^7.1.4",
+    "@mikro-orm/sqlite": "^7.1.4",
     "@nestjs/common": "^11.0.1",
     "@nestjs/config": "^4.0.4",
     "@nestjs/core": "^11.0.1",
     "@nestjs/cqrs": "^11.0.3",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.4.4",
+    "@repo/coa-contracts": "workspace:*",
+    "@repo/coa-core": "workspace:*",
+    "@repo/shared-core": "workspace:*",
     "@ts-rest/core": "^3.52.1",
     "@ts-rest/nest": "^3.52.1",
     "reflect-metadata": "^0.2.2",
@@ -39,6 +48,8 @@
     "@eslint/eslintrc": "^3.2.0",
     "@eslint/js": "^9.18.0",
     "@jest/globals": "^30.4.1",
+    "@mikro-orm/cli": "^7.1.4",
+    "@mikro-orm/seeder": "^7.1.4",
     "@nestjs/cli": "^11.0.0",
     "@nestjs/schematics": "^11.0.0",
     "@nestjs/testing": "^11.0.1",
@@ -80,5 +91,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "mikro-orm": {
+    "useTsNode": true,
+    "configPaths": [
+      "./src/shared/infrastructure/db/mikro-orm.config.ts",
+      "./dist/src/shared/infrastructure/db/mikro-orm.config.js"
+    ]
   }
 }

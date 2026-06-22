@@ -1,21 +1,18 @@
 {
-  "moduleFileExtensions": ["js", "json", "ts"],
+  "moduleFileExtensions": [
+    "js",
+    "json",
+    "ts"
+  ],
   "rootDir": ".",
   "testEnvironment": "node",
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": [
-      "ts-jest",
-      {
-        "tsconfig": {
-          "module": "commonjs",
-          "moduleResolution": "node",
-          "resolvePackageJsonExports": false,
-          "allowJs": true
-        }
-      }
-    ]
+    "^.+\\.(t|j)s$": "<rootDir>/mikro-orm-transformer.js"
   },
+  "transformIgnorePatterns": [
+    "node_modules/(?!.*(@mikro-orm|kysely))"
+  ],
   "moduleNameMapper": {
     "^@repo/coa-core$": "<rootDir>/../../../packages/features/coa/core/src/index.ts",
     "^@repo/coa-contracts$": "<rootDir>/../../../packages/features/coa/contracts/src/index.ts",

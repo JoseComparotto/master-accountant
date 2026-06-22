@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import { INestApplication } from '@nestjs/common';
 import { afterAll, beforeAll, describe, expect, it } from "@jest/globals";
 import request from 'supertest';
 import { AppModule } from '../src/app.module';
 import { DomainExceptionFilter } from '../src/shared/presentation/filters/domain-exception.filter';
+import { DatabaseSeeder } from '../src/shared/infrastructure/db/seeders/DatabaseSeeder';
+import { MikroORM } from '@mikro-orm/core';
+import type { SqliteDriver } from '@mikro-orm/sqlite';
 
 const accountSeeds = [
   {
@@ -34,6 +37,7 @@ const accountSeeds = [
 
 describe('Contas Contábeis - /coa/accounts (e2e - Caminho Feliz)', () => {
   let app: INestApplication;
+  let orm: MikroORM<SqliteDriver>;
 
   const createdIds: Record<string, string> = {};
 
@@ -46,6 +50,14 @@ describe('Contas Contábeis - /coa/accounts (e2e - Caminho Feliz)', () => {
     app.useGlobalFilters(new DomainExceptionFilter());
 
     await app.init();
+
+    orm = app.get<MikroORM<SqliteDriver>>(MikroORM);
+
+    await orm.schema.ensureDatabase();
+    await orm.schema.drop();
+    await orm.schema.create();
+
+    await orm.seeder.seed(DatabaseSeeder);
   });
 
   afterAll(async () => {

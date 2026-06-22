@@ -3,6 +3,7 @@ import { ChartOfAccountsModule } from './modules/coa/chart-of-accounts.module';
 import { AppController } from './app.controller';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration.js';
+import { DatabaseModule } from './shared/infrastructure/db/database.module';
 
 @Module({
   imports: [
@@ -11,7 +12,8 @@ import configuration from './config/configuration.js';
       load: [configuration],
       isGlobal: true,
       ignoreEnvFile: true
-    })
+    }),
+    DatabaseModule
   ],
   controllers:[
     AppController
