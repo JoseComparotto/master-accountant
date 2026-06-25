@@ -5,8 +5,6 @@ import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 import { AccountNameValue } from '../value-objects/account-name.value.js';
 
 export interface AccountProps {
-    chartId: UuidValue;
-
     id: UuidValue;
     name: AccountNameValue;
     description: string | null;
@@ -20,8 +18,6 @@ export interface AccountProps {
 
 export class AccountEntity {
 
-    private _chartId!: UuidValue;
-
     private _id!: UuidValue;
     private _name!: AccountNameValue;
     private _description!: string | null;
@@ -31,8 +27,6 @@ export class AccountEntity {
     private _isSummary!: boolean;
     private _isContra!: boolean;
     private _isActive!: boolean;
-
-    get chartId(): UuidValue { return this._chartId; }
 
     get id(): UuidValue { return this._id; }
     get name(): AccountNameValue { return this._name; }
@@ -77,8 +71,6 @@ export class AccountEntity {
 
         const account = new AccountEntity();
 
-        account._chartId = data.chartId;
-
         account._id = data.id;
         account._name = data.name;
         account._description = data.description ?? null;
@@ -97,8 +89,6 @@ export class AccountEntity {
     static createChild(data: CreateChildAccountProps): AccountEntity {
         const account = new AccountEntity();
 
-        account._chartId = data.chartId;
-
         account._id = data.id ?? UuidValue.generate();
         account._name = data.name;
         account._parentId = data.parentId;
@@ -116,8 +106,6 @@ export class AccountEntity {
 
     static createRoot(data: CreateRootAccountProps): AccountEntity {
         const account = new AccountEntity();
-
-        account._chartId = data.chartId;
 
         account._id = data.id ?? UuidValue.generate();
         account._name = data.name;
@@ -158,7 +146,7 @@ export class AccountEntity {
 
 export type CreateAccountProps =
     & Partial<AccountProps>
-    & Pick<AccountProps, 'chartId' | 'name' | 'structuralCode' | 'accountClass'>;
+    & Pick<AccountProps, 'name' | 'structuralCode' | 'accountClass'>;
 
 export type CreateRootAccountProps = Omit<CreateAccountProps, 'parentId'>;
 

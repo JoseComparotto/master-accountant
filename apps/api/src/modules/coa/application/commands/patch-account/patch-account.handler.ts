@@ -9,7 +9,7 @@ import { Ensure, UuidValue } from "@repo/shared-core";
 @CommandHandler(PatchAccountCommand)
 export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchAccountCommand, AccountDto> {
     async execute(command: PatchAccountCommand): Promise<AccountDto> {
-        const chart = await this.getChart(command);
+        const chart = await this.repo.getUnique();
 
         const { accountId, data: primitiveData } = command;
 

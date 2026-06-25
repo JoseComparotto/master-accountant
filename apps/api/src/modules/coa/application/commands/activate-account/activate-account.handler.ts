@@ -9,7 +9,7 @@ import { ActivateAccountCommand } from "./activate-account.command";
 export class ActivateAccountCommandHandler extends BaseAccountCommandHandler<ActivateAccountCommand, AccountDto> {
 
     async execute(command: ActivateAccountCommand): Promise<AccountDto> {
-        const chart = await this.getChart(command);
+        const chart = await this.repo.getUnique();
 
         const accountId = Ensure.vo('accountId', () => UuidValue.create(command.accountId));
 

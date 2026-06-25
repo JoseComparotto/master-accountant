@@ -5,9 +5,7 @@ import { BaseGetAccountsTreeQueryHandler, GetAccountsTreeQuery } from "./get-acc
 @QueryHandler(GetAccountsTreeQuery)
 export class GetAccountsTreeQueryHandler extends BaseGetAccountsTreeQueryHandler {
     async execute(query: GetAccountsTreeQuery): Promise<AccountNodeDto[]> {
-        const chartId = this.getChartId(query);
-
-        return await this.service.getAccountsTreeByChartId(chartId);
+        return await this.service.getAccountsTree();
     }
 
 }

@@ -8,7 +8,7 @@ import { InactivateAccountCommand } from "./inactivate-account.command";
 @CommandHandler(InactivateAccountCommand)
 export class InactivateAccountCommandHandler extends BaseAccountCommandHandler<InactivateAccountCommand, AccountDto> {
     async execute(command: InactivateAccountCommand): Promise<AccountDto> {
-        const chart = await this.getChart(command);
+        const chart = await this.repo.getUnique();
 
         const accountId = Ensure.vo('accountId', () => UuidValue.create(command.accountId));
 

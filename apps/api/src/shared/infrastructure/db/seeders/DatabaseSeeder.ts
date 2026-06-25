@@ -12,15 +12,14 @@ export class DatabaseSeeder extends Seeder {
       return;
     }
 
-    const chartId = UuidValue.create(process.env.DEFAULT_CHART_ID);
-    const chart = ChartOfAccountsEntity.create(chartId);
+    const chart = ChartOfAccountsEntity.create();
 
     if (process.env.SEED_ACCOUNTS === 'true') {
       this.seedAccounts(chart);
     }
 
     const chartOrm = new ChartOfAccountsOrmEntity();
-    chartOrm.id = chartId.value;
+    chartOrm.id = UuidValue.create(process.env.DEFAULT_CHART_ID).value;
     ChartOfAccountsMapper.toPersistence(chart, chartOrm);
 
     em.persist(chartOrm);

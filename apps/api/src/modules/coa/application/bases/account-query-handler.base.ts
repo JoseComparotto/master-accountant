@@ -3,13 +3,10 @@ import { IQuery } from "@nestjs/cqrs";
 import type { IAccountQueryService } from "../interfaces/account-query-service.interface";
 import { Ensure, UuidValue } from "@repo/shared-core";
 
-export abstract class BaseAccountQuery implements IQuery {
-    constructor(
-        public readonly chartId: string,
-    ) { }
+export interface IAccountQuery extends IQuery {
 }
 
-export abstract class BaseAccountQueryHandler<Q extends BaseAccountQuery, R = any> {
+export abstract class BaseAccountQueryHandler<Q extends IAccountQuery, R = any> {
 
     constructor(
         @Inject('IAccountQueryService')
@@ -17,9 +14,5 @@ export abstract class BaseAccountQueryHandler<Q extends BaseAccountQuery, R = an
     ) { }
 
     abstract execute(query: Q): Promise<R>;
-
-    protected getChartId(query: Q): UuidValue {
-        return Ensure.vo('chartId', () => UuidValue.create(query.chartId));
-    }
 }
 

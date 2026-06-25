@@ -13,12 +13,13 @@ export class AccountQueryService implements IAccountQueryService {
         private readonly repo: IChartOfAccountsRepository
     ) { }
 
-    async getAllAccountsByChartId(chartId: UuidValue): Promise<AccountDto[]> {
-        const chart = await this.repo.getById(chartId);
+    async getAllAccounts(): Promise<AccountDto[]> {
+        const chart = await this.repo.getUnique();
         return chart.accounts.map(a => AccountMapper.toDto(a, chart));
     }
-    async getAccountsTreeByChartId(chartId: UuidValue): Promise<AccountNodeDto[]> {
-        const chart = await this.repo.getById(chartId);
+
+    async getAccountsTree(): Promise<AccountNodeDto[]> {
+        const chart = await this.repo.getUnique();
 
         const roots: AccountNodeDto[] = []
         const mapping: Map<string, AccountNodeDto> = new Map();
@@ -41,8 +42,9 @@ export class AccountQueryService implements IAccountQueryService {
         }
         return roots;
     }
-    async getAccountById(chartId: UuidValue, accountId: UuidValue): Promise<AccountDto> {
-        const chart = await this.repo.getById(chartId);
+
+    async getAccountById(accountId: UuidValue): Promise<AccountDto> {
+        const chart = await this.repo.getUnique();
         const account = chart.getAccountById(accountId);
         return AccountMapper.toDto(account, chart);
     }

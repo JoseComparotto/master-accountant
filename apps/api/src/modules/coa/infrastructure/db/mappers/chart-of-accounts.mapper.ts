@@ -21,7 +21,6 @@ export class ChartOfAccountsMapper {
         }));
 
         return ChartOfAccountsEntity.reconstitute(
-            UuidValue.create(ormEntity.id),
             accountProps,
             VersionValue.create(ormEntity.version),
         );

@@ -7,7 +7,7 @@ import { GetAccountsTreeQueryHandler } from "./application/queries/get-accounts-
 import { GetAccountByIdQueryHandler } from "./application/queries/get-account-by-id/get-account-by-id.handler";
 import { CreateAccountCommandHandler } from "./application/commands/create-account/create-account.handler";
 import { PatchAccountCommandHandler } from "./application/commands/patch-account/patch-account.handler";
-import { UpsertAccountCommandHandler } from "./application/commands/upsert-account/upsert-account-command.handler";
+import { UpsertAccountCommandHandler } from "./application/commands/upsert-account/upsert-account.handler";
 import { ActivateAccountCommandHandler } from "./application/commands/activate-account/activate-account.handler"
 import { InactivateAccountCommandHandler } from "./application/commands/inactivate-account/inactivate-account.handler"
 

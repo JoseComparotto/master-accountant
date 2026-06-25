@@ -1,14 +1,11 @@
 import { AccountDto, UpsertAccountInputDto } from "@repo/coa-contracts";
-import { BaseAccountCommand, BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
+import { IAccountCommand, BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 
-export class UpsertAccountCommand extends BaseAccountCommand {
+export class UpsertAccountCommand implements IAccountCommand {
     constructor(
-        public readonly chartId: string,
         public readonly accountId: string,
         public readonly data: UpsertAccountInputDto
-    ) {
-        super(chartId);
-    }
+    ) { }
 }
 
 export interface UpsertAccontResult {

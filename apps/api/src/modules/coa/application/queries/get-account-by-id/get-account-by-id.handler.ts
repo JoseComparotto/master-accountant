@@ -6,9 +6,8 @@ import { Ensure, UuidValue } from "@repo/shared-core";
 export class GetAccountByIdQueryHandler extends BaseGetAccountByIdQueryHandler {
     async execute(query: GetAccountByIdQuery) {
 
-        const chartId = this.getChartId(query);
         const accountId = Ensure.vo('accountId', () => UuidValue.create(query.accountId));
 
-        return await this.service.getAccountById(chartId, accountId);
+        return await this.service.getAccountById(accountId);
     }
 }

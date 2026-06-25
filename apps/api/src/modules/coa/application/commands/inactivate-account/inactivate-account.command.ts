@@ -1,10 +1,7 @@
-import { BaseAccountCommand } from "../../bases/account-command-handler.base";
+import { IAccountCommand } from "../../bases/account-command-handler.base";
 
-export class InactivateAccountCommand extends BaseAccountCommand {
+export class InactivateAccountCommand implements IAccountCommand {
     constructor(
-        public readonly chartId: string,
         public readonly accountId: string
-    ) {
-        super(chartId);
-    }
+    ) { }
 }

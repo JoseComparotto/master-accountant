@@ -11,7 +11,7 @@ import { Ensure, UuidValue } from "@repo/shared-core";
 @CommandHandler(UpsertAccountCommand)
 export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler {
     async execute(command: UpsertAccountCommand): Promise<UpsertAccontResult> {
-        const chart = await this.getChart(command);
+        const chart = await this.repo.getUnique();
 
         const { accountId, data: primitiveData } = command;
 
@@ -23,7 +23,6 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
             const updated: Readonly<AccountEntity> = chart.updateAccount(id, {
                 ...primitiveData,
                 name, parentId,
-                chartId: chart.id
             });
 
             await this.repo.save(chart);

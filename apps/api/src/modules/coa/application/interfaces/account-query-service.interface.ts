@@ -3,10 +3,10 @@ import { UuidValue } from "@repo/shared-core";
 
 export interface IAccountQueryService {
 
-    getAllAccountsByChartId(chartId: UuidValue): Promise<AccountDto[]>;
+    getAllAccounts(): Promise<AccountDto[]>;
 
-    getAccountsTreeByChartId(chartId: UuidValue): Promise<AccountNodeDto[]>;
+    getAccountsTree(): Promise<AccountNodeDto[]>;
     
-    getAccountById(chartId: UuidValue, accountId: UuidValue): Promise<AccountDto>;
+    getAccountById(accountId: UuidValue): Promise<AccountDto>;
 
 }

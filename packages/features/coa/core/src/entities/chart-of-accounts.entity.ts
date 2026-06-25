@@ -25,12 +25,10 @@ const MUTABLE_FIELDS = new Set<keyof UpdateAccountInput>([
 export class ChartOfAccountsEntity {
 
     private constructor(
-        private readonly _id: UuidValue,
         private readonly _collection: AccountCollection,
         private readonly _version: VersionValue
     ) { }
 
-    public get id() { return this._id; }
     public get version() { return this._version; }
 
     public get roots(): Readonly<AccountEntity>[] {
@@ -61,23 +59,22 @@ export class ChartOfAccountsEntity {
         return this._collection.getByParentId(parentId);
     }
 
-    public static create(id?: UuidValue): ChartOfAccountsEntity {
+    public static create(): ChartOfAccountsEntity {
 
         const emptyCollection = new AccountCollection();
 
         const initialVersion = VersionValue.initial();
 
         return new ChartOfAccountsEntity(
-            id ?? UuidValue.generate(),
             emptyCollection,
             initialVersion
         );
     }
 
-    public static reconstitute(id: UuidValue, accountsProps: AccountProps[], version: VersionValue): ChartOfAccountsEntity {
+    public static reconstitute(accountsProps: AccountProps[], version: VersionValue): ChartOfAccountsEntity {
         const accounts = accountsProps.map(AccountEntity.reconstitute);
         const collection = AccountCollection.fromAccounts(accounts);
-        return new ChartOfAccountsEntity(id, collection, version);
+        return new ChartOfAccountsEntity(collection, version);
     }
 
     public createAccount(input: CreateAccountInput): Readonly<AccountEntity> {
@@ -117,7 +114,6 @@ export class ChartOfAccountsEntity {
         );
 
         const account = AccountEntity.createRoot({
-            chartId: this.id,
             id: input.id,
             structuralCode,
             name: input.name,
@@ -142,7 +138,6 @@ export class ChartOfAccountsEntity {
         const structuralCode = this.generateCode(parent, input.localIndex);
 
         const account = AccountEntity.createChild({
-            chartId: this.id,
             id: input.id,
             structuralCode,
             name: input.name,
@@ -166,7 +161,6 @@ export class ChartOfAccountsEntity {
         const account = this._collection.getById(accountId);
 
         const diffMap: Record<FieldName, boolean> = {
-            chartId: !UuidValue.isEquals(target.parentId, account.parentId),
             parentId: !UuidValue.isEquals(target.parentId, account.parentId),
             name: !AccountNameValue.isEquals(target.name, account.name),
             description: target.description !== account.description,

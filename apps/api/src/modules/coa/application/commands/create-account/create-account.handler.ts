@@ -16,7 +16,7 @@ export class CreateAccountCommandHandler extends BaseAccountCommandHandler<Creat
         const name = Ensure.vo('name', () => AccountNameValue.create(primitiveData.name));
         const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(primitiveData.parentId)) ?? null;
 
-        const chart = await this.getChart(command);
+        const chart = await this.repo.getUnique();
 
         const account = chart.createAccount({
             ...primitiveData,

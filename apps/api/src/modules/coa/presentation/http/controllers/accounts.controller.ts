@@ -14,8 +14,6 @@ import { InactivateAccountCommand } from "../../../application/commands/inactiva
 import { PatchAccountCommand } from "../../../application/commands/patch-account/patch-account.command";
 import { UpsertAccountCommand, UpsertAccontResult } from "../../../application/commands/upsert-account/upsert-account.command";
 
-const DEFAULT_CHART_ID = process.env.DEFAULT_CHART_ID!;
-
 @Controller()
 export class AccountsController {
 
@@ -30,31 +28,31 @@ export class AccountsController {
     }
 
     async getAll(): Promise<{ status: 200, body: AccountDto[] }> {
-        const query = new GetAllAccountsQuery(DEFAULT_CHART_ID);
+        const query = new GetAllAccountsQuery();
         const res: AccountDto[] = await this.queryBus.execute(query);
         return { status: 200, body: res };
     };
 
     async getTree(): Promise<{status: 200, body: AccountNodeDto[]}>{
-        const query = new GetAccountsTreeQuery(DEFAULT_CHART_ID);
+        const query = new GetAccountsTreeQuery();
         const res: AccountNodeDto[] = await this.queryBus.execute(query);
         return { status: 200, body: res };        
     }
 
     async getById({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
-        const query = new GetAccountByIdQuery(DEFAULT_CHART_ID, id);
+        const query = new GetAccountByIdQuery(id);
         const res = await this.queryBus.execute(query);
         return { status: 200, body: res };
     };
 
     async create({ body }): Promise<{ status: 201, body: AccountDto }> {
-        const command = new CreateAccountCommand(DEFAULT_CHART_ID, body);
+        const command = new CreateAccountCommand(body);
         const created = await this.commandBus.execute(command);
         return { status: 201, body: created };
     };
 
     async upsert({ params: { id }, body }): Promise<{ status: 200 | 201, body: AccountDto }> {
-        const command = new UpsertAccountCommand(DEFAULT_CHART_ID, id, body);
+        const command = new UpsertAccountCommand(id, body);
         const result: UpsertAccontResult = await this.commandBus.execute(command);
 
         if (result.action === 'created')
@@ -64,19 +62,19 @@ export class AccountsController {
     }
 
     async patch({ params: { id }, body }): Promise<{ status: 200, body: AccountDto }> {
-        const command = new PatchAccountCommand(DEFAULT_CHART_ID, id, body);
+        const command = new PatchAccountCommand(id, body);
         const updated: AccountDto = await this.commandBus.execute(command);
         return { status: 200, body: updated };
     };
 
     async activate({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
-        const command = new ActivateAccountCommand(DEFAULT_CHART_ID, id);
+        const command = new ActivateAccountCommand(id);
         const activated: AccountDto = await this.commandBus.execute(command);
         return { status: 200, body: activated };
     };
 
     async inactivate({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
-        const command = new InactivateAccountCommand(DEFAULT_CHART_ID, id);
+        const command = new InactivateAccountCommand(id);
         const inactivated: AccountDto = await this.commandBus.execute(command);
         return { status: 200, body: inactivated };
     };

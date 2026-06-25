@@ -4,16 +4,25 @@ import { AccountNotExistsWithIdException, ChartOfAccountsEntity, IChartOfAccount
 import { ChartOfAccountsOrmEntity } from '../entities/chart-of-accounts.orm-entity';
 import { ChartOfAccountsMapper } from '../mappers/chart-of-accounts.mapper';
 import { UuidValue } from '@repo/shared-core';
+import { ConfigService } from '@nestjs/config';
+import { AppConfig } from '../../../../../config/configuration';
 
 @Injectable()
 export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsRepository {
-    constructor(
-        private readonly em: EntityManager
-    ) { }
 
-    async getById(id: UuidValue): Promise<ChartOfAccountsEntity> {
-        const chart = await this.findById(id);
-        if (!chart) throw new AccountNotExistsWithIdException(id.value);
+    private readonly chartId: UuidValue;
+
+    constructor(
+        private readonly em: EntityManager,
+        configService: ConfigService<AppConfig>
+    ) {
+        const {defaultChartId} = configService.getOrThrow('mock', {infer:true});
+        this.chartId = UuidValue.create(defaultChartId);
+    }
+
+    async getUnique(): Promise<ChartOfAccountsEntity> {
+        const chart = await this.findById(this.chartId);
+        if (!chart) throw new AccountNotExistsWithIdException(this.chartId.value);
         return chart;
     }
 
@@ -28,13 +37,13 @@ export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsReposi
     }
 
     async save(aggregate: ChartOfAccountsEntity): Promise<void> {
-        let ormEntity: ChartOfAccountsOrmEntity | null = await this.em.findOne(ChartOfAccountsOrmEntity, aggregate.id.value, {
+        let ormEntity: ChartOfAccountsOrmEntity | null = await this.em.findOne(ChartOfAccountsOrmEntity, this.chartId.value, {
             populate: ['accounts'],
         });
 
         if (!ormEntity) {
             ormEntity = new ChartOfAccountsOrmEntity();
-            ormEntity.id = aggregate.id.value;
+            ormEntity.id = this.chartId.value;
             this.em.persist(ormEntity);
         }
 

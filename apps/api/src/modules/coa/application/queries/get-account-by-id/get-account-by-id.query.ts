@@ -1,13 +1,10 @@
-import { BaseAccountQuery, BaseAccountQueryHandler } from "../../bases/account-query-handler.base";
+import { IAccountQuery, BaseAccountQueryHandler } from "../../bases/account-query-handler.base";
 import { AccountDto } from "@repo/coa-contracts";
 
-export class GetAccountByIdQuery extends BaseAccountQuery {
+export class GetAccountByIdQuery implements IAccountQuery {
     constructor(
-        public readonly chartId: string,
         public readonly accountId: string,
-    ) {
-        super(chartId);
-    }
+    ) {}
 }
 
 export abstract class BaseGetAccountByIdQueryHandler
