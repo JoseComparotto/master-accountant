@@ -5,7 +5,7 @@ import { GetAllAccountsQuery } from "../../../application/queries/get-all-accoun
 import { GetAccountsTreeQuery } from "../../../application/queries/get-accounts-tree/get-accounts-tree.query";
 import { GetAccountByIdQuery } from "../../../application/queries/get-account-by-id/get-account-by-id.query";
 
-import { AccountDto, AccountNodeDto, apiContract } from "@repo/coa-contracts";
+import { AccountDto, AccountNodeDto, apiContract, ReplaceAccountsInputDto } from "@repo/coa-contracts";
 
 import { tsRestHandler, TsRestHandler } from '@ts-rest/nest'
 import { ActivateAccountCommand } from "../../../application/commands/activate-account/activate-account.command";
@@ -13,6 +13,7 @@ import { CreateAccountCommand } from "../../../application/commands/create-accou
 import { InactivateAccountCommand } from "../../../application/commands/inactivate-account/inactivate-account.command";
 import { PatchAccountCommand } from "../../../application/commands/patch-account/patch-account.command";
 import { UpsertAccountCommand, UpsertAccontResult } from "../../../application/commands/upsert-account/upsert-account.command";
+import { ReplaceAccountsCommand, ReplaceAccountsResult } from "../../../application/commands/replace-accounts/replace-accounts.command";
 
 @Controller()
 export class AccountsController {
@@ -33,10 +34,10 @@ export class AccountsController {
         return { status: 200, body: res };
     };
 
-    async getTree(): Promise<{status: 200, body: AccountNodeDto[]}>{
+    async getTree(): Promise<{ status: 200, body: AccountNodeDto[] }> {
         const query = new GetAccountsTreeQuery();
         const res: AccountNodeDto[] = await this.queryBus.execute(query);
-        return { status: 200, body: res };        
+        return { status: 200, body: res };
     }
 
     async getById({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
@@ -59,6 +60,16 @@ export class AccountsController {
             return { status: 201, body: result.account };
         else
             return { status: 200, body: result.account };
+    }
+
+    async replaceAll({ body }: { body: ReplaceAccountsInputDto }): Promise<{ status: 200, body: AccountDto[] }> {
+        const command = new ReplaceAccountsCommand(body);
+        const result: ReplaceAccountsResult = await this.commandBus.execute(command);
+
+        return {
+            status: 200,
+            body: result.accounts
+        }
     }
 
     async patch({ params: { id }, body }): Promise<{ status: 200, body: AccountDto }> {

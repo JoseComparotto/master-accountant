@@ -10,6 +10,7 @@ import { PatchAccountCommandHandler } from "./application/commands/patch-account
 import { UpsertAccountCommandHandler } from "./application/commands/upsert-account/upsert-account.handler";
 import { ActivateAccountCommandHandler } from "./application/commands/activate-account/activate-account.handler"
 import { InactivateAccountCommandHandler } from "./application/commands/inactivate-account/inactivate-account.handler"
+import { ReplaceAccountsCommandHandler } from "./application/commands/replace-accounts/replace-accounts.handler";
 
 // Controllers
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
@@ -29,7 +30,8 @@ const CommandHandlers = [
     PatchAccountCommandHandler,
     UpsertAccountCommandHandler,
     InactivateAccountCommandHandler,
-    ActivateAccountCommandHandler
+    ActivateAccountCommandHandler,
+    ReplaceAccountsCommandHandler
 ];
 
 const Services = [

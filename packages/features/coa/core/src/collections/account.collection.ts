@@ -9,18 +9,15 @@ import {
 } from "../exceptions/account.exception.js";
 
 export class AccountCollection {
-    private readonly _accountsById: Map<UuidValue['value'], AccountEntity> = new Map();
-    private readonly _accountsByCode: Map<StructuralCodeValue['value'], AccountEntity> = new Map();
-    private readonly _accountsByParentId: Map<UuidValue['value'] | null, AccountEntity[]> = new Map();
+    private _accountsById: Map<UuidValue['value'], AccountEntity> = new Map();
+    private _accountsByCode: Map<StructuralCodeValue['value'], AccountEntity> = new Map();
+    private _accountsByParentId: Map<UuidValue['value'] | null, AccountEntity[]> = new Map();
 
     public constructor() { }
 
     public static fromAccounts(accounts: AccountEntity[]): AccountCollection {
         const collection = new AccountCollection();
-        for (const account of accounts) {
-            collection.register(account);
-        }
-        collection.validateGeneralReferencialIntegrity();
+        collection.addMany(accounts);
         return collection;
     }
 
@@ -46,6 +43,23 @@ export class AccountCollection {
         return [...this._accountsById.values()];
     }
 
+    public addMany(accounts: AccountEntity[]) {
+        for (const account of accounts) {
+            this.register(account);
+        }
+        this.validateGeneralReferencialIntegrity();
+    }
+
+    public clone(): AccountCollection{
+        return AccountCollection.fromAccounts(this.getAll().map(a=>a.clone()))
+    }
+
+    public restore(snapshot: AccountCollection){
+        this._accountsById = new Map(snapshot._accountsById);
+        this._accountsByCode = new Map(snapshot._accountsByCode);
+        this._accountsByParentId = new Map(snapshot._accountsByParentId);
+    }
+
     public hasId(id: UuidValue): boolean {
         return this._accountsById.has(id.value);
     }
@@ -69,6 +83,21 @@ export class AccountCollection {
     public getByParentId(id: UuidValue | null): AccountEntity[] {
         const children = this._accountsByParentId.get(id?.value ?? null) ?? [];
         return [...children];
+    }
+
+
+    public someAccount(predicate: (a: AccountEntity) => boolean): boolean {
+        for (const account of this._accountsById.values()) {
+            if (predicate(account)) return true;
+        }
+        return false;
+    }
+
+    public someId(predicate: (id: string) => boolean): boolean {
+        for (const id of this._accountsById.keys()) {
+            if (predicate(id)) return true;
+        }
+        return false;
     }
 
     private validateGeneralReferencialIntegrity() {

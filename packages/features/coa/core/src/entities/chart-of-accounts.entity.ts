@@ -15,13 +15,9 @@ import {
 } from "./account.entity.js";
 import { AccountNameValue } from "../value-objects/account-name.value.js";
 import { canActivateAccount, canInactivateAccount } from "../rules/account.rules.js";
+import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
+import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
 
-const MUTABLE_FIELDS = new Set<keyof UpdateAccountInput>([
-    'name',
-    'description',
-    'isContra',
-    'isActive',
-]);
 export class ChartOfAccountsEntity {
 
     private constructor(
@@ -154,6 +150,13 @@ export class ChartOfAccountsEntity {
         return account;
     }
 
+    public updateAccounts(target: UpdateAccountsInput): Readonly<AccountEntity>[] {
+        const pipeline = new AccountsUpdateBatchPipeline(this._collection);
+        
+        pipeline.execute(this, target);
+        
+        return this.accounts;
+    }
 
     public updateAccount(accountId: UuidValue, target: UpdateAccountInput): Readonly<AccountEntity> {
         type FieldName = keyof UpdateAccountInput;
@@ -177,25 +180,31 @@ export class ChartOfAccountsEntity {
             throw new AttributeImmutableViolationException(violation);
         }
 
-        if (diffMap.name) {
-            account.name = target.name;
-        }
+        const snapshot = account.clone();
+        try {
+            if (diffMap.name) {
+                this.updateAccountName(accountId,target.name);
+            }
 
-        if (diffMap.description) {
-            account.description = target.description;
-        }
+            if (diffMap.description) {
+                this.updateAccountDescription(accountId,target.description);
+            }
 
-        if (diffMap.isContra) {
-            if (target.isContra) account.convertToContra();
-            else account.convertToNormal();
-        }
+            if (diffMap.isContra) {
+                if (target.isContra) this.convertToContraAccount(accountId);
+                else this.convertToNormalAccount(accountId);
+            }
 
-        if (diffMap.isActive) {
-            if (target.isActive) account.activate();
-            else account.inactivate();
-        }
+            if (diffMap.isActive) {
+                if (target.isActive) this.activateAccount(accountId);
+                else this.inactivateAccount(accountId);
+            }
 
-        return account;
+            return account;
+        } catch (e) {
+            account.restore(snapshot);
+            throw e;
+        }
     }
 
     public updateAccountName(accountId: UuidValue, newName: AccountNameValue): Readonly<AccountEntity> {
@@ -341,6 +350,7 @@ export class ChartOfAccountsEntity {
 
 }
 
+type WithId = { id?: UuidValue; }
 type WithIndex = { localIndex?: number; }
 
 export type CreateAccountInput =
@@ -353,3 +363,5 @@ export type CreateChildAccountInput =
     & WithIndex;
 
 export type UpdateAccountInput = Omit<AccountProps, 'id' | 'structuralCode'> & WithIndex;
+export type UpdateAccountInputWithId = UpdateAccountInput & WithId;
+export type UpdateAccountsInput = (UpdateAccountInputWithId | CreateAccountInput)[];

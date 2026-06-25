@@ -75,10 +75,15 @@ export const PatchAccountInputSchema = AccountSchema.pick({
     isActive: true,
 }).partial();
 
+export const ReplaceAccountsInputSchema = UpsertAccountInputSchema.and(
+    AccountSchema.pick({id:true}).partial()
+).or(CreateAccountInputSchema).array();
+
 export type AccountDto = z.infer<typeof AccountSchema>;
 export type CreateAccountInputDto = z.infer<typeof CreateAccountInputSchema>;
 export type PatchAccountInputDto = z.infer<typeof PatchAccountInputSchema>;
 export type UpsertAccountInputDto = z.infer<typeof UpsertAccountInputSchema>;
+export type ReplaceAccountsInputDto = z.infer<typeof ReplaceAccountsInputSchema>;
 
 export type AccountsCapabilitiesDto = z.infer<typeof AccountsCapabilitiesSchema>;
 

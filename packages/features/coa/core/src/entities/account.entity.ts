@@ -142,6 +142,36 @@ export class AccountEntity {
         return this.structuralCode.compareTo(other.structuralCode);
     }
 
+    toProps(): AccountProps {
+        return {
+            id: this.id,
+            name: this.name,
+            description: this.description,
+            parentId: this.parentId,
+            structuralCode: this.structuralCode,
+            accountClass: this.accountClass,
+            isSummary: this.isSummary,
+            isContra: this.isContra,
+            isActive: this.isActive
+        }
+    }
+
+    clone(): AccountEntity{
+        return AccountEntity.reconstitute(this.toProps())
+    }
+
+    restore(snapshot: AccountEntity) {
+        this._id = snapshot._id;
+        this._name = snapshot._name;
+        this._description = snapshot._description;
+        this._parentId = snapshot._parentId;
+        this._structuralCode = snapshot._structuralCode;
+        this._accountClass = snapshot._accountClass;
+        this._isSummary = snapshot._isSummary;
+        this._isContra = snapshot._isContra;
+        this._isActive = snapshot._isActive;
+    }
+
 }
 
 export type CreateAccountProps =

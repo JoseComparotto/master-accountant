@@ -1,5 +1,5 @@
 import { initContract } from "@ts-rest/core";
-import { AccountNodeSchema, AccountSchema, CreateAccountInputSchema, PatchAccountInputSchema, UpsertAccountInputSchema } from "./accounts.schema.js";
+import { AccountNodeSchema, AccountSchema, CreateAccountInputSchema, PatchAccountInputSchema, ReplaceAccountsInputSchema, UpsertAccountInputSchema } from "./accounts.schema.js";
 import z from "zod";
 import { ApiErrorSchema } from "../shared/error.schema.js";
 
@@ -16,14 +16,16 @@ export const accountsContract = c.router({
     getAll: {
         method: 'GET', path: '/',
         responses: {
-            200: AccountSchema.array().describe('Lista de contas.')
+            200: AccountSchema.array().describe('Lista de contas.'),
+            400: ApiErrorSchema.describe('Requisição mal formada.'),
         }
     },
 
     getTree: {
         method: 'GET', path: '/tree',
         responses: {
-            200: AccountNodeSchema.array().describe('Árvore de contas.')
+            200: AccountNodeSchema.array().describe('Árvore de contas.'),
+            400: ApiErrorSchema.describe('Requisição mal formada.'),
         }
     },
 
@@ -32,6 +34,7 @@ export const accountsContract = c.router({
         pathParams: ByIdParam,
         responses: {
             200: AccountSchema.describe('Conta retornada com sucesso.'),
+            400: ApiErrorSchema.describe('Requisição mal formada.'),
             404: ApiErrorSchema.describe('Conta não encontrada.')
         }
     },
@@ -55,7 +58,20 @@ export const accountsContract = c.router({
         responses: {
             201: AccountSchema.describe('Conta criada com sucesso.'),
             200: AccountSchema.describe('Conta atualizada com sucesso.'),
+            400: ApiErrorSchema.describe('Requisição mal formada.'),
             404: ApiErrorSchema.describe('O parentId fornecido não existe.'),
+            422: ApiErrorSchema.describe('O objeto enviado viola invariantes de domínio.'),
+        }
+    },
+
+    replaceAll: {
+        method: 'PUT', path: '/',
+        body: ReplaceAccountsInputSchema,
+        responses:{
+            200: AccountSchema.array().describe('Lista atualizada com sucesso.'),
+            400: ApiErrorSchema.describe('Requisição mal formada.'),
+            404: ApiErrorSchema.describe('O parentId fornecido não existe.'),
+            409: ApiErrorSchema.describe('Identificação única em conflito.'),
             422: ApiErrorSchema.describe('O objeto enviado viola invariantes de domínio.'),
         }
     },
