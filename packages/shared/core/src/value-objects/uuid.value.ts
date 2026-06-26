@@ -1,5 +1,5 @@
 import { ValueObject } from "../bases/value-object.base.js";
-import { ValueObjectMalformedException } from "../exception/domain.exception.js";
+import { ValueObjectMalformedException } from "../exceptions/domain.exception.js";
 
 export class UuidValue extends ValueObject<string> {
 

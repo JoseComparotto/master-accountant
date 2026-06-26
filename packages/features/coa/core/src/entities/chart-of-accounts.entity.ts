@@ -1,4 +1,4 @@
-import { AtributeConstraintViolationException, AttributeImmutableViolationException, UuidValue } from "@repo/shared-core";
+import { AggregateRoot, AtributeConstraintViolationException, AttributeImmutableViolationException, UuidValue } from "@repo/shared-core";
 import { AccountCollection } from "../collections/account.collection.js";
 import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 import { VersionValue } from "../value-objects/version.value.js";
@@ -17,13 +17,14 @@ import { AccountNameValue } from "../value-objects/account-name.value.js";
 import { canActivateAccount, canInactivateAccount } from "../rules/account.rules.js";
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
+import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvent } from "../events/coa.events.js";
 
-export class ChartOfAccountsEntity {
+export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvent> {
 
     private constructor(
         private readonly _collection: AccountCollection,
         private readonly _version: VersionValue
-    ) { }
+    ) { super(); }
 
     public get version() { return this._version; }
 
@@ -57,14 +58,14 @@ export class ChartOfAccountsEntity {
 
     public static create(): ChartOfAccountsEntity {
 
-        const emptyCollection = new AccountCollection();
-
-        const initialVersion = VersionValue.initial();
-
-        return new ChartOfAccountsEntity(
-            emptyCollection,
-            initialVersion
+        const newChart = new ChartOfAccountsEntity(
+            new AccountCollection(),
+            VersionValue.initial()
         );
+
+        newChart.addDomainEvent(new ChartOfAccountsCreatedEvent());
+
+        return newChart;
     }
 
     public static reconstitute(accountsProps: AccountProps[], version: VersionValue): ChartOfAccountsEntity {
@@ -120,7 +121,7 @@ export class ChartOfAccountsEntity {
             isActive: input.isActive
         });
 
-        this._collection.add(account);
+        this.registerNewAccount(account);
 
         return account;
     }
@@ -145,16 +146,16 @@ export class ChartOfAccountsEntity {
             isActive: input.isActive ?? parent.isActive
         });
 
-        this._collection.add(account);
+        this.registerNewAccount(account);
 
         return account;
     }
 
     public updateAccounts(target: UpdateAccountsInput): Readonly<AccountEntity>[] {
         const pipeline = new AccountsUpdateBatchPipeline(this._collection);
-        
+
         pipeline.execute(this, target);
-        
+
         return this.accounts;
     }
 
@@ -183,11 +184,11 @@ export class ChartOfAccountsEntity {
         const snapshot = account.clone();
         try {
             if (diffMap.name) {
-                this.updateAccountName(accountId,target.name);
+                this.updateAccountName(accountId, target.name);
             }
 
             if (diffMap.description) {
-                this.updateAccountDescription(accountId,target.description);
+                this.updateAccountDescription(accountId, target.description);
             }
 
             if (diffMap.isContra) {
@@ -209,13 +210,13 @@ export class ChartOfAccountsEntity {
 
     public updateAccountName(accountId: UuidValue, newName: AccountNameValue): Readonly<AccountEntity> {
         const account = this._collection.getById(accountId);
-        account.name = newName;
+        this.addDomainEvent(account.updateName(newName));
         return account;
     }
 
     public updateAccountDescription(accountId: UuidValue, newDescription: string | null): Readonly<AccountEntity> {
         const account = this._collection.getById(accountId);
-        account.description = newDescription;
+        this.addDomainEvent(account.updateDescription(newDescription));
         return account;
     }
 
@@ -233,7 +234,7 @@ export class ChartOfAccountsEntity {
                 "HTI-07", `Cannot inactivate account: ${reasons.join(', ')}`
             );
 
-        account.inactivate();
+        this.addDomainEvent(account.inactivate());
     }
 
     public activateAccount(id: UuidValue): void {
@@ -251,7 +252,7 @@ export class ChartOfAccountsEntity {
                 "HTI-07", `Cannot activate account: ${reasons.join(', ')}`
             );
 
-        account.activate();
+        this.addDomainEvent(account.activate());
     }
 
     public convertToNormalAccount(id: UuidValue): void {
@@ -264,7 +265,7 @@ export class ChartOfAccountsEntity {
                 "COA-02", "Cannot convert to normal an account with contra account parent."
             );
 
-        account.convertToNormal();
+        this.addDomainEvent(account.convertToNormal());
     }
 
     public convertToContraAccount(id: UuidValue): void {
@@ -279,7 +280,7 @@ export class ChartOfAccountsEntity {
                 "COA-02", "Cannot convert to contra an account that has normal child accounts."
             );
 
-        account.convertToContra();
+        this.addDomainEvent(account.convertToContra());
     }
 
     public canActivate(accountId: UuidValue) {
@@ -300,6 +301,11 @@ export class ChartOfAccountsEntity {
             isAlreadyInactive: !account.isActive,
             hasAnyActiveChild: children.some(c => c.isActive)
         }).can;
+    }
+
+    private registerNewAccount(account: AccountEntity) {
+        this._collection.add(account);
+        this.addDomainEvent(new AccountCreatedEvent(account.toProps()));
     }
 
     private generateCode(parent: AccountEntity, localIndex?: number): StructuralCodeValue {

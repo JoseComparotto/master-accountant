@@ -106,10 +106,10 @@ export class AccountsUpdateBatchPipeline {
                 if (!item.account || !item.diffMap) continue;
 
                 if (item.diffMap.name) {
-                    item.account.name = item.target.name;
+                    chart.updateAccountName(item.account.id, item.target.name);
                 }
                 if (item.diffMap.description) {
-                    item.account.description = item.target.description;
+                    chart.updateAccountDescription(item.account.id, item.target.description);
                 }
             }
 
@@ -130,10 +130,10 @@ export class AccountsUpdateBatchPipeline {
                 const dm = item.diffMap!;
 
                 if (dm.isContra && item.target.isContra === true) {
-                    acc.convertToContra();
+                    chart.convertToContraAccount(acc.id);
                 }
                 if (dm.isActive && item.target.isActive === false) {
-                    acc.inactivate();
+                    chart.inactivateAccount(acc.id);
                 }
             }
 
@@ -154,10 +154,10 @@ export class AccountsUpdateBatchPipeline {
                 const dm = item.diffMap!;
 
                 if (dm.isActive && item.target.isActive === true) {
-                    acc.activate();
+                    chart.activateAccount(acc.id);
                 }
                 if (dm.isContra && item.target.isContra === false) {
-                    acc.convertToNormal();
+                    chart.convertToNormalAccount(acc.id);
                 }
             }
 

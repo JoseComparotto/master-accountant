@@ -3,6 +3,7 @@ import { AccountClassEnum } from '../enums/account-class.enum.js';
 import { BalanceTypeEnum } from '../enums/balance-type.enum.js';
 import { StructuralCodeValue } from '../value-objects/structural-code.value.js';
 import { AccountNameValue } from '../value-objects/account-name.value.js';
+import { AccountActivated, AccountConvertedToContra, AccountConvertedToNormal, AccountDescriptionUpdated, AccountInactivated, AccountNameUpdated } from '../events/coa.events.js';
 
 export interface AccountProps {
     id: UuidValue;
@@ -49,21 +50,57 @@ export class AccountEntity {
         return isDebit ? BalanceTypeEnum.DEBIT : BalanceTypeEnum.CREDIT
     }
 
-    set name(newName: AccountNameValue) {
+    updateName(newName: AccountNameValue): AccountNameUpdated | undefined {
         Ensure.isInstanceOf(newName, AccountNameValue, 'name');
+        const oldName = this._name;
+
+        if (oldName.equals(newName)) return;
+
         this._name = newName;
+
+        return new AccountNameUpdated(this.id, oldName, newName);
     }
 
-    set description(newDescription: string | null) {
+    updateDescription(newDescription: string | null): AccountDescriptionUpdated | undefined {
         Ensure.isType(newDescription, 'string', 'description', true);
+        const oldDescription = this._description;
+
+        if (oldDescription === newDescription) return;
+
         this._description = newDescription;
+
+        return new AccountDescriptionUpdated(this.id, oldDescription, newDescription);
     }
 
-    convertToContra() { this._isContra = true; }
-    convertToNormal() { this._isContra = false; }
+    convertToContra(): AccountConvertedToContra | undefined {
+        if(this._isContra === true) return;
 
-    activate() { this._isActive = true; }
-    inactivate() { this._isActive = false; }
+        this._isContra = true;
+
+        return new AccountConvertedToContra(this.id);
+    }
+    convertToNormal(): AccountConvertedToNormal| undefined {
+        if(this._isContra === false) return;
+
+        this._isContra = false;
+
+        return new AccountConvertedToNormal(this.id);
+    }
+
+    activate() : AccountActivated | undefined {
+        if(this._isActive === true) return;
+
+        this._isActive = true;
+
+        return new AccountActivated(this.id);
+    }
+    inactivate() : AccountInactivated | undefined {
+        if(this._isActive === false) return;
+
+        this._isActive = false;
+
+        return new AccountInactivated(this.id);
+    }
 
     private constructor() { }
 
@@ -156,7 +193,7 @@ export class AccountEntity {
         }
     }
 
-    clone(): AccountEntity{
+    clone(): AccountEntity {
         return AccountEntity.reconstitute(this.toProps())
     }
 

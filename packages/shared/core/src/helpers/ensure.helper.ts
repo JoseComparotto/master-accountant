@@ -1,4 +1,4 @@
-import { AtributeConstraintViolationException, ValueObjectMalformedException } from "../exception/domain.exception.js";
+import { AtributeConstraintViolationException, ValueObjectMalformedException } from "../exceptions/domain.exception.js";
 
 export class Ensure {
 
