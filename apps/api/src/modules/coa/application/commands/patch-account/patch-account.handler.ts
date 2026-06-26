@@ -5,11 +5,12 @@ import { PatchAccountCommand } from "./patch-account.command";
 import { AccountDto } from "@repo/coa-contracts";
 import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
+import { firstValueFrom } from "rxjs";
 
 @CommandHandler(PatchAccountCommand)
 export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchAccountCommand, AccountDto> {
     async execute(command: PatchAccountCommand): Promise<AccountDto> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
 
         const { accountId, data: primitiveData } = command;
 
@@ -36,7 +37,7 @@ export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchA
                 chart.inactivateAccount(id)
         }
 
-        await this.repo.save(chart);
+        await firstValueFrom(this.repo.save(chart));
 
         const account = chart.getAccountById(id);
         return AccountMapper.toDto(account, chart);

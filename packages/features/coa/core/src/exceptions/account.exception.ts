@@ -21,6 +21,12 @@ export class DuplicatedAccountCodeException extends DuplicatedUniqueAttributeExc
     }
 }
 
+export class ChartOfAccountsNotExistsWithIdException extends EntityNotExistsWithIdException {
+    constructor(chartId: string) {
+        super('ChartOfAccounts', chartId)
+    }
+}
+
 export class AccountNotExistsWithIdException extends EntityNotExistsWithIdException {
     constructor(accountId: string) {
         super(ENTITY_NAME, accountId)

@@ -1,9 +1,10 @@
 import { ChartOfAccountsEntity } from '../entities/chart-of-accounts.entity.js';
+import type { Observable } from 'rxjs'
 
 export interface IChartOfAccountsRepository {
 
-    getUnique(): Promise<ChartOfAccountsEntity>;
+    getUnique(): Observable<ChartOfAccountsEntity>;
 
-    save(chart: ChartOfAccountsEntity): Promise<void>;
+    save(chart: ChartOfAccountsEntity): Observable<void>;
 
 }

@@ -7,11 +7,12 @@ import {
     ReplaceAccountsCommand,
     ReplaceAccountsResult
 } from "./replace-accounts.command";
+import { firstValueFrom } from "rxjs";
 
 @CommandHandler(ReplaceAccountsCommand)
 export class ReplaceAccountsCommandHandler extends BaseReplaceAccountsCommandHandler {
     async execute(command: ReplaceAccountsCommand): Promise<ReplaceAccountsResult> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
 
         const { accounts } = command;
 
@@ -30,7 +31,7 @@ export class ReplaceAccountsCommandHandler extends BaseReplaceAccountsCommandHan
             }))
         );
         
-        await this.repo.save(chart);
+        await firstValueFrom(this.repo.save(chart));
 
         return {
             accounts: newAccounts.map(a => AccountMapper.toDto(a, chart))

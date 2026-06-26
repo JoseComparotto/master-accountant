@@ -1,11 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
-import { AccountNotExistsWithIdException, ChartOfAccountsEntity, IChartOfAccountsRepository, VersionValue } from '@repo/coa-core';
+import { ChartOfAccountsEntity, ChartOfAccountsNotExistsWithIdException, IChartOfAccountsRepository, VersionValue } from '@repo/coa-core';
 import { ChartOfAccountsOrmEntity } from '../entities/chart-of-accounts.orm-entity';
 import { ChartOfAccountsMapper } from '../mappers/chart-of-accounts.mapper';
 import { UuidValue } from '@repo/shared-core';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../../../config/configuration';
+import { from, map, Observable, switchMap } from 'rxjs'
+import { throwIfNull } from '../../../../../shared/infrastructure/rx/operators';
 
 @Injectable()
 export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsRepository {
@@ -16,38 +18,52 @@ export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsReposi
         private readonly em: EntityManager,
         configService: ConfigService<AppConfig>
     ) {
-        const {defaultChartId} = configService.getOrThrow('mock', {infer:true});
+        const { defaultChartId } = configService.getOrThrow('mock', { infer: true });
         this.chartId = UuidValue.create(defaultChartId);
     }
 
-    async getUnique(): Promise<ChartOfAccountsEntity> {
-        const chart = await this.findById(this.chartId);
-        if (!chart) throw new AccountNotExistsWithIdException(this.chartId.value);
-        return chart;
+    getUnique(): Observable<ChartOfAccountsEntity> {
+        return this.findById(this.chartId)
+            .pipe(
+                throwIfNull(() => new ChartOfAccountsNotExistsWithIdException(this.chartId.value))
+            )
     }
 
-    async findById(id: UuidValue): Promise<ChartOfAccountsEntity | null> {
-        const ormEntity = await this.em.findOne(ChartOfAccountsOrmEntity, id.value, {
+    findById(id: UuidValue): Observable<ChartOfAccountsEntity | null> {
+
+        const promise = this.em.findOne(ChartOfAccountsOrmEntity, id.value, {
             populate: ['accounts'],
         });
 
-        if (!ormEntity) return null;
+        return from(promise).pipe(
+            map((ormEntity) => {
+                if (!ormEntity)
+                    return null;
 
-        return ChartOfAccountsMapper.toDomain(ormEntity);
+                return ChartOfAccountsMapper.toDomain(ormEntity);
+            })
+        )
     }
 
-    async save(aggregate: ChartOfAccountsEntity): Promise<void> {
-        let ormEntity: ChartOfAccountsOrmEntity | null = await this.em.findOne(ChartOfAccountsOrmEntity, this.chartId.value, {
-            populate: ['accounts'],
-        });
+    save(aggregate: ChartOfAccountsEntity): Observable<void> {
+        return from(
+            this.em.findOne(ChartOfAccountsOrmEntity, this.chartId.value, {
+                populate: ['accounts'],
+            })
+        ).pipe(
+            map((ormEntity) => {
+                const entity = ormEntity ?? new ChartOfAccountsOrmEntity();
 
-        if (!ormEntity) {
-            ormEntity = new ChartOfAccountsOrmEntity();
-            ormEntity.id = this.chartId.value;
-            this.em.persist(ormEntity);
-        }
+                if (!ormEntity)
+                    entity.id = this.chartId.value;
 
-        ChartOfAccountsMapper.toPersistence(aggregate, ormEntity);
-        await this.em.flush();
+                ChartOfAccountsMapper.toPersistence(aggregate, entity);
+
+                this.em.persist(entity);
+
+                return entity;
+            }),
+            switchMap(() => from(this.em.flush()))
+        );
     }
 }

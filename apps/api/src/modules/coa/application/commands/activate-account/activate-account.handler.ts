@@ -4,18 +4,19 @@ import { AccountDto } from "@repo/coa-contracts";
 import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
 import { ActivateAccountCommand } from "./activate-account.command";
+import { firstValueFrom } from "rxjs";
 
 @CommandHandler(ActivateAccountCommand)
 export class ActivateAccountCommandHandler extends BaseAccountCommandHandler<ActivateAccountCommand, AccountDto> {
 
     async execute(command: ActivateAccountCommand): Promise<AccountDto> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
 
         const accountId = Ensure.vo('accountId', () => UuidValue.create(command.accountId));
 
         chart.activateAccount(accountId);
 
-        await this.repo.save(chart);
+        await firstValueFrom(this.repo.save(chart));
 
         const account = chart.getAccountById(accountId);
         return AccountMapper.toDto(account, chart);

@@ -7,11 +7,12 @@ import {
     UpsertAccountCommand
 } from "./upsert-account.command";
 import { Ensure, UuidValue } from "@repo/shared-core";
+import { firstValueFrom } from "rxjs";
 
 @CommandHandler(UpsertAccountCommand)
 export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler {
     async execute(command: UpsertAccountCommand): Promise<UpsertAccontResult> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
 
         const { accountId, data: primitiveData } = command;
 
@@ -25,7 +26,7 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
                 name, parentId,
             });
 
-            await this.repo.save(chart);
+            await firstValueFrom(this.repo.save(chart));
             return {
                 action: 'updated',
                 account: AccountMapper.toDto(updated, chart)

@@ -5,6 +5,7 @@ import { AccountNameValue } from "@repo/coa-core";
 import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
 import { CreateAccountCommand } from "./create-account.command";
+import { firstValueFrom } from "rxjs";
 
 @CommandHandler(CreateAccountCommand)
 export class CreateAccountCommandHandler extends BaseAccountCommandHandler<CreateAccountCommand> {
@@ -16,14 +17,14 @@ export class CreateAccountCommandHandler extends BaseAccountCommandHandler<Creat
         const name = Ensure.vo('name', () => AccountNameValue.create(primitiveData.name));
         const parentId = Ensure.vo('parentId', () => UuidValue.createOptional(primitiveData.parentId)) ?? null;
 
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
 
         const account = chart.createAccount({
             ...primitiveData,
             id, name, parentId,
         });
 
-        await this.repo.save(chart);
+        await firstValueFrom(this.repo.save(chart));
 
         return AccountMapper.toDto(account, chart);
 

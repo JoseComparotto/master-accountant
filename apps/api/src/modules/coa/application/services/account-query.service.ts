@@ -4,6 +4,7 @@ import { IAccountQueryService } from "../interfaces/account-query-service.interf
 import { Inject, Injectable } from "@nestjs/common";
 import type { IChartOfAccountsRepository } from "@repo/coa-core";
 import { AccountMapper } from "../mappers/account.mapper";
+import { firstValueFrom } from "rxjs";
 
 @Injectable()
 export class AccountQueryService implements IAccountQueryService {
@@ -14,12 +15,12 @@ export class AccountQueryService implements IAccountQueryService {
     ) { }
 
     async getAllAccounts(): Promise<AccountDto[]> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
         return chart.accounts.map(a => AccountMapper.toDto(a, chart));
     }
 
     async getAccountsTree(): Promise<AccountNodeDto[]> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
 
         const roots: AccountNodeDto[] = []
         const mapping: Map<string, AccountNodeDto> = new Map();
@@ -44,7 +45,7 @@ export class AccountQueryService implements IAccountQueryService {
     }
 
     async getAccountById(accountId: UuidValue): Promise<AccountDto> {
-        const chart = await this.repo.getUnique();
+        const chart = await firstValueFrom(this.repo.getUnique());
         const account = chart.getAccountById(accountId);
         return AccountMapper.toDto(account, chart);
     }
