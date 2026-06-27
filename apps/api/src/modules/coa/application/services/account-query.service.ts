@@ -1,10 +1,11 @@
-import { AccountDto, AccountNodeDto } from "@repo/coa-contracts";
+import { AccountDto, AccountNodeDto, ChartOfAccountsDto } from "@repo/coa-contracts";
 import { UuidValue } from "@repo/shared-core";
 import { IAccountQueryService } from "../interfaces/account-query-service.interface";
 import { Inject, Injectable } from "@nestjs/common";
 import type { IChartOfAccountsRepository } from "@repo/coa-core";
 import { AccountMapper } from "../mappers/account.mapper";
 import { firstValueFrom } from "rxjs";
+import { ChartOfAccountsMapper } from "../mappers/coa.mapper";
 
 @Injectable()
 export class AccountQueryService implements IAccountQueryService {
@@ -13,6 +14,11 @@ export class AccountQueryService implements IAccountQueryService {
         @Inject('IChartOfAccountsRepository')
         private readonly repo: IChartOfAccountsRepository
     ) { }
+
+    async getChart(): Promise<ChartOfAccountsDto> {
+        const chart = await firstValueFrom(this.repo.getUnique());
+        return ChartOfAccountsMapper.toDto(chart);
+    }
 
     async getAllAccounts(): Promise<AccountDto[]> {
         const chart = await firstValueFrom(this.repo.getUnique());

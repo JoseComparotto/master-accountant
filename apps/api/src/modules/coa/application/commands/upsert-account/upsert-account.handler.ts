@@ -3,7 +3,7 @@ import { AccountEntity, AccountNameValue } from "@repo/coa-core";
 import { AccountMapper } from "../../mappers/account.mapper";
 import {
     BaseUpsertAccountCommandHandler,
-    UpsertAccontResult,
+    UpsertAccountResult,
     UpsertAccountCommand
 } from "./upsert-account.command";
 import { Ensure, UuidValue } from "@repo/shared-core";
@@ -11,7 +11,7 @@ import { firstValueFrom } from "rxjs";
 
 @CommandHandler(UpsertAccountCommand)
 export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler {
-    async execute(command: UpsertAccountCommand): Promise<UpsertAccontResult> {
+    async execute(command: UpsertAccountCommand): Promise<UpsertAccountResult> {
         const chart = await firstValueFrom(this.repo.getUnique());
 
         const { accountId, data: primitiveData } = command;

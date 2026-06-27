@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { EntityManager } from '@mikro-orm/core';
 import { ChartOfAccountsEntity, ChartOfAccountsNotExistsWithIdException, IChartOfAccountsRepository, VersionValue } from '@repo/coa-core';
 import { ChartOfAccountsOrmEntity } from '../entities/chart-of-accounts.orm-entity';
-import { ChartOfAccountsMapper } from '../mappers/chart-of-accounts.mapper';
+import { OrmChartOfAccountsMapper } from '../mappers/orm-chart-of-accounts.mapper';
 import { UuidValue } from '@repo/shared-core';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from '../../../../../config/configuration';
@@ -40,12 +40,12 @@ export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsReposi
                 if (!ormEntity)
                     return null;
 
-                return ChartOfAccountsMapper.toDomain(ormEntity);
+                return OrmChartOfAccountsMapper.toDomain(ormEntity);
             })
         )
     }
 
-    save(aggregate: ChartOfAccountsEntity): Observable<void> {
+    save(aggregate: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity> {
         return from(
             this.em.findOne(ChartOfAccountsOrmEntity, this.chartId.value, {
                 populate: ['accounts'],
@@ -57,13 +57,18 @@ export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsReposi
                 if (!ormEntity)
                     entity.id = this.chartId.value;
 
-                ChartOfAccountsMapper.toPersistence(aggregate, entity);
+                OrmChartOfAccountsMapper.toPersistence(aggregate, entity);
 
                 this.em.persist(entity);
 
                 return entity;
             }),
-            switchMap(() => from(this.em.flush()))
+            switchMap((entity) =>
+                from(this.em.flush())
+                    .pipe(
+                        map(() => OrmChartOfAccountsMapper.toDomain(entity))
+                    )
+            )
         );
     }
 }

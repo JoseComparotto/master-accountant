@@ -3,7 +3,7 @@ import { ChartOfAccountsOrmEntity } from '../entities/chart-of-accounts.orm-enti
 import { AccountOrmEntity } from '../entities/account.orm-entity';
 import { UuidValue } from '@repo/shared-core';
 
-export class ChartOfAccountsMapper {
+export class OrmChartOfAccountsMapper {
 
     static toDomain(ormEntity: ChartOfAccountsOrmEntity): ChartOfAccountsEntity {
         const accountProps = ormEntity.accounts.map<AccountProps>((accountOrm) => ({

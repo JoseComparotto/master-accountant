@@ -8,11 +8,11 @@ export class UpsertAccountCommand implements IAccountCommand {
     ) { }
 }
 
-export interface UpsertAccontResult {
+export interface UpsertAccountResult {
     action: 'created' | 'updated';
     account: AccountDto;
 }
 
-export abstract class BaseUpsertAccountCommandHandler extends BaseAccountCommandHandler<UpsertAccountCommand, UpsertAccontResult>{
+export abstract class BaseUpsertAccountCommandHandler extends BaseAccountCommandHandler<UpsertAccountCommand, UpsertAccountResult>{
 
 }

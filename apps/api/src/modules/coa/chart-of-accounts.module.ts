@@ -11,6 +11,8 @@ import { UpsertAccountCommandHandler } from "./application/commands/upsert-accou
 import { ActivateAccountCommandHandler } from "./application/commands/activate-account/activate-account.handler"
 import { InactivateAccountCommandHandler } from "./application/commands/inactivate-account/inactivate-account.handler"
 import { ReplaceAccountsCommandHandler } from "./application/commands/replace-accounts/replace-accounts.handler";
+import { GetChartOfAccountsQueryHandler } from "./application/queries/get-coa/get-coa.handler";
+import { UpdateChartOfAccountsCommandHandler } from "./application/commands/update-coa/update-coa.handler";
 
 // Controllers
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
@@ -18,8 +20,10 @@ import { AccountsController } from "./presentation/http/controllers/accounts.con
 // Services
 import { AccountQueryService } from "./application/services/account-query.service";
 import { CoaDatabaseModule } from "./infrastructure/db";
+import { ChartOfAccountsController } from "./presentation/http/controllers/coa.controller";
 
 const QueryHandlers = [
+    GetChartOfAccountsQueryHandler,
     GetAllAccountsQueryHandler,
     GetAccountByIdQueryHandler,
     GetAccountsTreeQueryHandler
@@ -31,7 +35,8 @@ const CommandHandlers = [
     UpsertAccountCommandHandler,
     InactivateAccountCommandHandler,
     ActivateAccountCommandHandler,
-    ReplaceAccountsCommandHandler
+    ReplaceAccountsCommandHandler,
+    UpdateChartOfAccountsCommandHandler
 ];
 
 const Services = [
@@ -48,7 +53,8 @@ const Services = [
         CoaDatabaseModule
     ],
     controllers: [
-        AccountsController
+        ChartOfAccountsController,
+        AccountsController,
     ],
     providers: [
         ...CommandHandlers,

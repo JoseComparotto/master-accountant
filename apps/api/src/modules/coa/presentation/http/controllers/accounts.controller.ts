@@ -12,7 +12,7 @@ import { ActivateAccountCommand } from "../../../application/commands/activate-a
 import { CreateAccountCommand } from "../../../application/commands/create-account/create-account.command";
 import { InactivateAccountCommand } from "../../../application/commands/inactivate-account/inactivate-account.command";
 import { PatchAccountCommand } from "../../../application/commands/patch-account/patch-account.command";
-import { UpsertAccountCommand, UpsertAccontResult } from "../../../application/commands/upsert-account/upsert-account.command";
+import { UpsertAccountCommand, UpsertAccountResult } from "../../../application/commands/upsert-account/upsert-account.command";
 import { ReplaceAccountsCommand, ReplaceAccountsResult } from "../../../application/commands/replace-accounts/replace-accounts.command";
 
 @Controller()
@@ -54,7 +54,7 @@ export class AccountsController {
 
     async upsert({ params: { id }, body }): Promise<{ status: 200 | 201, body: AccountDto }> {
         const command = new UpsertAccountCommand(id, body);
-        const result: UpsertAccontResult = await this.commandBus.execute(command);
+        const result: UpsertAccountResult = await this.commandBus.execute(command);
 
         if (result.action === 'created')
             return { status: 201, body: result.account };

@@ -1,7 +1,9 @@
-import { AccountDto, AccountNodeDto } from "@repo/coa-contracts";
+import { AccountDto, AccountNodeDto, ChartOfAccountsDto } from "@repo/coa-contracts";
 import { UuidValue } from "@repo/shared-core";
 
 export interface IAccountQueryService {
+
+    getChart(): Promise<ChartOfAccountsDto>;
 
     getAllAccounts(): Promise<AccountDto[]>;
 

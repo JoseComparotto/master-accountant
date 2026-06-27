@@ -3,7 +3,7 @@ import { Seeder } from '@mikro-orm/seeder';
 import { ChartOfAccountsOrmEntity } from '../../../../modules/coa/infrastructure/db';
 import { AccountClassEnum, AccountNameValue, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
-import { ChartOfAccountsMapper } from '../../../../modules/coa/infrastructure/db/mappers/chart-of-accounts.mapper';
+import { OrmChartOfAccountsMapper } from '../../../../modules/coa/infrastructure/db/mappers/orm-chart-of-accounts.mapper';
 
 export class DatabaseSeeder extends Seeder {
   async run(em: EntityManager): Promise<void> {
@@ -20,7 +20,7 @@ export class DatabaseSeeder extends Seeder {
 
     const chartOrm = new ChartOfAccountsOrmEntity();
     chartOrm.id = UuidValue.create(process.env.DEFAULT_CHART_ID).value;
-    ChartOfAccountsMapper.toPersistence(chart, chartOrm);
+    OrmChartOfAccountsMapper.toPersistence(chart, chartOrm);
 
     em.persist(chartOrm);
   }

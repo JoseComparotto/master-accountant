@@ -5,6 +5,6 @@ export interface IChartOfAccountsRepository {
 
     getUnique(): Observable<ChartOfAccountsEntity>;
 
-    save(chart: ChartOfAccountsEntity): Observable<void>;
+    save(chart: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity>;
 
 }
