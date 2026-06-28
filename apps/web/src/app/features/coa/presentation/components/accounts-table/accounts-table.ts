@@ -9,10 +9,12 @@ import { AccountTitle } from '../account-title/account-title';
 import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
 import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
+import { CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
 
 type AccountCapabilities = {
   canActivate: boolean,
-  canInactivate: boolean
+  canInactivate: boolean,
+  canCreateChild: boolean,
 }
 
 @Component({
@@ -27,8 +29,9 @@ type AccountCapabilities = {
     ZardTableCellComponent,
     ZardButtonComponent,
     NgClass, NgIcon,
-    ToggleAccountActiveButton
-  ],
+    ToggleAccountActiveButton,
+    CreateChildAccountButton
+],
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
 
@@ -36,13 +39,13 @@ type AccountCapabilities = {
   viewProviders: [provideIcons({
     lucideChevronDown,
     lucideChevronRight,
-    lucideEye, lucideEyeOff
   })],
 })
 export class AccountsTable {
   chart = input.required<ChartOfAccountsEntity>();
 
   toggleActive = output<Readonly<AccountEntity>>();
+  createChild = output<Readonly<AccountEntity>>();
 
   showInactive = model(true);
   collapsedIds = model<Set<string>>(new Set());
@@ -75,7 +78,8 @@ export class AccountsTable {
     for (const account of chart.accounts) {
       map.set(account.id.value, {
         canActivate: chart.canActivate(account.id),
-        canInactivate: chart.canInactivate(account.id)
+        canInactivate: chart.canInactivate(account.id),
+        canCreateChild: chart.canCreateChild(account.id)
       })
     }
     return map;
@@ -105,8 +109,10 @@ export class AccountsTable {
   canActivate(acocunt: { id: UuidValue }) {
     return this.capabilities().get(acocunt.id.value)?.canActivate === true;
   }
-
   canInactivate(acocunt: { id: UuidValue }) {
     return this.capabilities().get(acocunt.id.value)?.canInactivate === true;
+  }
+  canCreateChild(acocunt: { id: UuidValue }) {
+    return this.capabilities().get(acocunt.id.value)?.canCreateChild === true;
   }
 }

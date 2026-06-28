@@ -22,17 +22,17 @@
                                 }
                             </z-button>
                             <div class="min-w-0 truncate">
-                                <app-account-title [account]="row"/>
+                                <app-account-title [account]="row" />
                             </div>
                         </div>
                     </td>
                     <td z-table-cell>
-                        <app-toggle-account-active-button
-                            [account]="row"
-                            (toggle)="toggleActive.emit(row)"
-                            [canActivate]="canActivate(row)"
-                            [canInactivate]="canInactivate(row)"
-                            />
+                        <div class="flex right-2 items-center justify-end gap-1">
+                            <app-create-child-account-button [canCreateChild]="canCreateChild(row)"
+                                (create)="createChild.emit(row)" />
+                            <app-toggle-account-active-button [account]="row" (toggle)="toggleActive.emit(row)"
+                                [canActivate]="canActivate(row)" [canInactivate]="canInactivate(row)" />
+                        </div>
                     </td>
                 </tr>
                 }

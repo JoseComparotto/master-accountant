@@ -3,7 +3,7 @@ import { AccountsTable } from '../../components/accounts-table/accounts-table';
 import { AccountNodeDto } from '@repo/coa-contracts';
 import { COA_REPOSITORY } from '@/app.config';
 import { from } from 'rxjs';
-import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
+import { AccountEntity, AccountNameValue, ChartOfAccountsEntity } from '@repo/coa-core';
 import { CoaFacade } from '../../facades/coa.facade';
 import { UuidValue } from '@repo/shared-core';
 
@@ -17,18 +17,31 @@ export class AccountsPage implements OnInit {
 
   protected facade = inject(CoaFacade);
 
-  async ngOnInit() {
+  ngOnInit() {
     this.facade.load();
   }
 
-  async toggleActive(account: Readonly<AccountEntity>) {
+  toggleActive(account: Readonly<AccountEntity>) {
     const chart = this.facade.chart();
-    if(!chart)return;
+    if (!chart) return;
 
     if (account.isActive)
       chart.inactivateAccount(account.id);
     else
       chart.activateAccount(account.id);
+
+    this.facade.saveChanges(chart);
+  }
+
+  createChild(account: Readonly<AccountEntity>) {
+    const chart = this.facade.chart();
+    if (!chart) return;
+
+    chart.createChildAccount({
+      parentId: account.id,
+      name:AccountNameValue.create('Conta Teste'),
+      isSummary: false,
+    })
 
     this.facade.saveChanges(chart);
   }

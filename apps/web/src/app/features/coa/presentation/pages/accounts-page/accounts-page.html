@@ -8,6 +8,10 @@
     }
 
     @if(facade.chart();as chart){
-    <app-accounts-table [chart]="facade.chart()!" (toggleActive)="toggleActive($event)"></app-accounts-table>
+    <app-accounts-table
+        [chart]="facade.chart()!"
+        (toggleActive)="toggleActive($event)"
+        (createChild)="createChild($event)"
+    />
     }
 </div>
