@@ -1,7 +1,7 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
 import { CoaBatchAction } from '../../../application/commands/apply-coa-batch-actions/apply-coa-batch-actions.command';
 import { CreateAccountCommand } from '../../../application/commands/create-account/create-account.command';
-import { CreateAccountInputSchema, JsonPatchOperation, PatchAccountInputSchema } from '@repo/coa-contracts';
+import { CoaPatchOperation, PatchAccountInputSchema } from '@repo/coa-contracts';
 import { PatchAccountCommand } from '../../../application/commands/patch-account/patch-account.command';
 
 @Injectable()
@@ -10,24 +10,22 @@ export class CoaPatchTranslator {
     /**
      * Traduz um array de operações JSON Patch para uma lista de Comandos de Aplicação
      */
-    public translateBatch(operations: JsonPatchOperation[]): CoaBatchAction[] {
+    public translateBatch(operations: CoaPatchOperation[]): CoaBatchAction[] {
         return operations.map((op) => this.translateOperation(op));
     }
 
     /**
      * Traduz uma única operação individual usando Pattern Matching por Regex
      */
-    private translateOperation(op: JsonPatchOperation): CoaBatchAction {
+    private translateOperation(op: CoaPatchOperation): CoaBatchAction {
         // 1. Regex para capturar Criação: {"op": "add", "path": "/accounts/:id"}
         const createMatch = op.path.match(/^\/accounts\/([^\/]+)$/);
 
         if (createMatch && op.op === 'add') {
             const [, accountId] = createMatch;
 
-            const data = CreateAccountInputSchema.parse(op.value);
-
             return new CreateAccountCommand({
-                ...data,
+                ...op.value,
                 id: accountId !== '-' ? accountId : undefined
             });
         }

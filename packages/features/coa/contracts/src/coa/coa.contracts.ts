@@ -4,6 +4,7 @@ import { accountsContract } from "../accounts/accounts.contract.js";
 import z from "zod";
 import { ApiErrorSchema } from "../shared/error.schema.js";
 import { JsonPatchOperationSchema } from "../shared/json-patch.schema.js";
+import { CoaPatchOperationSchema } from "./coa-patch-operation.schema.js";
 
 const PREFIX = '/coa';
 
@@ -37,7 +38,7 @@ export const coaContract = c.router({
         headers: z.object({
             'if-match': z.string({ required_error: 'O cabeçalho If-Match é obrigatório.' }).regex(/^(?:W\/)?"\d+"$/g),
         }),
-        body: z.array(JsonPatchOperationSchema),
+        body: z.array(CoaPatchOperationSchema),
         responses: {
             200: ChartOfAccountsSchema, 
             400: ApiErrorSchema.describe('Requisição mal formada.'),
