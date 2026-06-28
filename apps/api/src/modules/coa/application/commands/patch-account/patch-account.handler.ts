@@ -1,17 +1,26 @@
 import { CommandHandler } from "@nestjs/cqrs";
-import { AccountNameValue } from "@repo/coa-core";
+import { AccountEntity, AccountNameValue, ChartOfAccountsEntity } from "@repo/coa-core";
 import { AccountMapper } from "../../mappers/account.mapper";
 import { PatchAccountCommand } from "./patch-account.command";
 import { AccountDto } from "@repo/coa-contracts";
-import { BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
+import { AppliableAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
 import { firstValueFrom } from "rxjs";
 
 @CommandHandler(PatchAccountCommand)
-export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchAccountCommand, AccountDto> {
+export class PatchAccountCommandHandler
+    extends AppliableAccountCommandHandler<PatchAccountCommand, AccountDto> {
     async execute(command: PatchAccountCommand): Promise<AccountDto> {
         const chart = await firstValueFrom(this.repo.getUnique());
 
+        const account = this.apply(command, chart);
+
+        await firstValueFrom(this.repo.save(chart));
+
+        return AccountMapper.toDto(account);
+    }
+
+    apply(command: PatchAccountCommand, chart: ChartOfAccountsEntity): Readonly<AccountEntity> {
         const { accountId, data: primitiveData } = command;
 
         const id = Ensure.vo('id', () => UuidValue.create(accountId));
@@ -37,10 +46,7 @@ export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchA
                 chart.inactivateAccount(id)
         }
 
-        await firstValueFrom(this.repo.save(chart));
-
-        const account = chart.getAccountById(id);
-        return AccountMapper.toDto(account);
+        return chart.getAccountById(id);
     }
 
 }

@@ -13,6 +13,7 @@ import { InactivateAccountCommandHandler } from "./application/commands/inactiva
 import { ReplaceAccountsCommandHandler } from "./application/commands/replace-accounts/replace-accounts.handler";
 import { GetChartOfAccountsQueryHandler } from "./application/queries/get-coa/get-coa.handler";
 import { UpdateChartOfAccountsCommandHandler } from "./application/commands/update-coa/update-coa.handler";
+import { ApplyBatchActionsCommandHandler } from "./application/commands/apply-coa-batch-actions/apply-coa-batch-actions.command";
 
 // Controllers
 import { AccountsController } from "./presentation/http/controllers/accounts.controller";
@@ -21,6 +22,7 @@ import { AccountsController } from "./presentation/http/controllers/accounts.con
 import { AccountQueryService } from "./application/services/account-query.service";
 import { CoaDatabaseModule } from "./infrastructure/db";
 import { ChartOfAccountsController } from "./presentation/http/controllers/coa.controller";
+import { CoaPatchTranslator } from "./presentation/http/services/coa-patch-translator.service";
 
 const QueryHandlers = [
     GetChartOfAccountsQueryHandler,
@@ -36,7 +38,8 @@ const CommandHandlers = [
     InactivateAccountCommandHandler,
     ActivateAccountCommandHandler,
     ReplaceAccountsCommandHandler,
-    UpdateChartOfAccountsCommandHandler
+    UpdateChartOfAccountsCommandHandler,
+    ApplyBatchActionsCommandHandler
 ];
 
 const Services = [
@@ -44,7 +47,8 @@ const Services = [
         provide: 'IAccountQueryService',
         useFactory: repo => new AccountQueryService(repo),
         inject: ['IChartOfAccountsRepository']
-    }
+    },
+    CoaPatchTranslator
 ];
 
 @Module({

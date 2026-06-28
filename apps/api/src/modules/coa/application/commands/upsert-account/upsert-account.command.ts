@@ -1,5 +1,5 @@
 import { AccountDto, UpsertAccountInputDto } from "@repo/coa-contracts";
-import { IAccountCommand, BaseAccountCommandHandler } from "../../bases/account-command-handler.base";
+import { IAccountCommand, AccountCommandHandler } from "../../bases/account-command-handler.base";
 
 export class UpsertAccountCommand implements IAccountCommand {
     constructor(
@@ -13,6 +13,6 @@ export interface UpsertAccountResult {
     account: AccountDto;
 }
 
-export abstract class BaseUpsertAccountCommandHandler extends BaseAccountCommandHandler<UpsertAccountCommand, UpsertAccountResult>{
+export abstract class BaseUpsertAccountCommandHandler extends AccountCommandHandler<UpsertAccountCommand, UpsertAccountResult>{
 
 }

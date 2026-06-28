@@ -36,9 +36,7 @@ export const coaContract = c.router({
         path: '/',
         headers: z.object({
             'if-match': z.string({ required_error: 'O cabeçalho If-Match é obrigatório.' }).regex(/^(?:W\/)?"\d+"$/g),
-            'content-type': z.literal('application/json-patch+json', {
-                errorMap: () => ({ message: 'O Content-Type deve ser application/json-patch+json' }),
-            }),
+            'content-type': z.enum(['application/json','application/json-patch+json']),
         }),
         body: z.array(JsonPatchOperationSchema),
         responses: {
