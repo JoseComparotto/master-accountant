@@ -21,7 +21,7 @@ export abstract class ValueObject<T, U = T> {
      * Utilitário recursivo privado para congelar objetos e arrays profundamente.
      * Impede qualquer tentativa de alteração em estruturas aninhadas sob Strict Mode.
      */
-    private static deepFreeze<T extends {[k:(string | symbol)]:any} | null >(obj: T): Readonly<T> {
+    private static deepFreeze<T extends { [k: (string | symbol)]: any } | null>(obj: T): Readonly<T> {
         if (obj === null || typeof obj !== 'object') {
             return obj;
         }

@@ -1,10 +1,17 @@
 import { inject, Injectable } from "@angular/core";
-import { AccountCreatedEvent, AccountDescriptionUpdated, AccountIsActiveUpdated, AccountIsContraUpdated, AccountNameUpdated, AccountProps, AccountUpdatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEntity, IChartOfAccountsRepository, VersionValue } from "@repo/coa-core";
+import {
+    AccountCreatedEvent,
+    AccountUpdatedEvent,
+    ChartOfAccountsCreatedEvent,
+    ChartOfAccountsEntity,
+    IChartOfAccountsRepository,
+    VersionValue
+} from "@repo/coa-core";
 import { CoaApiClient } from "../services/coa-api-client";
-import { from, map, Observable, switchMap } from "rxjs";
+import { from, map, Observable } from "rxjs";
 import { fromDtoToProps } from "../../application/mappers/from-dto-to-props.mapper";
 import { fromDomainToDto } from "../../application/mappers/from-props-to-dto.mapper";
-import { PatchAccountInputDto, UpsertAccountInputDto } from "@repo/coa-contracts";
+import { ValueObject } from "@repo/shared-core";
 
 @Injectable()
 export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository {
@@ -15,7 +22,7 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
             .pipe(
                 map(({ status, body }) => {
                     if (status === 200) {
-                        const accountProps = body.accounts.map(fromDtoToProps)
+                        const accountProps = body.accounts.map(fromDtoToProps);
 
                         return ChartOfAccountsEntity.reconstitute(
                             accountProps,
@@ -26,110 +33,83 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
                     console.error(body);
                     throw new Error("Erro ao buscar contas");
                 })
-            )
+            );
     }
 
     save(chart: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity> {
-
         const events = chart.domainEvents;
         if (events.length === 0) return this.getUnique();
         chart.clearDomainEvents();
 
-        const singleEvent = events.length === 1 ? events[0] : undefined;
-
-        const updateAccountEvents = events.filter(e => e instanceof AccountUpdatedEvent);
-        const updatedAccountIds = new Set(updateAccountEvents.map(e => e.accountId));
-        const isPatchForSingleAccount =
-            singleEvent instanceof AccountUpdatedEvent || // É redundante mas garante a exaustão de tipos.
-            updatedAccountIds.size === 1 &&
-            events.length === updateAccountEvents.length;
-
-        if (isPatchForSingleAccount) {
-            const [accountId] = updatedAccountIds;
-
-            let patch: Partial<AccountProps> = {};
-
-            for (const event of updateAccountEvents) {
-                const { attribute, newValue } = event;
-                patch = { ...patch, [attribute]: newValue };
-                // Nota: Aqui não adianta tentar `patch[attribute]=newValue`...
-            }
-
-            return this.patchAccount(accountId, patch).pipe(
-                switchMap(() => this.getUnique())
-            );
-        }
-
-        // Se tiver mais de um evento a partir daqui, requer um PUT completo.
-        if (!singleEvent) return this.putCoa(chart);
-
-        if (singleEvent instanceof ChartOfAccountsCreatedEvent) {
+        // 1. Fallback temporário: se houver criação do plano, faz um PUT completo
+        if (events.some(e => e instanceof ChartOfAccountsCreatedEvent)) {
             return this.putCoa(chart);
         }
 
-        if (singleEvent instanceof AccountCreatedEvent) {
-            return this.putAccount(
-                singleEvent.accountId,
-                {
-                    ...singleEvent.accountProps,
-                    name: singleEvent.accountProps.name.value,
-                    localIndex: singleEvent.accountProps.structuralCode.localIndex,
-                    parentId: singleEvent.accountProps.parentId?.value ?? null,
-                }
-            ).pipe(
-                switchMap(() => this.getUnique())
-            );
-        }
+        const etag = `"${chart.version.value}"`;
 
-        singleEvent satisfies never;
-        console.error(singleEvent);
-        throw new Error("Evento desconhecido");
-    }
+        // 2. Mapeia os eventos DIRETAMENTE para itens do JSON Patch na MESMA ordem cronológica
+        const operations = events.map(event => {
 
-    private patchAccount(id: string, patch: Partial<AccountProps>): Observable<void> {
+            // Cenário de Criação de Conta (op: "add")
+            if (event instanceof AccountCreatedEvent) {
+                return {
+                    op: 'add' as const,
+                    path: `/accounts/${event.accountId}`,
+                    value: {
+                        ...event.accountProps,
+                        name: event.accountProps.name.value,
+                        localIndex: event.accountProps.structuralCode.localIndex,
+                        parentId: event.accountProps.parentId?.value ?? null,
+                    }
+                };
+            }
 
-        const input: PatchAccountInputDto = {
-            name: patch.name?.value,
-            description: patch.description,
-            isContra: patch.isContra,
-            isActive: patch.isActive,
-        };
+            // Cenário de Atualização de Atributo da Conta (op: "replace")
+            if (event instanceof AccountUpdatedEvent) {
+                // Preserva a extração de Value Objects primitivos se necessário (.value)
+                const rawValue = event.newValue && event.newValue instanceof ValueObject
+                    ? event.newValue.value
+                    : event.newValue;
 
-        return from(this.client.accounts.patch({
-            params: { id },
-            body: input,
+                return {
+                    op: 'replace' as const,
+                    path: `/accounts/${event.accountId}/${event.attribute}`,
+                    value: rawValue
+                };
+            }
+
+            return null;
+        }).filter((op): op is NonNullable<typeof op> => op !== null);
+
+        // 3. Dispara o tiro único de PATCH atômico para a raiz do Agregado (/coa)
+        return from(this.client.coa.patch({
+            headers: {
+                'if-match': etag,
+                // 'content-type': 'application/json-patch+json'
+            },
+            body: operations,
         })).pipe(
             map(({ status, body }) => {
                 switch (status) {
                     case 200:
-                        return;
-                    default:
-                        console.error(body);
-                        throw new Error("Erro ao salvar conta");
-                }
-            })
-        )
-    }
+                        const accountProps = body.accounts.map(fromDtoToProps);
 
-    private putAccount(id: string, account: UpsertAccountInputDto): Observable<void> {
-        return from(this.client.accounts.upsert({
-            params: { id },
-            body: account,
-        })).pipe(
-            map(({ status, body }) => {
-                switch (status) {
-                    case 200:
-                        return;
+                        return ChartOfAccountsEntity.reconstitute(
+                            accountProps,
+                            VersionValue.create(body.version)
+                        );
+                    case 412:
+                        throw new Error("O plano já foi modificado por outro agente.");
                     default:
                         console.error(body);
-                        throw new Error("Erro ao salvar conta");
+                        throw new Error("Erro ao aplicar lote de alterações via JSON Patch");
                 }
             })
-        )
+        );
     }
 
     private putCoa(chart: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity> {
-
         const etag = `"${chart.version.value}"`;
 
         return from(this.client.coa.update({
@@ -141,7 +121,7 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
             map(({ status, body }) => {
                 switch (status) {
                     case 200:
-                        const accountProps = body.accounts.map(fromDtoToProps)
+                        const accountProps = body.accounts.map(fromDtoToProps);
 
                         return ChartOfAccountsEntity.reconstitute(
                             accountProps,
@@ -154,7 +134,6 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
                         throw new Error("Erro ao salvar contas");
                 }
             })
-        )
+        );
     }
 }
-
