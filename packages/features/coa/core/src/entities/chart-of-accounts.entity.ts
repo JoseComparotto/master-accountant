@@ -14,7 +14,7 @@ import {
     CreateRootAccountProps,
 } from "./account.entity.js";
 import { AccountNameValue } from "../value-objects/account-name.value.js";
-import { canActivateAccount, canInactivateAccount, ToThrowCallback } from "../rules/account.rules.js";
+import { ChildCreationRuleReason, canActivateAccount, canCreateChild, canInactivateAccount, ToThrowCallback } from "../rules/account.rules.js";
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
 import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvents } from "../events/coa.events.js";
@@ -222,7 +222,7 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
 
     public inactivateAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
-        
+
         this.canInactivate(account, reasons =>
             new AccountInvariantViolationException(
                 "HTI-07", `Cannot inactivate account: ${reasons.join(', ')}`
@@ -275,7 +275,7 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
     public canActivate(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback) {
         const passedId = accountOrId instanceof UuidValue;
         const accountId = passedId ? accountOrId : accountOrId.id;
-        const account = passedId ? this.getAccountById(accountId): accountOrId;
+        const account = passedId ? this.getAccountById(accountId) : accountOrId;
         const parent = account.parentId ? this.getAccountById(account.parentId) : null;
 
         return canActivateAccount({
@@ -286,13 +286,20 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
     public canInactivate(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback) {
         const passedId = accountOrId instanceof UuidValue;
         const accountId = passedId ? accountOrId : accountOrId.id;
-        const account = passedId ? this.getAccountById(accountId): accountOrId;
+        const account = passedId ? this.getAccountById(accountId) : accountOrId;
         const children = this.getAccountsByParentId(accountId);
 
         return canInactivateAccount({
             isRootAccount: account.parentId === null,
             hasAnyActiveChild: children.some(c => c.isActive)
         }, toThrow);
+    }
+
+    public canCreateChild(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback<ChildCreationRuleReason>) {
+        const passedId = accountOrId instanceof UuidValue;
+        const accountId = passedId ? accountOrId : accountOrId.id;
+        const account = passedId ? this.getAccountById(accountId) : accountOrId;
+        return canCreateChild(account, toThrow);
     }
 
     private registerNewAccount(account: AccountEntity) {
@@ -332,11 +339,15 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
         if (UuidValue.isEquals(child.id, parent.id))
             throw new AccountInvariantViolationException("HTI-03", "Self-reference prohibited.");
 
-        if (!parent.isSummary)
-            throw new AccountInvariantViolationException("HTI-04", "Only summary accounts can have child accounts.");
+        canCreateChild(parent, ([firstReason]) => {
+            switch (firstReason) {
+                case ChildCreationRuleReason.INACTIVE_ACCOUNT:
+                    return new AccountInvariantViolationException("HTI-07", "Cannot create child for inactive accounts.");
 
-        if (child.isActive && !parent.isActive)
-            throw new AccountInvariantViolationException("HTI-07", "Inactive parent accounts cannot have active child accounts.");
+                case ChildCreationRuleReason.NOT_SUMMARY_ACCOUNT:
+                    return new AccountInvariantViolationException("HTI-04", "Only summary accounts can have child accounts.");
+            }
+        })
 
         if (child.accountClass !== undefined && child.accountClass !== parent.accountClass)
             throw new AccountInvariantViolationException("COA-01", "Account class must match parent's account class.");
