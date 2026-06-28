@@ -14,7 +14,7 @@ import {
     CreateRootAccountProps,
 } from "./account.entity.js";
 import { AccountNameValue } from "../value-objects/account-name.value.js";
-import { canActivateAccount, canInactivateAccount } from "../rules/account.rules.js";
+import { canActivateAccount, canInactivateAccount, ToThrowCallback } from "../rules/account.rules.js";
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
 import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvents } from "../events/coa.events.js";
@@ -222,17 +222,12 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
 
     public inactivateAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
-
-        const children = this._collection.getByParentId(account.id);
-        const { can, reasons } = canInactivateAccount({
-            hasAnyActiveChild: children.some(c => c.isActive),
-            isAlreadyInactive: !account.isActive
-        });
-
-        if (!can)
-            throw new AccountInvariantViolationException(
+        
+        this.canInactivate(account, reasons =>
+            new AccountInvariantViolationException(
                 "HTI-07", `Cannot inactivate account: ${reasons.join(', ')}`
-            );
+            )
+        );
 
         this.addDomainEvent(account.inactivate());
     }
@@ -240,17 +235,11 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
     public activateAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
 
-        const parent = account.parentId ? this._collection.getById(account.parentId) : null;
-
-        const { can, reasons } = canActivateAccount({
-            isAlreadyActive: account.isActive,
-            isParentInactive: !!parent && !parent.isActive
-        });
-
-        if (!can)
-            throw new AccountInvariantViolationException(
+        this.canActivate(account, reasons =>
+            new AccountInvariantViolationException(
                 "HTI-07", `Cannot activate account: ${reasons.join(', ')}`
-            );
+            )
+        );
 
         this.addDomainEvent(account.activate());
     }
@@ -283,24 +272,27 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
         this.addDomainEvent(account.convertToContra());
     }
 
-    public canActivate(accountId: UuidValue) {
-        const account = this.getAccountById(accountId);
+    public canActivate(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback) {
+        const passedId = accountOrId instanceof UuidValue;
+        const accountId = passedId ? accountOrId : accountOrId.id;
+        const account = passedId ? this.getAccountById(accountId): accountOrId;
         const parent = account.parentId ? this.getAccountById(account.parentId) : null;
 
         return canActivateAccount({
-            isAlreadyActive: account.isActive,
             isParentInactive: !!parent && !parent.isActive
-        }).can;
+        }, toThrow);
     }
 
-    public canInactivate(accountId: UuidValue) {
-        const account = this.getAccountById(accountId);
+    public canInactivate(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback) {
+        const passedId = accountOrId instanceof UuidValue;
+        const accountId = passedId ? accountOrId : accountOrId.id;
+        const account = passedId ? this.getAccountById(accountId): accountOrId;
         const children = this.getAccountsByParentId(accountId);
 
         return canInactivateAccount({
-            isAlreadyInactive: !account.isActive,
+            isRootAccount: account.parentId === null,
             hasAnyActiveChild: children.some(c => c.isActive)
-        }).can;
+        }, toThrow);
     }
 
     private registerNewAccount(account: AccountEntity) {

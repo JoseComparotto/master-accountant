@@ -12,6 +12,7 @@ import { from, map, Observable } from "rxjs";
 import { fromDtoToProps } from "../../application/mappers/from-dto-to-props.mapper";
 import { fromDomainToDto } from "../../application/mappers/from-props-to-dto.mapper";
 import { ValueObject } from "@repo/shared-core";
+import { CoaPatchOperation } from "@repo/coa-contracts";
 
 @Injectable()
 export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository {
@@ -49,20 +50,25 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
         const etag = `"${chart.version.value}"`;
 
         // 2. Mapeia os eventos DIRETAMENTE para itens do JSON Patch na MESMA ordem cronológica
-        const operations = events.map(event => {
+        const operations = events.map<CoaPatchOperation | null>(event => {
 
             // Cenário de Criação de Conta (op: "add")
             if (event instanceof AccountCreatedEvent) {
+                const props = event.accountProps;
                 return {
                     op: 'add' as const,
                     path: `/accounts/${event.accountId}`,
                     value: {
-                        ...event.accountProps,
-                        name: event.accountProps.name.value,
-                        localIndex: event.accountProps.structuralCode.localIndex,
-                        parentId: event.accountProps.parentId?.value ?? null,
+                        name: props.name.value,
+                        localIndex: props.structuralCode.localIndex,
+                        parentId: props.parentId?.value ?? null,
+                        description: props.description,
+                        accountClass: props.accountClass,
+                        isSummary: props.isSummary,
+                        isContra: props.isContra,
+                        isActive: props.isActive,
                     }
-                };
+                } satisfies CoaPatchOperation;
             }
 
             // Cenário de Atualização de Atributo da Conta (op: "replace")
@@ -76,7 +82,7 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
                     op: 'replace' as const,
                     path: `/accounts/${event.accountId}/${event.attribute}`,
                     value: rawValue
-                };
+                } satisfies CoaPatchOperation;
             }
 
             return null;

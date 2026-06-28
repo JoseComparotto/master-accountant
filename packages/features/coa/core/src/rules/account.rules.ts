@@ -1,41 +1,42 @@
 export interface InactivationCheckInput {
-    isAlreadyInactive: boolean;
     hasAnyActiveChild: boolean;
+    isRootAccount: boolean;
 }
 export interface ActivationCheckInput {
-    isAlreadyActive: boolean;
     isParentInactive: boolean;
 }
 
 export enum AccountRuleReason {
-    ALREADY_INACTIVE = "is already inactive",
-    ALREADY_ACTIVE = "is already active",
     HAS_ACTIVE_CHILD = "has active child",
     INACTIVE_PARENT = "parent is inactive",
-} 
-
-export type RuleOutput = { can: true, reasons?: undefined } | { can: false, reasons: AccountRuleReason[] };
-
-export function canInactivateAccount(input: InactivationCheckInput): RuleOutput {
-    const reasons: AccountRuleReason[] = [];
-
-    if (input.isAlreadyInactive) reasons.push(AccountRuleReason.ALREADY_INACTIVE);
-    if (input.hasAnyActiveChild) reasons.push(AccountRuleReason.HAS_ACTIVE_CHILD);
-
-    return reasons.length === 0 ? { can: true } : {
-        can: false,
-        reasons,
-    };
+    IS_ROOT_ACCOUNT = "is root account",
 }
 
-export function canActivateAccount(input: ActivationCheckInput): RuleOutput {
+export type ToThrowCallback = (reasons: AccountRuleReason[]) => Error;
+
+export function canInactivateAccount(
+    input: InactivationCheckInput,
+    toThrow?: ToThrowCallback
+): boolean | never {
     const reasons: AccountRuleReason[] = [];
 
-    if (input.isAlreadyActive) reasons.push(AccountRuleReason.ALREADY_ACTIVE);
+    if (input.isRootAccount) reasons.push(AccountRuleReason.IS_ROOT_ACCOUNT);
+    if (input.hasAnyActiveChild) reasons.push(AccountRuleReason.HAS_ACTIVE_CHILD);
+
+    const can = reasons.length === 0;
+    if (!can && toThrow) throw toThrow(reasons);
+    return can;
+}
+
+export function canActivateAccount(
+    input: ActivationCheckInput,
+    toThrow?: ToThrowCallback
+): boolean {
+    const reasons: AccountRuleReason[] = [];
+
     if (input.isParentInactive) reasons.push(AccountRuleReason.INACTIVE_PARENT);
 
-    return reasons.length === 0 ? { can: true } : {
-        can: false,
-        reasons,
-    };
+    const can = reasons.length === 0;
+    if (!can && toThrow) throw toThrow(reasons);
+    return can;
 }
