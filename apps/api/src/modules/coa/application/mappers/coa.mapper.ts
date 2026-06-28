@@ -6,7 +6,7 @@ export class ChartOfAccountsMapper {
     static toDto(chart: ChartOfAccountsEntity): ChartOfAccountsDto{
         return{
             version: chart.version.value,
-            accounts: chart.accounts.map(a=>AccountMapper.toDto(a, chart))
+            accounts: chart.accounts.map(AccountMapper.toDto)
         }   
     }
 }

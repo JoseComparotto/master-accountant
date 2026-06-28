@@ -17,9 +17,9 @@ import { AccountNameValue } from "../value-objects/account-name.value.js";
 import { canActivateAccount, canInactivateAccount } from "../rules/account.rules.js";
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
-import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvent } from "../events/coa.events.js";
+import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvents } from "../events/coa.events.js";
 
-export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvent> {
+export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> {
 
     private constructor(
         private readonly _collection: AccountCollection,

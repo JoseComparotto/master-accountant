@@ -43,8 +43,6 @@ export const AccountSchema = z.object({
     isSummary: z.boolean().openapi({ example: true }),
     isContra: z.boolean().openapi({ example: false }),
     isActive: z.boolean().openapi({ example: true }),
-
-    capabilities: AccountsCapabilitiesSchema
 })
 
 export const CreateAccountInputSchema = AccountSchema
@@ -52,7 +50,6 @@ export const CreateAccountInputSchema = AccountSchema
         formattedCode: true,
         balanceType: true,
         codeDepth: true,
-        capabilities: true,
     }).partial().and(
         AccountSchema.pick({
             name: true
@@ -65,7 +62,6 @@ export const UpsertAccountInputSchema = AccountSchema
         formattedCode: true,
         balanceType: true,
         codeDepth: true,
-        capabilities: true,
     })
 
 export const PatchAccountInputSchema = AccountSchema.pick({
@@ -84,8 +80,6 @@ export type CreateAccountInputDto = z.infer<typeof CreateAccountInputSchema>;
 export type PatchAccountInputDto = z.infer<typeof PatchAccountInputSchema>;
 export type UpsertAccountInputDto = z.infer<typeof UpsertAccountInputSchema>;
 export type ReplaceAccountsInputDto = z.infer<typeof ReplaceAccountsInputSchema>;
-
-export type AccountsCapabilitiesDto = z.infer<typeof AccountsCapabilitiesSchema>;
 
 export type AccountNodeDto = AccountDto & {
     children?: AccountNodeDto[];

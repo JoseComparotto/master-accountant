@@ -2,7 +2,7 @@ import { AccountDto } from "@repo/coa-contracts";
 import { AccountEntity, ChartOfAccountsEntity } from "@repo/coa-core";
 
 export class AccountMapper {
-    static toDto(account: Readonly<AccountEntity>, chart: ChartOfAccountsEntity): AccountDto {
+    static toDto(account: Readonly<AccountEntity>): AccountDto {
         return {
             id: account.id.value,
             name: account.name.value,
@@ -16,10 +16,6 @@ export class AccountMapper {
             isSummary: account.isSummary,
             isContra: account.isContra,
             isActive: account.isActive,
-            capabilities:{
-                canActivate: chart.canActivate(account.id),
-                canInactivate: chart.canInactivate(account.id)
-            }
         };
     }
 }

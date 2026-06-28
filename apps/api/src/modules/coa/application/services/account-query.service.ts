@@ -22,7 +22,7 @@ export class AccountQueryService implements IAccountQueryService {
 
     async getAllAccounts(): Promise<AccountDto[]> {
         const chart = await firstValueFrom(this.repo.getUnique());
-        return chart.accounts.map(a => AccountMapper.toDto(a, chart));
+        return chart.accounts.map(AccountMapper.toDto);
     }
 
     async getAccountsTree(): Promise<AccountNodeDto[]> {
@@ -34,7 +34,7 @@ export class AccountQueryService implements IAccountQueryService {
         const { accounts } = chart;
 
         for (const account of accounts) {
-            const dto = AccountMapper.toDto(account, chart);
+            const dto = AccountMapper.toDto(account);
             mapping.set(dto.id, dto);
         }
 
@@ -53,7 +53,7 @@ export class AccountQueryService implements IAccountQueryService {
     async getAccountById(accountId: UuidValue): Promise<AccountDto> {
         const chart = await firstValueFrom(this.repo.getUnique());
         const account = chart.getAccountById(accountId);
-        return AccountMapper.toDto(account, chart);
+        return AccountMapper.toDto(account);
     }
 
 }

@@ -1,3 +1,7 @@
-export interface DomainEvent {
-    occurredOn: Date;
+export abstract class DomainEvent {
+
+    public readonly occurredOn: Date = new Date()
+    
+    constructor() {
+    }
 }

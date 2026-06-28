@@ -11,7 +11,7 @@
                 @for (row of rows(); track row.id) {
                 <tr z-table-row>
                     <td z-table-cell class="w-full max-w-0">
-                        <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.codeDepth">
+                        <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth">
                             <z-button zType="ghost" (click)="toggleCollapsed(row.id)"
                                 class="p-0.5 rounded hover:bg-muted shrink-0"
                                 [ngClass]="hasChildren(row)?'':'invisible'">
@@ -27,7 +27,12 @@
                         </div>
                     </td>
                     <td z-table-cell>
-                        <app-toggle-account-active-button [account]="row" (toggle)="toggleActive.emit(row)" />
+                        <app-toggle-account-active-button
+                            [account]="row"
+                            (toggle)="toggleActive.emit(row)"
+                            [canActivate]="canActivate(row)"
+                            [canInactivate]="canInactivate(row)"
+                            />
                     </td>
                 </tr>
                 }

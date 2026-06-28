@@ -3,6 +3,7 @@ import { AccountDto } from '@repo/coa-contracts';
 import { AccountClassTheme } from "../../directives/account-class-theme";
 import { AccountSummaryWeigth } from "../../directives/account-summary-weigth";
 import { AccountActiveEffect } from "../../directives/account-active-effect";
+import { AccountEntity } from '@repo/coa-core';
 
 @Component({
   selector: 'app-account-title',
@@ -11,5 +12,5 @@ import { AccountActiveEffect } from "../../directives/account-active-effect";
   styleUrl: './account-title.css',
 })
 export class AccountTitle {
-  account = input.required<AccountDto>();
+  account = input.required<Readonly<AccountEntity>>();
 }

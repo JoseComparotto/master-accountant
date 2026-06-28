@@ -34,7 +34,7 @@ export class ReplaceAccountsCommandHandler extends BaseReplaceAccountsCommandHan
         await firstValueFrom(this.repo.save(chart));
 
         return {
-            accounts: newAccounts.map(a => AccountMapper.toDto(a, chart))
+            accounts: newAccounts.map(a => AccountMapper.toDto(a))
         }
     }
 }

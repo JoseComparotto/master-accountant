@@ -40,7 +40,7 @@ export class PatchAccountCommandHandler extends BaseAccountCommandHandler<PatchA
         await firstValueFrom(this.repo.save(chart));
 
         const account = chart.getAccountById(id);
-        return AccountMapper.toDto(account, chart);
+        return AccountMapper.toDto(account);
     }
 
 }

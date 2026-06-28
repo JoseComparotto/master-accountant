@@ -29,7 +29,7 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
             await firstValueFrom(this.repo.save(chart));
             return {
                 action: 'updated',
-                account: AccountMapper.toDto(updated, chart)
+                account: AccountMapper.toDto(updated)
             };
         }
 
@@ -38,10 +38,10 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
             id, name, parentId
         });
 
-        await this.repo.save(chart);
+        await firstValueFrom(this.repo.save(chart));
         return {
             action: 'created',
-            account: AccountMapper.toDto(created, chart)
+            account: AccountMapper.toDto(created)
         };
     }
 }

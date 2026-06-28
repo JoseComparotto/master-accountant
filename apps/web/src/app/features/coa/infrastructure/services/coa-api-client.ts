@@ -9,7 +9,7 @@ export class CoaApiClient {
     private http = inject(HttpClient);
     private readonly baseUrl = "http://localhost:3000/api"
 
-    public readonly accounts = initClient(apiContract.accounts, {
+    private readonly client = initClient(apiContract, {
         baseUrl: this.baseUrl,
         api: async ({ path, method, headers, body }) => {
 
@@ -42,6 +42,9 @@ export class CoaApiClient {
             };
         },
     });
+
+    get coa() { return this.client.coa; }
+    get accounts() { return this.client.accounts; }
 }
 
 

@@ -58,7 +58,7 @@ export class AccountEntity {
 
         this._name = newName;
 
-        return new AccountNameUpdated(this.id, oldName, newName);
+        return new AccountNameUpdated(this.id.value, oldName, newName);
     }
 
     updateDescription(newDescription: string | null): AccountDescriptionUpdated | undefined {
@@ -69,7 +69,7 @@ export class AccountEntity {
 
         this._description = newDescription;
 
-        return new AccountDescriptionUpdated(this.id, oldDescription, newDescription);
+        return new AccountDescriptionUpdated(this.id.value, oldDescription, newDescription);
     }
 
     convertToContra(): AccountConvertedToContra | undefined {
@@ -77,14 +77,14 @@ export class AccountEntity {
 
         this._isContra = true;
 
-        return new AccountConvertedToContra(this.id);
+        return new AccountConvertedToContra(this.id.value);
     }
     convertToNormal(): AccountConvertedToNormal| undefined {
         if(this._isContra === false) return;
 
         this._isContra = false;
 
-        return new AccountConvertedToNormal(this.id);
+        return new AccountConvertedToNormal(this.id.value);
     }
 
     activate() : AccountActivated | undefined {
@@ -92,14 +92,14 @@ export class AccountEntity {
 
         this._isActive = true;
 
-        return new AccountActivated(this.id);
+        return new AccountActivated(this.id.value);
     }
     inactivate() : AccountInactivated | undefined {
         if(this._isActive === false) return;
 
         this._isActive = false;
 
-        return new AccountInactivated(this.id);
+        return new AccountInactivated(this.id.value);
     }
 
     private constructor() { }

@@ -1,7 +1,13 @@
 <div class="accounts-container">
-    @if (loading()) {
+    @if (facade.error(); as error) {
+    <div class="alert-error">⚠️ Erro: {{ error }}</div>
+    }
+    
+    @if (facade.loading()) {
     <p>Carregando...</p>
-    } @else {
-    <app-accounts-table [tree]="accountsTree()" (toggleActive)="toggleActive($event)"></app-accounts-table>
+    }
+
+    @if(facade.chart();as chart){
+    <app-accounts-table [chart]="facade.chart()!" (toggleActive)="toggleActive($event)"></app-accounts-table>
     }
 </div>

@@ -1,7 +1,7 @@
 import { Component, input, output } from '@angular/core';
 import { ZardButtonComponent } from "@/shared/presentation/components/button";
 import { NgIcon } from "@ng-icons/core";
-import { AccountNodeDto } from '@repo/coa-contracts';
+import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 
 @Component({
   selector: 'app-toggle-account-active-button',
@@ -11,14 +11,10 @@ import { AccountNodeDto } from '@repo/coa-contracts';
 })
 export class ToggleAccountActiveButton {
 
-  account = input.required<AccountNodeDto>();
+  account = input.required<Readonly<AccountEntity>>();
 
   toggle = output()
 
-  canInactivate(): boolean {
-    return !this.account().capabilities.canInactivate
-  }
-  canActivate(): boolean {
-    return !this.account().capabilities.canActivate
-  }
+  canInactivate = input<boolean>(false);
+  canActivate = input<boolean>(false);
 }

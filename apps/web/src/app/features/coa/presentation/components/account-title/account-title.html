@@ -4,7 +4,7 @@
     [appAccountClassTheme]="account().accountClass" variant="text"
     [isContra]="account().isContra"
 >    
-    {{account().formattedCode}}.
+    {{account().structuralCode.toString()}}.
     @if (account().isContra) {(-)}
     {{account().name}}
 </span>

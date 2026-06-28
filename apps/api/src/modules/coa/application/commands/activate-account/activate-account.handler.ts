@@ -19,6 +19,6 @@ export class ActivateAccountCommandHandler extends BaseAccountCommandHandler<Act
         await firstValueFrom(this.repo.save(chart));
 
         const account = chart.getAccountById(accountId);
-        return AccountMapper.toDto(account, chart);
+        return AccountMapper.toDto(account);
     }
 }
