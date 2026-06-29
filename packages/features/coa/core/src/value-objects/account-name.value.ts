@@ -2,12 +2,16 @@ import { ValueObject, ValueObjectMalformedException } from "@repo/shared-core";
 
 export class AccountNameValue extends ValueObject<string> {
 
+    private static sanitize(rawValue: string) {
+        return rawValue?.replace(/\s+/g, ' ')?.trim() ?? '';
+    }
+
     /**
      * Factory: Higieniza e valida o nome da conta
      */
     public static create(rawValue: string): AccountNameValue {
         // 1. Sanitization: Corta espaços em branco antes de começar
-        const sanitized = rawValue?.trim() ?? '';
+        const sanitized = AccountNameValue.sanitize(rawValue);
 
         // 2. Validation: Aplica as regras de negócio
         if (sanitized.length === 0) {
@@ -46,7 +50,8 @@ export class AccountNameValue extends ValueObject<string> {
 
         if (typeof other !== 'string' && !otherIsAccountName) return false;
 
-        const otherRaw = other instanceof AccountNameValue ? other._value : other.trim();
+        const otherRaw = other instanceof AccountNameValue ?
+            other._value : AccountNameValue.sanitize(other);
 
         return this._value.toLocaleLowerCase() === otherRaw.toLocaleLowerCase();
     }

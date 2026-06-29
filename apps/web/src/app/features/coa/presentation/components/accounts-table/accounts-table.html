@@ -28,10 +28,12 @@
                     </td>
                     <td z-table-cell>
                         <div class="flex right-2 items-center justify-end gap-1">
+                            <app-edit-account-button [account]="row" [canEdit]="canEdit(row)"
+                                (edit)="edit.emit($event)" />
                             <app-create-child-account-button [canCreateChild]="canCreateChild(row)"
                                 (create)="createChild.emit(row)" />
-                            <app-toggle-account-active-button [account]="row" (toggle)="toggleActive.emit(row)"
-                                [canActivate]="canActivate(row)" [canInactivate]="canInactivate(row)" />
+                            <app-toggle-account-active-button [account]="row" [canActivate]="canActivate(row)"
+                                [canInactivate]="canInactivate(row)" (toggle)="toggleActive.emit(row)" />
                         </div>
                     </td>
                 </tr>

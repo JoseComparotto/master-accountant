@@ -8,7 +8,7 @@ import { lucidePlus } from '@ng-icons/lucide';
   imports: [ZardButtonComponent, NgIcon],
   templateUrl: './create-child-account-button.html',
   styleUrl: './create-child-account-button.css',
-    viewProviders: [provideIcons({
+  viewProviders: [provideIcons({
     lucidePlus,
   })],
 })

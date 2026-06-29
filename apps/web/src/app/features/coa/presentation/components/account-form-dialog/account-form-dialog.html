@@ -1,0 +1,14 @@
+<form [formGroup]="form" class="grid gap-4">
+    <z-form-field zardId="name" #f="zardId" class="grid gap-3">
+        <label z-form-label [for]="f.id()" zRequired="">
+            Nome
+        </label>
+        <input z-input formControlName="name" />
+    </z-form-field>
+    <z-form-field zardId="description" #d="zardId" class="grid gap-3">
+        <label z-form-label [for]="d.id()">
+            Descrição
+        </label>
+        <textarea z-input formControlName="description" ></textarea>
+    </z-form-field>
+</form>

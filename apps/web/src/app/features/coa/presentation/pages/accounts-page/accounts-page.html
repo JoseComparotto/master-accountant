@@ -7,11 +7,12 @@
     <p>Carregando...</p>
     }
 
-    @if(facade.chart();as chart){
+    @else if(facade.chart();as chart){
     <app-accounts-table
         [chart]="facade.chart()!"
         (toggleActive)="toggleActive($event)"
         (createChild)="createChild($event)"
+        (edit)="edit($event)"
     />
     }
 </div>

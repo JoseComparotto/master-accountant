@@ -6,6 +6,7 @@ import { from } from 'rxjs';
 import { AccountEntity, AccountNameValue, ChartOfAccountsEntity } from '@repo/coa-core';
 import { CoaFacade } from '../../facades/coa.facade';
 import { UuidValue } from '@repo/shared-core';
+import { EditAccountData } from '../../components/edit-account-button/edit-account-button';
 
 @Component({
   selector: 'app-accounts-page',
@@ -39,9 +40,25 @@ export class AccountsPage implements OnInit {
 
     chart.createChildAccount({
       parentId: account.id,
-      name:AccountNameValue.create('Conta Teste'),
+      name: AccountNameValue.create('Conta Teste'),
       isSummary: false,
     })
+
+    this.facade.saveChanges(chart);
+  }
+
+  edit({ account, newData }: EditAccountData) {
+    const chart = this.facade.chart();
+    if (!chart) return;
+
+    const accountId = account.id;
+    const newName = AccountNameValue.create(newData.name);
+
+    chart.updateAccountName(account.id, newName);
+    chart.updateAccountDescription(accountId, newData.description);
+
+    if (newData.isContra) chart.convertToContraAccount(accountId);
+    else chart.convertToNormalAccount(accountId);
 
     this.facade.saveChanges(chart);
   }

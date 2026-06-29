@@ -10,11 +10,13 @@ import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggl
 import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
 import { CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
+import { EditAccountButton, EditAccountData } from "../edit-account-button/edit-account-button";
 
 type AccountCapabilities = {
   canActivate: boolean,
   canInactivate: boolean,
   canCreateChild: boolean,
+  canEdit: boolean,
 }
 
 @Component({
@@ -30,7 +32,8 @@ type AccountCapabilities = {
     ZardButtonComponent,
     NgClass, NgIcon,
     ToggleAccountActiveButton,
-    CreateChildAccountButton
+    CreateChildAccountButton,
+    EditAccountButton
 ],
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
@@ -46,6 +49,7 @@ export class AccountsTable {
 
   toggleActive = output<Readonly<AccountEntity>>();
   createChild = output<Readonly<AccountEntity>>();
+  edit = output<EditAccountData>();
 
   showInactive = model(true);
   collapsedIds = model<Set<string>>(new Set());
@@ -79,7 +83,8 @@ export class AccountsTable {
       map.set(account.id.value, {
         canActivate: chart.canActivate(account.id),
         canInactivate: chart.canInactivate(account.id),
-        canCreateChild: chart.canCreateChild(account.id)
+        canCreateChild: chart.canCreateChild(account.id),
+        canEdit: chart.canEdit(account.id),
       })
     }
     return map;
@@ -114,5 +119,8 @@ export class AccountsTable {
   }
   canCreateChild(acocunt: { id: UuidValue }) {
     return this.capabilities().get(acocunt.id.value)?.canCreateChild === true;
+  }
+  canEdit(acocunt: { id: UuidValue }) {
+    return this.capabilities().get(acocunt.id.value)?.canEdit === true;
   }
 }

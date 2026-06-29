@@ -71,3 +71,21 @@ export function canCreateChild(
 
     return evaluateRules(reasons, toThrow);
 }
+
+// --- Edição ---
+export enum EditRuleReason {
+    IS_ROOT_ACCOUNT = "is root account",
+}
+export interface EditCheckInput {
+    isRootAccount: boolean;
+}
+export function canEdit(
+    input: EditCheckInput,
+    toThrow?: ToThrowCallback<EditRuleReason>
+): boolean {
+    const reasons = [
+        input.isRootAccount && EditRuleReason.IS_ROOT_ACCOUNT,
+    ].filter(Boolean) as EditRuleReason[];
+
+    return evaluateRules(reasons, toThrow);
+}

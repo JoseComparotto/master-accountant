@@ -1,4 +1,4 @@
-import { AggregateRoot, AtributeConstraintViolationException, AttributeImmutableViolationException, UuidValue } from "@repo/shared-core";
+import { AggregateRoot, AtributeConstraintViolationException, AttributeImmutableViolationException, DomainInvariantViolationException, UuidValue } from "@repo/shared-core";
 import { AccountCollection } from "../collections/account.collection.js";
 import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 import { VersionValue } from "../value-objects/version.value.js";
@@ -14,7 +14,7 @@ import {
     CreateRootAccountProps,
 } from "./account.entity.js";
 import { AccountNameValue } from "../value-objects/account-name.value.js";
-import { ChildCreationRuleReason, canActivateAccount, canCreateChild, canInactivateAccount, ToThrowCallback } from "../rules/account.rules.js";
+import { ChildCreationRuleReason, canActivateAccount, canCreateChild, canInactivateAccount, ToThrowCallback, EditRuleReason, canEdit, InactivationAccountRuleReason, ActivationAccountRuleReason } from "../rules/account.rules.js";
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
 import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvents } from "../events/coa.events.js";
@@ -210,12 +210,26 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
 
     public updateAccountName(accountId: UuidValue, newName: AccountNameValue): Readonly<AccountEntity> {
         const account = this._collection.getById(accountId);
+
+        this.canEdit(account, (reasons) => {
+            return new DomainInvariantViolationException(
+                'COA-04', `Cannot edit account: ${reasons.join(', ')}`
+            )
+        });
+
         this.addDomainEvent(account.updateName(newName));
         return account;
     }
 
     public updateAccountDescription(accountId: UuidValue, newDescription: string | null): Readonly<AccountEntity> {
         const account = this._collection.getById(accountId);
+
+        this.canEdit(account, (reasons) => {
+            return new DomainInvariantViolationException(
+                'COA-04', `Cannot edit account: ${reasons.join(', ')}`
+            )
+        });
+
         this.addDomainEvent(account.updateDescription(newDescription));
         return account;
     }
@@ -272,24 +286,30 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
         this.addDomainEvent(account.convertToContra());
     }
 
-    public canActivate(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback) {
+    public canActivate(
+        accountOrId: UuidValue | Readonly<AccountEntity>,
+        toThrow?: ToThrowCallback<ActivationAccountRuleReason | EditRuleReason>
+    ) {
         const passedId = accountOrId instanceof UuidValue;
         const accountId = passedId ? accountOrId : accountOrId.id;
         const account = passedId ? this.getAccountById(accountId) : accountOrId;
         const parent = account.parentId ? this.getAccountById(account.parentId) : null;
 
-        return canActivateAccount({
+        return this.canEdit(account, toThrow) && canActivateAccount({
             isParentInactive: !!parent && !parent.isActive
         }, toThrow);
     }
 
-    public canInactivate(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback) {
+    public canInactivate(
+        accountOrId: UuidValue | Readonly<AccountEntity>,
+        toThrow?: ToThrowCallback<EditRuleReason | InactivationAccountRuleReason>
+    ) {
         const passedId = accountOrId instanceof UuidValue;
         const accountId = passedId ? accountOrId : accountOrId.id;
         const account = passedId ? this.getAccountById(accountId) : accountOrId;
         const children = this.getAccountsByParentId(accountId);
 
-        return canInactivateAccount({
+        return this.canEdit(account, toThrow) && canInactivateAccount({
             isRootAccount: account.parentId === null,
             hasAnyActiveChild: children.some(c => c.isActive)
         }, toThrow);
@@ -300,6 +320,15 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
         const accountId = passedId ? accountOrId : accountOrId.id;
         const account = passedId ? this.getAccountById(accountId) : accountOrId;
         return canCreateChild(account, toThrow);
+    }
+
+    public canEdit(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback<EditRuleReason>) {
+        const passedId = accountOrId instanceof UuidValue;
+        const accountId = passedId ? accountOrId : accountOrId.id;
+        const account = passedId ? this.getAccountById(accountId) : accountOrId;
+        return canEdit({
+            isRootAccount: account.parentId === null
+        }, toThrow);
     }
 
     private registerNewAccount(account: AccountEntity) {
