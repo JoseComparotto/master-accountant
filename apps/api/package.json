@@ -18,9 +18,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "dotenv -e .env.test -- jest --config ./test/jest-e2e.json",
-    "db:migrate": "dotenv -e .env -- pnpm mikro-orm migration:create",
-    "db:up": "dotenv -e .env -- pnpm mikro-orm migration:up",
-    "db:seed": "dotenv -e .env -- pnpm mikro-orm seeder:run"
+    "db:migrate": "pnpm build && dotenv -e .env -- node db-run.js create",
+    "db:up": "pnpm build && dotenv -e .env -- node db-run.js up",
+    "db:seed": "pnpm build && dotenv -e .env -- node db-run.js seed"
   },
   "dependencies": {
     "@mikro-orm/core": "^7.1.4",
