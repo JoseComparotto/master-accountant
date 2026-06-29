@@ -42,6 +42,7 @@ export class EditAccountButton {
         isContra: account.isContra,
       } satisfies AccountFormData,
       zOkText: 'Salvar',
+      zCancelText: 'Cancelar',
       zOnOk: instance => {
         this.submit(instance.form.value as AccountFormData);
       },

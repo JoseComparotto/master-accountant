@@ -1,16 +1,14 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { AccountsTable } from '../../components/accounts-table/accounts-table';
-import { AccountNodeDto } from '@repo/coa-contracts';
-import { COA_REPOSITORY } from '@/app.config';
-import { from } from 'rxjs';
-import { AccountEntity, AccountNameValue, ChartOfAccountsEntity } from '@repo/coa-core';
+import { AccountEntity, AccountNameValue } from '@repo/coa-core';
 import { CoaFacade } from '../../facades/coa.facade';
-import { UuidValue } from '@repo/shared-core';
 import { EditAccountData } from '../../components/edit-account-button/edit-account-button';
+import { ZardLoaderComponent } from '@/shared/presentation/components/loader';
 
 @Component({
   selector: 'app-accounts-page',
-  imports: [AccountsTable],
+  standalone: true,
+  imports: [AccountsTable, ZardLoaderComponent],
   templateUrl: './accounts-page.html',
   styleUrl: './accounts-page.css',
 })

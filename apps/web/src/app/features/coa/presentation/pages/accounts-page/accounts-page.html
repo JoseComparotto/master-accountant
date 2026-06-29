@@ -1,18 +1,14 @@
-<div class="accounts-container">
-    @if (facade.error(); as error) {
-    <div class="alert-error">⚠️ Erro: {{ error }}</div>
-    }
-    
-    @if (facade.loading()) {
-    <p>Carregando...</p>
-    }
+@if (facade.error(); as error) {
+<div class="alert-error">⚠️ Erro: {{ error }}</div>
+}
 
-    @else if(facade.chart();as chart){
-    <app-accounts-table
-        [chart]="facade.chart()!"
-        (toggleActive)="toggleActive($event)"
-        (createChild)="createChild($event)"
-        (edit)="edit($event)"
-    />
-    }
+@else if (facade.loading()) {
+<div class="flex h-screen items-center justify-center">
+    <z-loader />
 </div>
+}
+
+@else if(facade.chart();as chart){
+<app-accounts-table [chart]="chart" (toggleActive)="toggleActive($event)" (createChild)="createChild($event)"
+    (edit)="edit($event)" />
+}
