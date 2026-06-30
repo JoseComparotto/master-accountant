@@ -9,6 +9,10 @@
 }
 
 @else if(facade.chart();as chart){
-<app-accounts-table [chart]="chart" (toggleActive)="toggleActive($event)" (createChild)="createChild($event)"
-    (edit)="edit($event)" />
+<app-accounts-table
+    [chart]="chart"
+    (toggleActive)="toggleActive($event)"
+    (createChild)="create($event)"
+    (edit)="edit($event)"
+/>
 }

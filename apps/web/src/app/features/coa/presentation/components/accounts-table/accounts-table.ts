@@ -9,7 +9,7 @@ import { AccountTitle } from '../account-title/account-title';
 import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
 import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
-import { CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
+import { CreateAccountData, CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
 import { EditAccountButton, EditAccountData } from "../edit-account-button/edit-account-button";
 
 type AccountCapabilities = {
@@ -34,7 +34,7 @@ type AccountCapabilities = {
     ToggleAccountActiveButton,
     CreateChildAccountButton,
     EditAccountButton
-],
+  ],
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
 
@@ -48,7 +48,7 @@ export class AccountsTable {
   chart = input.required<ChartOfAccountsEntity>();
 
   toggleActive = output<Readonly<AccountEntity>>();
-  createChild = output<Readonly<AccountEntity>>();
+  createChild = output<CreateAccountData>();
   edit = output<EditAccountData>();
 
   showInactive = model(true);
@@ -59,6 +59,7 @@ export class AccountsTable {
 
     const children = ({ id }: { id: UuidValue }) => {
       return chart.getAccountsByParentId(id)
+        .sort((a, b) => a.localIndex - b.localIndex)
     }
 
     const rows: Readonly<AccountEntity>[] = [];
@@ -92,6 +93,15 @@ export class AccountsTable {
 
   hasChildren(account: Readonly<AccountEntity>) {
     return this.chart().getAccountsByParentId(account.id).length > 0;
+  }
+
+
+  nextChildIndex(account: Readonly<AccountEntity>): number {
+    return this.chart().getNextChildIndex(account.id)
+  }
+
+  isChildIndexUsed(account: Readonly<AccountEntity>, index: number): boolean {
+    return this.chart().getAccountsByParentId(account.id).some(a => a.localIndex === index)
   }
 
   isCollepsed(id: UuidValue) {

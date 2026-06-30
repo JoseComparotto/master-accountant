@@ -3,12 +3,12 @@ import { ZardDialogImports, ZardDialogService } from '@/shared/presentation/comp
 import { Component, inject, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
-import { AccountFormData, AccountFormDialog } from '../account-form-dialog/account-form-dialog';
+import { AccountFormData, AccountFormDialog, EditAccountProps } from '../account-form-dialog/account-form-dialog';
 import { AccountEntity } from '@repo/coa-core';
 
 export interface EditAccountData {
   account: Readonly<AccountEntity>,
-  newData: AccountFormData
+  newData: EditAccountProps,
 }
 
 @Component({
@@ -36,15 +36,21 @@ export class EditAccountButton {
       zDescription: `Alterando ${accountDisplay}`,
       zContent: AccountFormDialog,
       zData: {
-        name: account.name.value,
-        description: account.description ?? '',
-        isSummary: account.isSummary,
-        isContra: account.isContra,
+        mode: 'edit',
+        props: {
+          name: account.name.value,
+          description: account.description ?? '',
+          isContra: account.isContra,
+        }
       } satisfies AccountFormData,
       zOkText: 'Salvar',
       zCancelText: 'Cancelar',
       zOnOk: instance => {
-        this.submit(instance.form.value as AccountFormData);
+        instance.form.markAllAsTouched();
+
+        if (instance.form.invalid) return false;
+
+        return this.submit(instance.form.value as EditAccountProps);
       },
       zWidth: '425px',
     });

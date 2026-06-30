@@ -285,6 +285,12 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
 
         this.addDomainEvent(account.convertToContra());
     }
+    
+    public getNextChildIndex(accountId: UuidValue): number {
+        const children = this._collection.getByParentId(accountId);
+
+        return this.calculateNextLocalIndex(children);
+    }
 
     public canActivate(
         accountOrId: UuidValue | Readonly<AccountEntity>,

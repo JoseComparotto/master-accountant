@@ -4,6 +4,7 @@ import { AccountEntity, AccountNameValue } from '@repo/coa-core';
 import { CoaFacade } from '../../facades/coa.facade';
 import { EditAccountData } from '../../components/edit-account-button/edit-account-button';
 import { ZardLoaderComponent } from '@/shared/presentation/components/loader';
+import { CreateAccountData } from '../../components/create-child-account-button/create-child-account-button';
 
 @Component({
   selector: 'app-accounts-page',
@@ -32,14 +33,17 @@ export class AccountsPage implements OnInit {
     this.facade.saveChanges(chart);
   }
 
-  createChild(account: Readonly<AccountEntity>) {
+  create({parent, props: data}: CreateAccountData) {
     const chart = this.facade.chart();
     if (!chart) return;
 
     chart.createChildAccount({
-      parentId: account.id,
-      name: AccountNameValue.create('Conta Teste'),
-      isSummary: false,
+      parentId: parent.id,
+      localIndex: data.localIndex,
+      name: AccountNameValue.create(data.name),
+      description: data.description,
+      isSummary: data.isSummary,
+      isContra: data.isContra,
     })
 
     this.facade.saveChanges(chart);

@@ -82,7 +82,7 @@ export class AccountCollection {
 
     public getByParentId(id: UuidValue | null): AccountEntity[] {
         const children = this._accountsByParentId.get(id?.value ?? null) ?? [];
-        return [...children];
+        return [...children.sort((a,b)=>a.compareTo(b))];
     }
 
 
