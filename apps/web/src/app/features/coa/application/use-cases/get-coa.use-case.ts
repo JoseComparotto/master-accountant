@@ -10,7 +10,7 @@ export class GetChartOfAccountsUseCase{
 
     private readonly repo = inject(COA_REPOSITORY);
 
-    execute(): Observable<ChartOfAccountsEntity>{
+    execute(): Observable<Readonly<ChartOfAccountsEntity>>{
         return this.repo.getUnique()
     }
 

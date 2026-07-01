@@ -45,7 +45,7 @@ export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsReposi
         )
     }
 
-    save(aggregate: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity> {
+    save(aggregate: ChartOfAccountsEntity, matchVersion: VersionValue = aggregate.version): Observable<ChartOfAccountsEntity> {
         return from(
             this.em.findOne(ChartOfAccountsOrmEntity, this.chartId.value, {
                 populate: ['accounts'],
@@ -58,8 +58,10 @@ export class MikroOrmChartOfAccountsRepository implements IChartOfAccountsReposi
                     entity.id = this.chartId.value;
 
                 OrmChartOfAccountsMapper.toPersistence(aggregate, entity);
-
+                entity.version = matchVersion.value;
+                
                 this.em.persist(entity);
+                aggregate.clearDomainEvents();
 
                 return entity;
             }),

@@ -6,12 +6,12 @@ import { Observable } from "rxjs";
 @Injectable({
     providedIn: 'root'
 })
-export class SaveChartOfAccountsUseCase{
+export class RefreshChartOfAccountsUseCase {
 
     private readonly repo = inject(COA_REPOSITORY);
 
-    execute(chart: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity>{
-        return this.repo.save(chart);
+    execute(): Observable<Readonly<ChartOfAccountsEntity>> {
+        return this.repo.getUnique({ consistency: 'strong' })
     }
 
 }

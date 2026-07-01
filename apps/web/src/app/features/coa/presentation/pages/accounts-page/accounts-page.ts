@@ -26,42 +26,28 @@ export class AccountsPage implements OnInit {
     if (!chart) return;
 
     if (account.isActive)
-      chart.inactivateAccount(account.id);
+      this.facade.inactivateAccount(account.id);
     else
-      chart.activateAccount(account.id);
-
-    this.facade.saveChanges(chart);
+      this.facade.activateAccount(account.id);
   }
 
   create({parent, props: data}: CreateAccountData) {
-    const chart = this.facade.chart();
-    if (!chart) return;
-
-    chart.createChildAccount({
+    this.facade.createChildAccount({
       parentId: parent.id,
       localIndex: data.localIndex,
       name: AccountNameValue.create(data.name),
       description: data.description,
       isSummary: data.isSummary,
       isContra: data.isContra,
-    })
-
-    this.facade.saveChanges(chart);
+    });
   }
 
   edit({ account, newData }: EditAccountData) {
-    const chart = this.facade.chart();
-    if (!chart) return;
-
-    const accountId = account.id;
-    const newName = AccountNameValue.create(newData.name);
-
-    chart.updateAccountName(account.id, newName);
-    chart.updateAccountDescription(accountId, newData.description);
-
-    if (newData.isContra) chart.convertToContraAccount(accountId);
-    else chart.convertToNormalAccount(accountId);
-
-    this.facade.saveChanges(chart);
+    this.facade.editAccount({
+      accountId: account.id,
+      name: AccountNameValue.create(newData.name),
+      description: newData.description,
+      isContra: newData.isContra,
+    });
   }
 }

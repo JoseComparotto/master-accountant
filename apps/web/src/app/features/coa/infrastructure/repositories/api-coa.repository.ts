@@ -1,117 +1,98 @@
 import { inject, Injectable } from "@angular/core";
 import {
     AccountCreatedEvent,
+    AccountsEvents,
     AccountUpdatedEvent,
     ChartOfAccountsCreatedEvent,
     ChartOfAccountsEntity,
+    GetUniqueOptions,
     IChartOfAccountsRepository,
     VersionValue
 } from "@repo/coa-core";
 import { CoaApiClient } from "../services/coa-api-client";
-import { from, map, Observable } from "rxjs";
+import { BehaviorSubject, from, map, Observable, defer, merge, ignoreElements, filter, shareReplay, finalize } from "rxjs";
 import { fromDtoToProps } from "../../application/mappers/from-dto-to-props.mapper";
 import { fromDomainToDto } from "../../application/mappers/from-props-to-dto.mapper";
 import { ValueObject } from "@repo/shared-core";
-import { CoaPatchOperation } from "@repo/coa-contracts";
+import { ChartOfAccountsDto, CoaPatchOperation } from "@repo/coa-contracts";
+
+export class ConcurrencyConflictError extends Error {
+    constructor(
+        public readonly serverChart: ChartOfAccountsEntity,
+        public readonly localChart: ChartOfAccountsEntity,
+    ) {
+        super("O plano de contas já foi modificado por outro agente.");
+        this.name = 'ConcurrencyConflictError';
+    }
+}
+
+type CoaResponse = { status: 200 | 412, body: ChartOfAccountsDto } | { status: number, body: any };
 
 @Injectable()
 export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository {
     private readonly client = inject(CoaApiClient);
+    private readonly chart$ = new BehaviorSubject<ChartOfAccountsEntity | null>(null);
+    
+    private ongoingFetch$: Observable<ChartOfAccountsEntity> | null = null;
 
-    getUnique(): Observable<ChartOfAccountsEntity> {
-        return from(this.client.coa.get())
-            .pipe(
-                map(({ status, body }) => {
-                    if (status === 200) {
-                        const accountProps = body.accounts.map(fromDtoToProps);
+    getUnique(options: GetUniqueOptions = { consistency: 'eventual' }): Observable<ChartOfAccountsEntity> {
+        if (options.consistency === 'strong') {
+            return this.fetchUniqueFromApi();
+        }
 
-                        return ChartOfAccountsEntity.reconstitute(
-                            accountProps,
-                            VersionValue.create(body.version)
-                        );
-                    }
-
-                    console.error(body);
-                    throw new Error("Erro ao buscar contas");
-                })
+        return defer(() => {
+            const continuousStream$ = this.chart$.asObservable().pipe(
+                filter((chart): chart is ChartOfAccountsEntity => chart !== null)
             );
+
+            if (!this.chart$.value) {
+                return merge(
+                    this.fetchUniqueFromApi().pipe(ignoreElements()),
+                    continuousStream$
+                );
+            }
+
+            return continuousStream$;
+        });
     }
 
-    save(chart: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity> {
-        const events = chart.domainEvents;
-        if (events.length === 0) return this.getUnique();
-        chart.clearDomainEvents();
+    private fetchUniqueFromApi(): Observable<ChartOfAccountsEntity> {
+        if (this.ongoingFetch$) {
+            return this.ongoingFetch$;
+        }
 
-        // 1. Fallback temporário: se houver criação do plano, faz um PUT completo
-        if (events.some(e => e instanceof ChartOfAccountsCreatedEvent)) {
+        this.ongoingFetch$ = from(this.client.coa.get()).pipe(
+            map(response => this.processCoaResponse(response)),
+            finalize(() => this.ongoingFetch$ = null),
+            shareReplay(1) // Compartilha o resultado caso múltiplos componentes assinem ao mesmo tempo
+        );
+
+        return this.ongoingFetch$;
+    }
+
+    save(chart: ChartOfAccountsEntity, matchVersion: VersionValue = chart.version): Observable<ChartOfAccountsEntity> {
+        const hasChartCreatedEvent = chart.domainEvents.some(
+            (event): event is ChartOfAccountsCreatedEvent => event instanceof ChartOfAccountsCreatedEvent
+        );
+
+        if (hasChartCreatedEvent) {
             return this.putCoa(chart);
         }
 
-        const etag = `"${chart.version.value}"`;
+        const accountEvents = chart.domainEvents.filter(
+            (event): event is AccountsEvents => !(event instanceof ChartOfAccountsCreatedEvent)
+        );
 
-        // 2. Mapeia os eventos DIRETAMENTE para itens do JSON Patch na MESMA ordem cronológica
-        const operations = events.map<CoaPatchOperation | null>(event => {
+        if (accountEvents.length === 0) return this.getUnique();
 
-            // Cenário de Criação de Conta (op: "add")
-            if (event instanceof AccountCreatedEvent) {
-                const props = event.accountProps;
-                return {
-                    op: 'add' as const,
-                    path: `/accounts/${event.accountId}`,
-                    value: {
-                        name: props.name.value,
-                        localIndex: props.structuralCode.localIndex,
-                        parentId: props.parentId?.value ?? null,
-                        description: props.description,
-                        accountClass: props.accountClass,
-                        isSummary: props.isSummary,
-                        isContra: props.isContra,
-                        isActive: props.isActive,
-                    }
-                } satisfies CoaPatchOperation;
-            }
+        const etag = `"${matchVersion.value}"`;
+        const operations = this.buildPatchOperations(accountEvents);
 
-            // Cenário de Atualização de Atributo da Conta (op: "replace")
-            if (event instanceof AccountUpdatedEvent) {
-                // Preserva a extração de Value Objects primitivos se necessário (.value)
-                const rawValue = event.newValue && event.newValue instanceof ValueObject
-                    ? event.newValue.value
-                    : event.newValue;
-
-                return {
-                    op: 'replace' as const,
-                    path: `/accounts/${event.accountId}/${event.attribute}`,
-                    value: rawValue
-                } satisfies CoaPatchOperation;
-            }
-
-            return null;
-        }).filter((op): op is NonNullable<typeof op> => op !== null);
-
-        // 3. Dispara o tiro único de PATCH atômico para a raiz do Agregado (/coa)
         return from(this.client.coa.patch({
-            headers: {
-                'if-match': etag,
-                // 'content-type': 'application/json-patch+json'
-            },
+            headers: { 'if-match': etag },
             body: operations,
         })).pipe(
-            map(({ status, body }) => {
-                switch (status) {
-                    case 200:
-                        const accountProps = body.accounts.map(fromDtoToProps);
-
-                        return ChartOfAccountsEntity.reconstitute(
-                            accountProps,
-                            VersionValue.create(body.version)
-                        );
-                    case 412:
-                        throw new Error("O plano já foi modificado por outro agente.");
-                    default:
-                        console.error(body);
-                        throw new Error("Erro ao aplicar lote de alterações via JSON Patch");
-                }
-            })
+            map((response) => this.processCoaResponse(response, chart))
         );
     }
 
@@ -124,22 +105,76 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
                 accounts: chart.accounts.map(fromDomainToDto),
             }
         })).pipe(
-            map(({ status, body }) => {
-                switch (status) {
-                    case 200:
-                        const accountProps = body.accounts.map(fromDtoToProps);
-
-                        return ChartOfAccountsEntity.reconstitute(
-                            accountProps,
-                            VersionValue.create(body.version)
-                        );
-                    case 412:
-                        throw new Error("O plano já foi modificado por outro agente.");
-                    default:
-                        console.error(body);
-                        throw new Error("Erro ao salvar contas");
-                }
-            })
+            map((response) => this.processCoaResponse(response, chart))
         );
+    }
+
+    private processCoaResponse(response: CoaResponse, originalChart?: ChartOfAccountsEntity): ChartOfAccountsEntity {
+        const { status, body } = response;
+        switch (status) {
+            case 200:
+                const updatedChart = this.reconstituteFromDto(body);
+
+                originalChart?.clearDomainEvents();
+                this.chart$.next(updatedChart);
+
+                return updatedChart;
+
+            case 412:
+                const serverChart = this.reconstituteFromDto(body);
+
+                this.chart$.next(serverChart);
+
+                throw new ConcurrencyConflictError(serverChart, originalChart!);
+
+            default:
+                console.error(body);
+                throw new Error("Erro ao processar mutação no servidor.");
+        }
+    }
+
+    private reconstituteFromDto(body: ChartOfAccountsDto): ChartOfAccountsEntity {
+        const accountProps = body.accounts.map(fromDtoToProps);
+        return ChartOfAccountsEntity.reconstitute(
+            accountProps,
+            VersionValue.create(body.version)
+        );
+    }
+
+    private buildPatchOperations(events: AccountsEvents[]): CoaPatchOperation[] {
+        return events.map<CoaPatchOperation | null>(event => {
+            if (event instanceof AccountCreatedEvent) {
+                const props = event.accountProps;
+                return {
+                    op: 'add',
+                    path: `/accounts/${event.accountId}`,
+                    value: {
+                        name: props.name.value,
+                        localIndex: props.structuralCode.localIndex,
+                        parentId: props.parentId?.value ?? null,
+                        description: props.description,
+                        accountClass: props.accountClass,
+                        isSummary: props.isSummary,
+                        isContra: props.isContra,
+                        isActive: props.isActive,
+                    }
+                };
+            }
+
+            if (event instanceof AccountUpdatedEvent) {
+                const rawValue = event.newValue && event.newValue instanceof ValueObject
+                    ? event.newValue.value
+                    : event.newValue;
+
+                return {
+                    op: 'replace',
+                    path: `/accounts/${event.accountId}/${event.attribute}`,
+                    value: rawValue
+                };
+            }
+
+            event satisfies never;
+            throw new Error(`Evento não suportado para patch: ${event}`);
+        }).filter((op): op is CoaPatchOperation => op !== null);
     }
 }
