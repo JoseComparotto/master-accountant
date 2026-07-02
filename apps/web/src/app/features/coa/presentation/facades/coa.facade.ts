@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, signal } from '@angular/core';
+import { computed, inject, Injectable, OnInit, signal } from '@angular/core';
 import { ChartOfAccountsEntity, CreateChildAccountInput } from '@repo/coa-core';
 import { GetChartOfAccountsUseCase } from '../../application/use-cases/get-coa.use-case';
 import { ActivateAccountUseCase } from '../../application/use-cases/activate-account.use-case';
@@ -8,64 +8,64 @@ import { CreateAccountUseCase } from '../../application/use-cases/create-account
 import { UuidValue } from '@repo/shared-core';
 
 interface ChartState {
-    data: Readonly<ChartOfAccountsEntity> | null;
-    loading: boolean;
-    error: string | null;
+  data: Readonly<ChartOfAccountsEntity> | null;
+  loading: boolean;
+  error: string | null;
 }
 
 @Injectable({
-    providedIn: 'root'
+  providedIn: 'root'
 })
 export class CoaFacade {
-    private getChartUC = inject(GetChartOfAccountsUseCase);
-    private activateAccountUC = inject(ActivateAccountUseCase);
-    private inactivateAccountUC = inject(InactivateAccountUseCase);
-    private editAccountUC = inject(EditAccountUseCase);
-    private createChildAccountUC = inject(CreateAccountUseCase);
+  private getChartUC = inject(GetChartOfAccountsUseCase);
+  private activateAccountUC = inject(ActivateAccountUseCase);
+  private inactivateAccountUC = inject(InactivateAccountUseCase);
+  private editAccountUC = inject(EditAccountUseCase);
+  private createChildAccountUC = inject(CreateAccountUseCase);
 
-    private state = signal<ChartState>({ data: null, loading: false, error: null });
+  private state = signal<ChartState>({ data: null, loading: false, error: null });
 
-    readonly chart = computed(() => this.state().data);
-    readonly loading = computed(() => this.state().loading);
-    readonly error = computed(() => this.state().error);
+  readonly chart = computed(() => this.state().data);
+  readonly loading = computed(() => this.state().loading);
+  readonly error = computed(() => this.state().error);
 
-    public load(): void {
-        if (this.loading()) return;
-        
-        this.updateState({ loading: true, error: null });
+  load() {
+    if (this.loading()) return;
 
-        this.getChartUC.execute().subscribe({
-            next: (aggregate) => this.updateState({ data: aggregate, loading: false }),
-            error: (err) => this.updateState({ error: err.message, loading: false })
-        });
-    }
+    this.updateState({ loading: true, error: null });
 
-    activateAccount(id: UuidValue) {
-      this.activateAccountUC.execute(id).subscribe({
-        error: (err) => this.updateState({ error: err.message })
-      });
-    }
+    this.getChartUC.execute().subscribe({
+      next: (aggregate) => this.updateState({ data: aggregate, loading: false }),
+      error: (err) => this.updateState({ error: err.message, loading: false })
+    });
+  }
 
-    inactivateAccount(id: UuidValue) {
-      this.inactivateAccountUC.execute(id).subscribe({
-        error: (err) => this.updateState({ error: err.message })
-      });
-    }
+  activateAccount(id: UuidValue) {
+    this.activateAccountUC.execute(id).subscribe({
+      error: (err) => this.updateState({ error: err.message })
+    });
+  }
 
-    createChildAccount(input: CreateChildAccountInput) {
-      this.createChildAccountUC.execute(input).subscribe({
-        error: (err) => this.updateState({ error: err.message })
-      });
-    }
+  inactivateAccount(id: UuidValue) {
+    this.inactivateAccountUC.execute(id).subscribe({
+      error: (err) => this.updateState({ error: err.message })
+    });
+  }
 
-    editAccount(input: EditAccountInput) {
-      this.editAccountUC.execute(input).subscribe({
-        error: (err) => this.updateState({ error: err.message })
-      });
-    }
+  createChildAccount(input: CreateChildAccountInput) {
+    this.createChildAccountUC.execute(input).subscribe({
+      error: (err) => this.updateState({ error: err.message })
+    });
+  }
 
-    private updateState(patch: Partial<ChartState>): void {
-        this.state.update(current => ({ ...current, ...patch }));
-    }
+  editAccount(input: EditAccountInput) {
+    this.editAccountUC.execute(input).subscribe({
+      error: (err) => this.updateState({ error: err.message })
+    });
+  }
+
+  private updateState(patch: Partial<ChartState>): void {
+    this.state.update(current => ({ ...current, ...patch }));
+  }
 
 }

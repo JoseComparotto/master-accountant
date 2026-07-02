@@ -26,7 +26,7 @@ export class AccountNameValue extends ValueObject<string> {
             throw new ValueObjectMalformedException(
                 'AccountName',
                 rawValue,
-                `O nome da conta é muito curto. Mínimo de 3 caracteres. Recebido: ${sanitized.length}`
+                `Deve ter pelo menos 3 caracteres.`
             );
         }
 
@@ -34,7 +34,7 @@ export class AccountNameValue extends ValueObject<string> {
             throw new ValueObjectMalformedException(
                 'AccountName',
                 rawValue,
-                `O nome da conta excede o limite de 100 caracteres. Recebido: ${sanitized.length}`
+                `Deve ter no máximo 100 caracteres.`
             );
         }
 

@@ -1,5 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
-import { AccountDto, AccountNodeDto } from '@repo/coa-contracts';
 import { ZardTableComponent, ZardTableHeaderComponent, ZardTableBodyComponent, ZardTableHeadComponent, ZardTableRowComponent, ZardTableCellComponent } from "@/shared/presentation/components/table";
 import { NgClass } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
@@ -9,15 +8,8 @@ import { AccountTitle } from '../account-title/account-title';
 import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
 import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
-import { CreateAccountData, CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
+import { CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
 import { EditAccountButton, EditAccountData } from "../edit-account-button/edit-account-button";
-
-type AccountCapabilities = {
-  canActivate: boolean,
-  canInactivate: boolean,
-  canCreateChild: boolean,
-  canEdit: boolean,
-}
 
 @Component({
   selector: 'app-accounts-table',
@@ -45,11 +37,7 @@ type AccountCapabilities = {
   })],
 })
 export class AccountsTable {
-  chart = input.required<ChartOfAccountsEntity>();
-
-  toggleActive = output<Readonly<AccountEntity>>();
-  createChild = output<CreateAccountData>();
-  edit = output<EditAccountData>();
+  chart = input.required<Readonly<ChartOfAccountsEntity>>();
 
   showInactive = model(true);
   collapsedIds = model<Set<string>>(new Set());
@@ -77,31 +65,8 @@ export class AccountsTable {
     return rows;
   });
 
-  capabilities = computed(() => {
-    const chart = this.chart();
-    const map = new Map<string, AccountCapabilities>();
-    for (const account of chart.accounts) {
-      map.set(account.id.value, {
-        canActivate: chart.canActivate(account.id),
-        canInactivate: chart.canInactivate(account.id),
-        canCreateChild: chart.canCreateChild(account.id),
-        canEdit: chart.canEdit(account.id),
-      })
-    }
-    return map;
-  })
-
   hasChildren(account: Readonly<AccountEntity>) {
     return this.chart().getAccountsByParentId(account.id).length > 0;
-  }
-
-
-  nextChildIndex(account: Readonly<AccountEntity>): number {
-    return this.chart().getNextChildIndex(account.id)
-  }
-
-  isChildIndexUsed(account: Readonly<AccountEntity>, index: number): boolean {
-    return this.chart().getAccountsByParentId(account.id).some(a => a.localIndex === index)
   }
 
   isCollepsed(id: UuidValue) {
@@ -121,16 +86,4 @@ export class AccountsTable {
     })
   }
 
-  canActivate(acocunt: { id: UuidValue }) {
-    return this.capabilities().get(acocunt.id.value)?.canActivate === true;
-  }
-  canInactivate(acocunt: { id: UuidValue }) {
-    return this.capabilities().get(acocunt.id.value)?.canInactivate === true;
-  }
-  canCreateChild(acocunt: { id: UuidValue }) {
-    return this.capabilities().get(acocunt.id.value)?.canCreateChild === true;
-  }
-  canEdit(acocunt: { id: UuidValue }) {
-    return this.capabilities().get(acocunt.id.value)?.canEdit === true;
-  }
 }

@@ -32,10 +32,15 @@
             <input z-input type="number" min="1" step="1" formControlName="localIndex" [id]="i.id()"
                 class="w-full h-full px-3 bg-transparent border-none focus:ring-0 focus-visible:ring-0 focus:outline-none text-sm [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
         </div>
-        
-        @if (form.get('localIndex')?.hasError('indexUsed') && form.get('localIndex')?.touched) {
+
+        @if (form.get('localIndex')?.hasError('required') && form.get('localIndex')?.touched) {
         <z-form-message zType="error">
-            Este código já está em uso para este grupo.
+            O código é obrigatório
+        </z-form-message>
+        }
+        @else if (form.get('localIndex')?.hasError('indexUsed')) {
+        <z-form-message zType="error">
+            Este código já está em uso
         </z-form-message>
         }
     </z-form-field>
@@ -47,6 +52,17 @@
             Nome
         </label>
         <input z-input formControlName="name" autofocus />
+        
+        @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
+        <z-form-message zType="error">
+            O nome é obrigatório
+        </z-form-message>
+        }
+        @else if (form.get('name')?.hasError('domainError') && form.get('name')?.touched) {
+        <z-form-message zType="error">
+            {{ form.get('name')?.getError('domainError') }}
+        </z-form-message>
+        }
     </z-form-field>
 
     <!-- Descrição -->

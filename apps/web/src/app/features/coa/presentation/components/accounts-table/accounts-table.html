@@ -28,21 +28,9 @@
                     </td>
                     <td z-table-cell>
                         <div class="flex right-2 items-center justify-end gap-1">
-                            <app-edit-account-button
-                                [account]="row"
-                                [canEdit]="canEdit(row)"
-                                (edit)="edit.emit($event)" />
-                            <app-create-child-account-button
-                                [account]="row"
-                                [nextIndex]="nextChildIndex(row)"
-                                [isIndexUsedFn]="(index)=>isChildIndexUsed(row, index)"
-                                [canCreateChild]="canCreateChild(row)"
-                                (createChild)="createChild.emit($event)"    
-                            />
-                            <app-toggle-account-active-button
-                                [account]="row" [canActivate]="canActivate(row)"
-                                [canInactivate]="canInactivate(row)"
-                                (toggle)="toggleActive.emit(row)" />
+                            <app-edit-account-button [account]="row" />
+                            <app-create-child-account-button [account]="row" />
+                            <app-toggle-account-active-button [account]="row" />
                         </div>
                     </td>
                 </tr>

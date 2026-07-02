@@ -4,7 +4,8 @@ import { Component, inject, input, output } from '@angular/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucidePencil } from '@ng-icons/lucide';
 import { AccountFormData, AccountFormDialog, EditAccountProps } from '../account-form-dialog/account-form-dialog';
-import { AccountEntity } from '@repo/coa-core';
+import { AccountEntity, AccountNameValue } from '@repo/coa-core';
+import { CoaFacade } from '../../facades/coa.facade';
 
 export interface EditAccountData {
   account: Readonly<AccountEntity>,
@@ -21,11 +22,10 @@ export interface EditAccountData {
   })],
 })
 export class EditAccountButton {
+  private facade = inject(CoaFacade);
   private dialogService = inject(ZardDialogService);
 
   account = input.required<Readonly<AccountEntity>>();
-  edit = output<EditAccountData>();
-  canEdit = input<boolean>();
 
   openDialog() {
     const account = this.account();
@@ -37,6 +37,7 @@ export class EditAccountButton {
       zContent: AccountFormDialog,
       zData: {
         mode: 'edit',
+        canEditIsContra: () => this.canEditIsContra(),
         props: {
           name: account.name.value,
           description: account.description ?? '',
@@ -50,17 +51,35 @@ export class EditAccountButton {
 
         if (instance.form.invalid) return false;
 
-        return this.submit(instance.form.value as EditAccountProps);
+        return this.edit(instance.form.value as EditAccountProps);
       },
       zWidth: '425px',
     });
   }
 
-  private submit(newData: EditAccountData['newData']) {
-    return this.edit.emit({
-      account: this.account(),
-      newData
+  private edit(newData: EditAccountProps) {
+    const account = this.account();
+
+    this.facade.editAccount({
+      accountId: this.account().id,
+      name: AccountNameValue.create(newData.name),
+      description: newData.description,
+      isContra: newData.isContra ?? account.isContra,
     });
   }
 
+  private canEditIsContra() {
+    const chart = this.facade.chart();
+    const account = this.account();
+
+    if (!chart) return false;
+
+    return account.isContra ?
+      chart.canConvertToNormal(account.id) :
+      chart.canConvertToContra(account.id);
+  }
+
+  protected canEdit(){
+    return this.facade.chart()?.canEdit(this.account().id) ?? false;
+  }
 }

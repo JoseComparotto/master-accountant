@@ -1,4 +1,10 @@
-import { AggregateRoot, AtributeConstraintViolationException, AttributeImmutableViolationException, DomainInvariantViolationException, UuidValue } from "@repo/shared-core";
+import {
+    AggregateRoot,
+    AtributeConstraintViolationException,
+    AttributeImmutableViolationException,
+    DomainInvariantViolationException,
+    UuidValue
+} from "@repo/shared-core";
 import { AccountCollection } from "../collections/account.collection.js";
 import { StructuralCodeValue } from "../value-objects/structural-code.value.js";
 import { VersionValue } from "../value-objects/version.value.js";
@@ -14,7 +20,21 @@ import {
     CreateRootAccountProps,
 } from "./account.entity.js";
 import { AccountNameValue } from "../value-objects/account-name.value.js";
-import { ChildCreationRuleReason, canActivateAccount, canCreateChild, canInactivateAccount, ToThrowCallback, EditRuleReason, canEdit, InactivationAccountRuleReason, ActivationAccountRuleReason } from "../rules/account.rules.js";
+import {
+    ChildCreationRuleReason,
+    canActivateAccount,
+    canCreateChild,
+    canInactivateAccount,
+    ToThrowCallback,
+    EditRuleReason,
+    canEdit,
+    InactivationAccountRuleReason,
+    ActivationAccountRuleReason,
+    canConvertToContra,
+    ConvertToContraRuleReason,
+    canConvertToNormal,
+    ConvertToNormalRuleReason
+} from "../rules/account.rules.js";
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
 import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvents } from "../events/coa.events.js";
@@ -260,32 +280,28 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
 
     public convertToNormalAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
-        if (!account.isContra) return;
 
-        const parent = account.parentId ? this._collection.getById(account.parentId) : null;
-        if (parent && parent.isContra)
-            throw new AccountInvariantViolationException(
-                "COA-02", "Cannot convert to normal an account with contra account parent."
-            );
+        this.canConvertToNormal(account, reasons =>
+            new AccountInvariantViolationException(
+                "COA-02", `Cannot convert to normal account: ${reasons.join(', ')}`
+            )
+        );
 
         this.addDomainEvent(account.convertToNormal());
     }
 
     public convertToContraAccount(id: UuidValue): void {
         const account = this._collection.getById(id);
-        if (account.isContra) return;
 
-        const children = this._collection.getByParentId(account.id);
-        const hasNormalChildren = children.some(c => !c.isContra);
-
-        if (hasNormalChildren)
-            throw new AccountInvariantViolationException(
-                "COA-02", "Cannot convert to contra an account that has normal child accounts."
-            );
+        this.canConvertToContra(account, reasons =>
+            new AccountInvariantViolationException(
+                "COA-02", `Cannot convert to contra account: ${reasons.join(', ')}`
+            )
+        );
 
         this.addDomainEvent(account.convertToContra());
     }
-    
+
     public getNextChildIndex(accountId: UuidValue): number {
         const children = this._collection.getByParentId(accountId);
 
@@ -326,6 +342,28 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
         const accountId = passedId ? accountOrId : accountOrId.id;
         const account = passedId ? this.getAccountById(accountId) : accountOrId;
         return canCreateChild(account, toThrow);
+    }
+
+    public canConvertToContra(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback<ConvertToContraRuleReason | EditRuleReason>) {
+        const passedId = accountOrId instanceof UuidValue;
+        const accountId = passedId ? accountOrId : accountOrId.id;
+        const children = this.getAccountsByParentId(accountId);
+        const account = passedId ? this.getAccountById(accountId) : accountOrId;
+
+        return this.canEdit(account, toThrow) && canConvertToContra({
+            hasNormalChild: children.some(c => !c.isContra)
+        }, toThrow);
+
+    }
+
+    public canConvertToNormal(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback<ConvertToNormalRuleReason | EditRuleReason>) {
+        const passedId = accountOrId instanceof UuidValue;
+        const accountId = passedId ? accountOrId : accountOrId.id;
+        const account = passedId ? this.getAccountById(accountId) : accountOrId;
+        const parent = account.parentId ? this.getAccountById(account.parentId) : null;
+        return this.canEdit(account, toThrow) && canConvertToNormal({
+            isParentContra: parent ? parent.isContra : false
+        }, toThrow);
     }
 
     public canEdit(accountOrId: UuidValue | Readonly<AccountEntity>, toThrow?: ToThrowCallback<EditRuleReason>) {

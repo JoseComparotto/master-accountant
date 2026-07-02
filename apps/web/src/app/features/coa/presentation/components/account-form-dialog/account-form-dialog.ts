@@ -4,8 +4,9 @@ import { ZardInputDirective } from '@/shared/presentation/components/input';
 import { ZardSwitchComponent } from '@/shared/presentation/components/switch';
 import { ZardIdDirective } from '@/shared/presentation/core';
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn } from '@angular/forms';
-import { StructuralCodeValue } from '@repo/coa-core';
+import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { StructuralCodeValue, AccountNameValue } from '@repo/coa-core';
+import { ValueObjectMalformedException } from '@repo/shared-core';
 
 export interface CreateAccountProps {
   localIndex?: number;
@@ -25,9 +26,11 @@ export type AccountFormData = {
   props: CreateAccountProps;
   parentCode: StructuralCodeValue;
   isIndexUsed: (index: number) => boolean;
+  canEditIsContra: () => boolean;
 } | {
   mode: 'edit';
   props: EditAccountProps;
+  canEditIsContra: () => boolean;
 }
 
 @Component({
@@ -44,18 +47,22 @@ export type AccountFormData = {
   styleUrl: './account-form-dialog.css',
 })
 export class AccountFormDialog implements OnInit {
-  protected data = inject<AccountFormData>(Z_MODAL_DATA);
+  protected readonly data = inject<AccountFormData>(Z_MODAL_DATA);
 
   protected defaultIndex = signal<number | undefined>(undefined);
   protected isAutomatic = signal<boolean>(true);
 
-  form = new FormGroup({
-    isAutomaticCode: new FormControl<boolean>(true),
-    localIndex: new FormControl<number | undefined>(
-      { value: undefined, disabled: true },
-      [this.accountCodeValidator()]
-    ),
-    name: new FormControl(''),
+  readonly form = new FormGroup({
+    isAutomaticCode: new FormControl(true),
+    localIndex: new FormControl<number | undefined>({
+      value: undefined,
+      disabled: true
+    }, {
+      validators: [Validators.required, this.accountCodeValidator()]
+    }),
+    name: new FormControl('', {
+      validators: [Validators.required, this.accountNameValidator()]
+    }),
     description: new FormControl(''),
     isContra: new FormControl(false),
     isSummary: new FormControl(true),
@@ -69,6 +76,10 @@ export class AccountFormDialog implements OnInit {
         this.defaultIndex.set(this.data.props.localIndex);
         this.form.get('localIndex')?.setValue(this.data.props.localIndex);
       }
+
+      if (!this.data.canEditIsContra()) {
+        this.form.get('isContra')?.disable();
+      }
     }
 
     this.form.get('isAutomaticCode')?.valueChanges.subscribe((isAuto) => {
@@ -80,25 +91,31 @@ export class AccountFormDialog implements OnInit {
         localIndexControl?.setValue(this.defaultIndex());
       } else {
         localIndexControl?.enable();
-        localIndexControl?.updateValueAndValidity(); 
+        localIndexControl?.updateValueAndValidity();
       }
     });
   }
 
-  /**
-   * Validador customizado que utiliza a callback fornecida no inject data
-   */
+  private accountNameValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      try {
+        AccountNameValue.create(control.value);
+        return null;
+      } catch (error: any) {
+        if (error instanceof ValueObjectMalformedException)
+          return { domainError: error.message };
+        throw error;
+      }
+    };
+  }
+
   private accountCodeValidator(): ValidatorFn {
     return (control: AbstractControl): ValidationErrors | null => {
-      // Se o controle não tiver valor ou se estivermos no modo de edição (onde isIndexUsed não existe), não valida
       if (control.value === null || control.value === undefined || this.data.mode !== 'create') {
         return null;
       }
-
-      // Executa a callback passada por parâmetro no modal
       const isUsed = this.data.isIndexUsed(Number(control.value));
-
-      // Se o código já estiver a ser usado, retorna o erro
       return isUsed ? { indexUsed: true } : null;
     };
   }

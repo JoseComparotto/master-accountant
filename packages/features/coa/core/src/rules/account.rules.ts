@@ -89,3 +89,37 @@ export function canEdit(
 
     return evaluateRules(reasons, toThrow);
 }
+
+// --- Conversão para Contra ---
+export enum ConvertToContraRuleReason {
+    HAS_NORMAL_CHILD = "has normal child",
+}
+export interface ConvertToContraCheckInput {
+    hasNormalChild: boolean;
+}
+export function canConvertToContra(
+    input: ConvertToContraCheckInput,
+    toThrow?: ToThrowCallback<ConvertToContraRuleReason>
+) {
+    const reasons = [
+        input.hasNormalChild && ConvertToContraRuleReason.HAS_NORMAL_CHILD,
+    ].filter(Boolean) as ConvertToContraRuleReason[];
+    return evaluateRules(reasons, toThrow);
+}
+
+// --- Conversão para Normal ---
+export enum ConvertToNormalRuleReason {
+    PARENT_IS_CONTRA = "parent is contra",
+}
+export interface ConvertToNormalCheckInput {
+    isParentContra: boolean;
+}
+export function canConvertToNormal(
+    input: ConvertToNormalCheckInput,
+    toThrow?: ToThrowCallback<ConvertToNormalRuleReason>
+) {
+    const reasons = [
+        input.isParentContra && ConvertToNormalRuleReason.PARENT_IS_CONTRA,
+    ].filter(Boolean) as ConvertToNormalRuleReason[];
+    return evaluateRules(reasons, toThrow);
+}

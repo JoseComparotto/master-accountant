@@ -2,7 +2,7 @@ import { COA_REPOSITORY } from "@/app.config";
 import { inject, Injectable } from "@angular/core";
 import { AccountNameValue } from "@repo/coa-core";
 import { UuidValue } from "@repo/shared-core";
-import { map, Observable, switchMap } from "rxjs";
+import { map, Observable, switchMap, take } from "rxjs";
 
 export interface EditAccountInput {
     accountId: UuidValue;
@@ -22,6 +22,7 @@ export class EditAccountUseCase {
     execute({ accountId, ...input }: EditAccountInput): Observable<void> {
         return this.repo.getUnique()
             .pipe(
+                take(1),
                 switchMap(chart => {
 
                     chart.updateAccountName(accountId, input.name);
