@@ -3,8 +3,17 @@ import { ZardFormImports } from '@/shared/presentation/components/form';
 import { ZardInputDirective } from '@/shared/presentation/components/input';
 import { ZardSwitchComponent } from '@/shared/presentation/components/switch';
 import { ZardIdDirective } from '@/shared/presentation/core';
-import { Component, inject, OnInit, signal } from '@angular/core';
-import { AbstractControl, FormControl, FormGroup, FormsModule, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
+import { Component, ElementRef, inject, OnInit, signal, viewChild } from '@angular/core';
+import {
+  AbstractControl,
+  FormControl,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  ValidationErrors,
+  ValidatorFn,
+  Validators
+} from '@angular/forms';
 import { StructuralCodeValue, AccountNameValue } from '@repo/coa-core';
 import { ValueObjectMalformedException } from '@repo/shared-core';
 
@@ -49,8 +58,9 @@ export type AccountFormData = {
 export class AccountFormDialog implements OnInit {
   protected readonly data = inject<AccountFormData>(Z_MODAL_DATA);
 
-  protected defaultIndex = signal<number | undefined>(undefined);
-  protected isAutomatic = signal<boolean>(true);
+  nameInput = viewChild<ElementRef<HTMLInputElement>>('nameInput');
+
+  private defaultIndex = signal<number | undefined>(undefined);
 
   readonly form = new FormGroup({
     isAutomaticCode: new FormControl(true),
@@ -83,7 +93,6 @@ export class AccountFormDialog implements OnInit {
     }
 
     this.form.get('isAutomaticCode')?.valueChanges.subscribe((isAuto) => {
-      this.isAutomatic.set(Boolean(isAuto));
       const localIndexControl = this.form.get('localIndex');
 
       if (isAuto) {
@@ -94,6 +103,8 @@ export class AccountFormDialog implements OnInit {
         localIndexControl?.updateValueAndValidity();
       }
     });
+
+    this.nameInput()?.nativeElement.focus();
   }
 
   private accountNameValidator(): ValidatorFn {

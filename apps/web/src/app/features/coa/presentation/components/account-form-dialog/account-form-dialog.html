@@ -4,7 +4,7 @@
     <!-- Campo do Código -->
     <z-form-field zardId="localIndex" #i="zardId" class="grid gap-3">
         <div class="flex items-center justify-between">
-            <label z-form-label [for]="i.id()" [zRequired]="!isAutomatic()">
+            <label z-form-label [for]="i.id()" zRequired>
                 Código
             </label>
             <!-- Switch para travar o código como automático na direita da label -->
@@ -48,10 +48,10 @@
 
     <!-- Nome -->
     <z-form-field zardId="name" #f="zardId" class="grid gap-3">
-        <label z-form-label [for]="f.id()" zRequired="">
+        <label z-form-label [for]="f.id()" zRequired>
             Nome
         </label>
-        <input z-input formControlName="name" autofocus />
+        <input z-input formControlName="name" #nameInput />
         
         @if (form.get('name')?.hasError('required') && form.get('name')?.touched) {
         <z-form-message zType="error">
