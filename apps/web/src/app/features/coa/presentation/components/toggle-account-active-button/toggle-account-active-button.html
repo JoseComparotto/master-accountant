@@ -1,10 +1,6 @@
-@if(account().isActive && canInactivate()){
-<z-button zType="ghost" title="Inativar" (click)="toggleActive()">
-    <ng-icon name="lucideEye" />
-</z-button>
-}
-@else if(!account().isActive && canActivate()) {
-<z-button zType="ghost" title="Ativar" (click)="toggleActive()">
-    <ng-icon name="lucideEyeOff" />
-</z-button>
-}
+<button hlmBtn variant="ghost" [title]="title()" (click)="toggle()" class="cursor-pointer">
+    <ng-icon [name]="iconName()" />
+    <span appExpandOnGroupHover>
+        {{title()}}
+    </span>
+</button>

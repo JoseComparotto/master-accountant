@@ -2,7 +2,6 @@ import { ApplicationConfig, InjectionToken, provideBrowserGlobalErrorListeners }
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
-import { provideZard } from './shared/presentation/core';
 import { IChartOfAccountsRepository } from '@repo/coa-core';
 import { ApiChartOfAccountsRepository } from './features/coa/infrastructure/repositories/api-coa.repository';
 
@@ -13,7 +12,6 @@ export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
     provideRouter(routes),
-    provideZard(),
     {
       provide: COA_REPOSITORY,
       useClass: ApiChartOfAccountsRepository

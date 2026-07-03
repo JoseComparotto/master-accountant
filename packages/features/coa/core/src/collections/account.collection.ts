@@ -64,6 +64,10 @@ export class AccountCollection {
         return this._accountsById.has(id.value);
     }
 
+    public hasCode(code: StructuralCodeValue): boolean {
+        return this._accountsByCode.has(code.value);
+    }
+
     public getById(id: UuidValue): AccountEntity {
         const account = this._accountsById.get(id.value);
         if (!account) throw new AccountNotExistsWithIdException(id.value);

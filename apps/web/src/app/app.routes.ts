@@ -13,7 +13,7 @@ export const routes: Routes = [
     },
     {
         path: '**',
-        loadComponent: () => import('./shared/presentation/pages/not-found/not-found')
+        loadComponent: () => import('../libs/ui/pages/not-found/not-found')
             .then(m => m.NotFound)
     }
 ];

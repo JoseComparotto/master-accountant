@@ -1,18 +1,18 @@
 <div class="w-full">
     <div class="rounded-xl border bg-card overflow-hidden">
-        <table z-table>
-            <thead z-table-header>
-                <tr z-table-row>
-                    <th z-table-head>Conta</th>
-                    <th z-table-head class="w-px whitespace-nowrap text-right">Ações</th>
+        <table hlmTable>
+            <thead hlmTableHeader>
+                <tr hlmTableRow>
+                    <th hlmTableHead>Conta</th>
+                    <th hlmTableHead class="w-px whitespace-nowrap text-right">Ações</th>
                 </tr>
             </thead>
-            <tbody z-table-body>
+            <tbody hlmTableBody>
                 @for (row of rows(); track row.id) {
-                <tr z-table-row>
-                    <td z-table-cell class="w-full max-w-0">
+                <tr hlmTableRow class="group">
+                    <td hlmTableCell class="w-full max-w-0">
                         <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth">
-                            <z-button zType="ghost" (click)="toggleCollapsed(row.id)"
+                            <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"
                                 class="p-0.5 rounded hover:bg-muted shrink-0"
                                 [ngClass]="hasChildren(row)?'':'invisible'">
                                 @if (isCollepsed(row.id)){
@@ -20,18 +20,14 @@
                                 } @else{
                                 <ng-icon name="lucideChevronDown" />
                                 }
-                            </z-button>
+                            </button>
                             <div class="min-w-0 truncate">
                                 <app-account-title [account]="row" />
                             </div>
                         </div>
                     </td>
-                    <td z-table-cell>
-                        <div class="flex right-2 items-center justify-end gap-1">
-                            <app-edit-account-button [account]="row" />
-                            <app-create-child-account-button [account]="row" />
-                            <app-toggle-account-active-button [account]="row" />
-                        </div>
+                    <td hlmTableCell class="relative w-16">
+                        <app-account-actions [account]="row" class="absolute top-1/2 -translate-y-1/2 "/>
                     </td>
                 </tr>
                 }

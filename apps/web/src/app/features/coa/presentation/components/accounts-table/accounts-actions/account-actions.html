@@ -1,0 +1,11 @@
+@if(canCreateChild()) {
+<app-create-child-account-button [account]="account()" />
+}
+
+@if(canEdit()) {
+<app-edit-account-button [account]="account()" />
+}
+
+@if (canToggleActive()) {
+<app-toggle-account-active-button [account]="account()" />
+}

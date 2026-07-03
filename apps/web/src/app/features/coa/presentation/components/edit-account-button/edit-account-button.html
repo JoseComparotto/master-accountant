@@ -1,5 +1,4 @@
-@if(canEdit()){
-<z-button zType="ghost" title="Editar" (click)="openDialog()">
+<button hlmBtn variant="ghost" title="Editar" (click)="edit()" class="cursor-pointer">
     <ng-icon name="lucidePencil" />
-</z-button>
-}
+    <span appExpandOnGroupHover>Editar</span>
+</button>

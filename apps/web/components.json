@@ -1,17 +1,5 @@
 {
-  "$schema": "https://zardui.com/schema.json",
-  "style": "css",
-  "appConfigFile": "src/app/app.config.ts",
-  "packageManager": "pnpm",
-  "tailwind": {
-    "css": "src/styles.css",
-    "baseColor": "neutral"
-  },
-  "baseUrl": "src/app",
-  "aliases": {
-    "components": "@/shared/presentation/components",
-    "utils": "@/shared/presentation/utils",
-    "core": "@/shared/presentation/core",
-    "services": "@/shared/presentation/services"
-  }
+  "componentsPath": "src/libs/ui/components",
+  "importAlias": "@spartan-ng/helm",
+  "style": "nova"
 }

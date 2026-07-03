@@ -1,5 +1,4 @@
-@if(canCreateChild()){
-<z-button zType="ghost" title="Criar Filha" (click)="openDialog()">
+<button hlmBtn variant="ghost" title="Criar filha" (click)="createChild()" class="cursor-pointer">
     <ng-icon name="lucidePlus" />
-</z-button>
-}
+    <span appExpandOnGroupHover> Criar filha </span>
+</button>

@@ -60,6 +60,10 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
         return this._collection.hasId(id);
     }
 
+    public hasAccountCode(code: StructuralCodeValue): boolean {
+        return this._collection.hasCode(code);
+    }
+
     public findAccountById(id: UuidValue): Readonly<AccountEntity> | null {
         return this._collection.findById(id);
     }

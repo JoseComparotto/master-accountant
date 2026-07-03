@@ -1,32 +1,21 @@
 import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
-import { ZardTableComponent, ZardTableHeaderComponent, ZardTableBodyComponent, ZardTableHeadComponent, ZardTableRowComponent, ZardTableCellComponent } from "@/shared/presentation/components/table";
 import { NgClass } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideChevronDown, lucideChevronRight, lucideCopy, lucideEye, lucideEyeOff } from '@ng-icons/lucide';
-import { ZardButtonComponent } from '@/shared/presentation/components/button';
+import { lucideChevronDown, lucideChevronRight } from '@ng-icons/lucide';
 import { AccountTitle } from '../account-title/account-title';
-import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
 import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
-import { CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
-import { EditAccountButton, EditAccountData } from "../edit-account-button/edit-account-button";
+import { HlmTableImports } from '@spartan-ng/helm/table';
+import { AccountActions } from "./accounts-actions/account-actions";
 
 @Component({
   selector: 'app-accounts-table',
   imports: [
     AccountTitle,
-    ZardTableComponent,
-    ZardTableHeaderComponent,
-    ZardTableBodyComponent,
-    ZardTableHeadComponent,
-    ZardTableRowComponent,
-    ZardTableCellComponent,
-    ZardButtonComponent,
     NgClass, NgIcon,
-    ToggleAccountActiveButton,
-    CreateChildAccountButton,
-    EditAccountButton
-  ],
+    HlmTableImports,
+    AccountActions
+],
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
 
