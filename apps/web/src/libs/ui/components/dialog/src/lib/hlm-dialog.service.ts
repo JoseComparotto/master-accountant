@@ -20,9 +20,9 @@ export type HlmDialogOptions<DialogContext = unknown> = BrnDialogOptions & {
 export class HlmDialogService {
   private readonly _brnDialogService = inject(BrnDialogService);
 
-  public open(
+  public open<DialogContex, DialogResult = unknown>(
     component: ComponentType<unknown> | TemplateRef<unknown>,
-    options?: Partial<HlmDialogOptions>,
+    options?: Partial<HlmDialogOptions<DialogContex>>,
   ) {
     const mergedOptions = {
       ...(options ?? {}),
@@ -35,7 +35,7 @@ export class HlmDialogService {
       },
     };
 
-    return this._brnDialogService.open(
+    return this._brnDialogService.open<typeof mergedOptions.context, DialogResult>(
       HlmDialogContent,
       undefined,
       mergedOptions.context,

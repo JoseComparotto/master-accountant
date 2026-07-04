@@ -8,7 +8,7 @@ export interface EditAccountInput {
     accountId: UuidValue;
 
     name: AccountNameValue;
-    description: string;
+    description: string | null;
     isContra: boolean;
 }
 

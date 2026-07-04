@@ -1,0 +1,62 @@
+<hlm-dialog-header>
+    <h3 hlmDialogTitle>
+        {{ context.mode === 'edit' ? 'Editar Conta' : 'Nova Conta' }}
+    </h3>
+    <p hlmDialogDescription>
+        @if(context.mode === 'edit'){
+        Editando <app-account-title [account]="context.account" />.
+        } @else{
+        Será criada abaixo de <app-account-title [account]="context.parent" />.
+        }
+    </p>
+</hlm-dialog-header>
+
+<hlm-field-group>
+    <hlm-field>
+        <label hlmFieldLabel for="name">Nome</label>
+        <input hlmInput id="name" [formField]="form.name" />
+    </hlm-field>
+    <hlm-field>
+        <label hlmFieldLabel for="description">Descrição</label>
+        <hlm-input-group>
+            <textarea hlmInputGroupTextarea id="description" [formField]="form.description" rows="6"></textarea>
+            <hlm-input-group-addon [align]="'block-end'">
+                <span hlmInputGroupText>{{ descriptionLength() }}/1000 caracteres</span>
+            </hlm-input-group-addon>
+        </hlm-input-group>
+    </hlm-field>
+
+    <!-- Opções de Conta -->
+    <div class="rounded-lg border divide-y">
+        @if(context.mode === 'create'){
+        <hlm-field class="p-3 flex flex-row items-center justify-between gap-3">
+            <div class="min-w-0">
+                <label hlmFieldLabel for="isSummary">
+                    Sintética
+                </label>
+                <p class="text-xs">
+                    Pode ter filhas.
+                </p>
+            </div>
+            <hlm-switch inputId="isSummary" [formField]="form.isSummary" />
+        </hlm-field>
+        }
+        <hlm-field class="p-3 flex flex-row items-center justify-between gap-3">
+            <div class="min-w-0">
+                <label hlmFieldLabel for="isContra" class="vertical">
+                    Conta Redutora
+                </label>
+                <p class="text-xs">
+                    Reduz o saldo da superior.
+                </p>
+            </div>
+            <hlm-switch inputId="isContra" [formField]="form.isContra" />
+        </hlm-field>
+    </div>
+
+</hlm-field-group>
+
+<hlm-dialog-footer>
+    <button hlmBtn variant="outline" hlmDialogClose>Cancel</button>
+    <button hlmBtn type="submit" (click)="onSubmit()">OK</button>
+</hlm-dialog-footer>

@@ -3,8 +3,4 @@
     [appAccountSummaryWeigth]="account().isSummary"
     [appAccountClassTheme]="account().accountClass" variant="text"
     [isContra]="account().isContra"
->    
-    {{account().structuralCode.toString()}}.
-    @if (account().isContra) {(-)}
-    {{account().name}}
-</span>
+>{{account().structuralCode.toString()}}. @if (account().isContra) {(-)} {{account().name}}</span>
