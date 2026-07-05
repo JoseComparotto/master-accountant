@@ -16,7 +16,6 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideLoader2, lucideCheck, lucideX, lucideAlertCircle } from "@ng-icons/lucide";
 import { debounceTime, Observable, of, switchMap, tap } from "rxjs";
 
-
 export type CodeAvailabilityState = 'invalid' | 'checking' | 'available' | 'taken';
 
 export type AccountFormDialogContext =
@@ -111,8 +110,8 @@ export class AccountFormDialog implements OnInit {
         if (!control.invalid || (!control.touched && !control.dirty)) return '';
 
         if (control.hasError('required')) return 'O código é obrigatório.';
-        if (control.hasError('domainError')) return control.getError('domainError');
         if (control.hasError('alreadyExists')) return 'Código já utilizado.';
+        if (control.hasError('domainError')) return control.getError('domainError');
 
         return 'Código inválido.';
     }
@@ -170,12 +169,10 @@ export class AccountFormDialog implements OnInit {
                 if (control.invalid || !value) {
                     return of<CodeAvailabilityState>('invalid');
                 }
-
                 return checkFn(value);
             })
         ).subscribe((status) => {
             this.codeStatus.set(status);
-
             if (status === 'taken') {
                 control.setErrors({ alreadyExists: true });
             } else if (status === 'available') {
