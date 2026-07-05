@@ -50,6 +50,15 @@
                 <label hlmFieldLabel for="name" [ariaRequired]>Nome</label>
                 
                 <hlm-input-group [hlmTooltip]="getErrorMessage('name')" class="w-full" (click)="nameInput.focus()">
+                    
+                    @if (form.value.isContra) {
+                    <hlm-input-group-addon [align]="'inline-start'">
+                        <span hlmInputGroupText class="text-muted-foreground font-mono">
+                            (-)
+                        </span>
+                    </hlm-input-group-addon>
+                    }
+                    
                     <input cdkFocusInitial hlmInputGroupInput id="name" #nameInput formControlName="name" autocapitalize="on" 
                         placeholder="Ex: Ativo Circulante" class="w-full border-0 rounded-l-lg rounded-r-none focus-visible:ring-0" />
 
