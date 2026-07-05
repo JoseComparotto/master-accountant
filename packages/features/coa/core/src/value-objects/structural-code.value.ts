@@ -98,6 +98,14 @@ export class StructuralCodeValue extends ValueObject<number[], string> {
         return new StructuralCodeValue([...this.segments, localIndex]);
     }
 
+    public get parent(): StructuralCodeValue | null {
+        const segments = this.segments
+
+        if(segments.length < 2) return null;
+
+        return new StructuralCodeValue([...segments.slice(0,-1)]);
+    }
+
     /**
      * Ordenação Hierárquica (CompareTo)
      * Essencial para ordenações estruturais no ecossistema e queries

@@ -6,39 +6,94 @@
         </h1>
         <p hlmDialogDescription>
             @if (context.mode === 'edit') {
-                Editando <app-account-title [account]="context.account" />.
+            Editando <app-account-title [account]="context.account" />.
             } @else {
-                Será criada abaixo de <app-account-title [account]="context.parent" />.
+            Será criada abaixo de <app-account-title [account]="context.parent" />.
             }
         </p>
     </hlm-dialog-header>
 
     <hlm-field-group class="flex flex-col gap-4">
-        <!-- Campo Nome -->
-        <hlm-field>
-            <label hlmFieldLabel for="name">Nome</label>
-            <input hlmInput id="name" formControlName="name" placeholder="Ex: Ativo Circulante" class="w-full" />
-            
-            @if (form.controls.name.hasError('required')) {
-                <hlm-field-error>O nome é obrigatório.</hlm-field-error>
+
+        <div class="flex flex-col sm:flex-row gap-4 items-start w-full">
+
+            <!-- Campo Código -->
+            @if (context.mode === 'create') {
+            <hlm-field class="w-full sm:w-auto shrink-0">
+                <label hlmFieldLabel for="localIndex">Código</label>
+                <hlm-input-group class="w-full sm:w-fit">
+                    @if(parentCode){
+                    <hlm-input-group-addon [align]="'inline-start'" (click)="localIndexInput.focus()"
+                        class="h-full border-r border-input bg-muted/50 px-3 flex items-center rounded-l-lg transition-colors">
+                        <span hlmInputGroupText class="text-muted-foreground font-mono select-none font-semibold pl-1">
+                            {{ parentCode.value }}
+                        </span>
+                    </hlm-input-group-addon>
+                    }
+
+                    <input #localIndexInput hlmInputGroupInput type="number" min="1" step="1" id="localIndex"
+                        autocomplete="off" [style.width.ch]="(`${form.controls.localIndex.value}`.length || 1) + 2"
+                        formControlName="localIndex"
+                        class="border-0 rounded-none focus-visible:ring-0 font-mono font-semibold min-w-[3rem] sm:text-center" />
+
+                    <hlm-input-group-addon [align]="'inline-end'" [hlmTooltip]="localIndexError"
+                        class="h-full bg-transparent px-2 flex items-center rounded-r-lg select-none transition-colors"
+                        [class.cursor-help]="localIndexError">
+
+                        @switch (codeStatus()) {
+                        @case ('checking') {
+                        <ng-icon name="lucideLoader2" class="animate-spin text-muted-foreground size-4" />
+                        }
+                        @case ('available') {
+                        <ng-icon name="lucideCheck" class="text-emerald-500 size-4 stroke-[3]" />
+                        }
+                        @case ('taken') {
+                        <ng-icon name="lucideX" class="text-destructive size-4 stroke-[3]" />
+                        }
+                        @case ('invalid'){
+                        <ng-icon name="lucideAlertCircle" class="text-destructive size-4 stroke-[3]" />
+                        }
+                        }
+                    </hlm-input-group-addon>
+
+                </hlm-input-group>
+
+            </hlm-field>
             }
-            @if (form.controls.name.hasError('domainError')) {
-                <hlm-field-error>
-                    {{ form.controls.name.getError('domainError') }}
-                </hlm-field-error>
-            }
-        </hlm-field>
+
+            <!-- Campo Nome -->
+            <hlm-field class="flex-1 w-full">
+                <label hlmFieldLabel for="name" [ariaRequired]>Nome</label>
+                <hlm-input-group class="w-full">
+                    <input 
+                        hlmInputGroupInput 
+                        id="name" 
+                        formControlName="name" 
+                        autocapitalize="on" 
+                        placeholder="Ex: Ativo Circulante"
+                        class="w-full border-0 rounded-l-lg rounded-r-none focus-visible:ring-0" 
+                    />
+
+                    <hlm-input-group-addon 
+                        [align]="'inline-end'" 
+                        [hlmTooltip]="nameError"
+                        class="h-full bg-transparent px-2 flex items-center rounded-r-lg select-none transition-colors"
+                        [class.cursor-help]="nameError">
+                        
+                        @if (nameError) {
+                            <ng-icon name="lucideAlertCircle" class="text-destructive size-4 stroke-[3]" />
+                        }
+                    </hlm-input-group-addon>
+                </hlm-input-group>
+            </hlm-field>
+
+        </div>
 
         <!-- Campo Descrição -->
         <hlm-field>
             <label hlmFieldLabel for="description">Descrição</label>
             <hlm-input-group>
-                <textarea 
-                    hlmInputGroupTextarea 
-                    id="description" 
-                    formControlName="description" 
-                    rows="4" 
-                    maxlength="1000"
+                <textarea hlmInputGroupTextarea id="description" formControlName="description" rows="4" maxlength="1000"
                     placeholder="Adicione detalhes sobre a conta...">
                 </textarea>
                 <hlm-input-group-addon [align]="'block-end'">
@@ -49,18 +104,17 @@
             </hlm-input-group>
         </hlm-field>
 
-        <!-- Opções de Configuração da Conta -->
         <div class="rounded-lg border bg-card text-card-foreground shadow-sm divide-y">
             @if (context.mode === 'create') {
-                <div class="p-4 flex items-center justify-between gap-4">
-                    <div class="flex flex-col gap-0.5">
-                        <label hlmFieldLabel for="isSummary" class="cursor-pointer m-0">Sintética</label>
-                        <p class="text-xs text-muted-foreground">Permite a inclusão de subcontas (filhas).</p>
-                    </div>
-                    <hlm-switch inputId="isSummary" formControlName="isSummary" />
+            <div class="p-4 flex items-center justify-between gap-4">
+                <div class="flex flex-col gap-0.5">
+                    <label hlmFieldLabel for="isSummary" class="cursor-pointer m-0">Sintética</label>
+                    <p class="text-xs text-muted-foreground">Permite a inclusão de subcontas (filhas).</p>
                 </div>
+                <hlm-switch inputId="isSummary" formControlName="isSummary" />
+            </div>
             }
-            
+
             <div class="p-4 flex items-center justify-between gap-4">
                 <div class="flex flex-col gap-0.5">
                     <label hlmFieldLabel for="isContra" class="cursor-pointer m-0">Conta Redutora</label>

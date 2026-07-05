@@ -35,7 +35,6 @@ export class EditAccountButton {
                 mode: 'edit',
                 account: this.account()
             },
-            // contentClass: 'sm:max-w-lg w-lg min-w-[320px]',
         }).closed$.subscribe((result) => {
             if (result) this.edit(result);
         })
