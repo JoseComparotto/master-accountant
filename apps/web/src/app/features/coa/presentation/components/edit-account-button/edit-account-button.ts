@@ -33,7 +33,11 @@ export class EditAccountButton {
             AccountFormDialog, {
             context: {
                 mode: 'edit',
-                account: this.account()
+                account: this.account(),
+                restrictions:{
+                    canBeContra: this.canBeContra(),
+                    canBeNormal: this.canBeNormal(),
+                }
             },
         }).closed$.subscribe((result) => {
             if (result) this.edit(result);
@@ -47,5 +51,14 @@ export class EditAccountButton {
             description: result.description,
             isContra: result.isContra,
         })
+    }
+
+    private canBeNormal(): boolean {
+        const chart = this.facade.chart();
+        return chart?.canConvertToNormal(this.account()) ?? false;
+    }
+    private canBeContra(): boolean {
+        const chart = this.facade.chart();
+        return chart?.canConvertToContra(this.account()) ?? false;
     }
 }

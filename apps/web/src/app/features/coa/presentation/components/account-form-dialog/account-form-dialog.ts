@@ -19,14 +19,20 @@ import { debounceTime, Observable, of, switchMap, tap } from "rxjs";
 
 export type CodeAvailabilityState = 'invalid' | 'checking' | 'available' | 'taken';
 
-export type AccountFormDialogContext =
+export type AccountFormDialogContext = (
     | { mode: 'edit'; account: Readonly<AccountEntity> }
     | {
         mode: 'create';
         parent: Readonly<AccountEntity>;
         checkIndexAvailability: (localIndex: number) => Observable<CodeAvailabilityState>;
-        nextAvailableIndex: number
-    };
+        nextAvailableIndex: number;
+    }
+) & {
+    restrictions:{
+        canBeContra: boolean;
+        canBeNormal: boolean;
+    }
+};
 
 interface AccountProps {
     structuralCode: StructuralCodeValue;
@@ -102,6 +108,7 @@ export class AccountFormDialog implements OnInit {
                 isContra: this.context.parent.isContra,
             });
         }
+        this.setupContraRestriction();
         this.setupCodeAvailabilityCheck();
     }
 
@@ -128,6 +135,22 @@ export class AccountFormDialog implements OnInit {
             isSummary: values.isSummary,
             isContra: values.isContra,
         });
+    }
+
+    private setupContraRestriction(){
+        if(!this.context.restrictions.canBeContra){
+            this.form.patchValue({
+                isContra: false,
+            })
+        }else if(!this.context.restrictions.canBeNormal){
+            this.form.patchValue({
+                isContra: true,
+            })
+        }else {
+            return;
+        }
+
+        this.form.controls.isContra.disable();
     }
 
     private setupCodeAvailabilityCheck(): void {
