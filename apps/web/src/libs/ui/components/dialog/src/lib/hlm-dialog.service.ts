@@ -24,14 +24,23 @@ export class HlmDialogService {
     component: ComponentType<unknown> | TemplateRef<unknown>,
     options?: Partial<HlmDialogOptions<DialogContex>>,
   ) {
+
+    const componentDefaultOptions: Partial<HlmDialogOptions<DialogContex>> =
+      (component as any)['defaultDialogOptions'] || {};
+
+    const optionsWithDefault = {
+      ...componentDefaultOptions,
+      ...(options ?? {})
+    };
+
     const mergedOptions = {
-      ...(options ?? {}),
-      backdropClass: cssClassesToArray(`${hlmDialogOverlayClass} ${options?.backdropClass ?? ''}`),
+      ...optionsWithDefault,
+      backdropClass: cssClassesToArray(`${hlmDialogOverlayClass} ${optionsWithDefault?.backdropClass ?? ''}`),
       context: {
-        ...(options?.context && typeof options.context === 'object' ? options.context : {}),
+        ...(optionsWithDefault?.context && typeof optionsWithDefault.context === 'object' ? optionsWithDefault.context : {}),
         $component: component,
-        $dynamicComponentClass: options?.contentClass,
-        $showCloseButton: options?.showCloseButton,
+        $dynamicComponentClass: optionsWithDefault?.contentClass,
+        $showCloseButton: optionsWithDefault?.showCloseButton,
       },
     };
 

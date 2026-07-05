@@ -3,10 +3,10 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePlus } from "@ng-icons/lucide";
 import { HlmButtonImports } from "@spartan-ng/helm/button";
 import { AccountEntity } from "@repo/coa-core";
-import { ExpandOnGroupHoverDirective } from "@libs/ui/directives/expand-on-group-hover.directive";
-import { AccontFormDialog, AccontFormDialogContext, AccontFormDialogResult } from "../account-form-dialog/account-form-dialog";
-import { HlmDialogService } from "@libs/ui/components/dialog/src";
 import { CoaFacade } from "../../facades/coa.facade";
+import { AccountFormDialogContext, AccountFormDialogResult, AccountFormDialog } from "../account-form-dialog/account-form-dialog";
+import { HlmDialogService } from "@spartan-ng/helm/dialog";
+import { ExpandOnGroupHoverDirective } from "@libs/ui/directives";
 
 @Component({
     selector: 'app-create-child-account-button',
@@ -29,18 +29,19 @@ export class CreateChildAccountButton {
     account = input.required<Readonly<AccountEntity>>();
 
     openDialog() {
-        this.hlmDialogService.open<AccontFormDialogContext, AccontFormDialogResult>(
-            AccontFormDialog, {
+        this.hlmDialogService.open<AccountFormDialogContext, AccountFormDialogResult>(
+            AccountFormDialog, {
             context: {
                 mode: 'create',
                 parent: this.account()
             },
+            // contentClass: 'sm:max-w-lg w-lg min-w-[320px]',
         }).closed$.subscribe((result) => {
             if (result) this.createChild(result);
         })
     }
 
-    private createChild(result: AccontFormDialogResult) {
+    private createChild(result: AccountFormDialogResult) {
         this.facade.createChildAccount({
             parentId: this.account().id,
             name: result.name,

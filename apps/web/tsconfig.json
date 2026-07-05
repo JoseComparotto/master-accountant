@@ -14,7 +14,7 @@
     "rootDir": "./src",
     "paths": {
       "@/*": ["./src/app/*"],
-      "@libs/*": ["./src/libs/*"],
+      "@libs/ui/directives": ["./src/libs/ui/directives/index.ts"],
       "@spartan-ng/helm/button": ["./src/libs/ui/components/button/src/index.ts"],
       "@spartan-ng/helm/button-group": ["./src/libs/ui/components/button-group/src/index.ts"],
       "@spartan-ng/helm/dialog": ["./src/libs/ui/components/dialog/src/index.ts"],

@@ -1,62 +1,78 @@
-<hlm-dialog-header>
-    <h3 hlmDialogTitle>
-        {{ context.mode === 'edit' ? 'Editar Conta' : 'Nova Conta' }}
-    </h3>
-    <p hlmDialogDescription>
-        @if(context.mode === 'edit'){
-        Editando <app-account-title [account]="context.account" />.
-        } @else{
-        Será criada abaixo de <app-account-title [account]="context.parent" />.
-        }
-    </p>
-</hlm-dialog-header>
+<form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col gap-4">
 
-<hlm-field-group>
-    <hlm-field>
-        <label hlmFieldLabel for="name">Nome</label>
-        <input hlmInput id="name" [formField]="form.name" />
-    </hlm-field>
-    <hlm-field>
-        <label hlmFieldLabel for="description">Descrição</label>
-        <hlm-input-group>
-            <textarea hlmInputGroupTextarea id="description" [formField]="form.description" rows="6"></textarea>
-            <hlm-input-group-addon [align]="'block-end'">
-                <span hlmInputGroupText>{{ descriptionLength() }}/1000 caracteres</span>
-            </hlm-input-group-addon>
-        </hlm-input-group>
-    </hlm-field>
+    <hlm-dialog-header>
+        <h1 hlmDialogTitle class="text-lg">
+            {{ context.mode === 'edit' ? 'Editar Conta' : 'Nova Conta' }}
+        </h1>
+        <p hlmDialogDescription>
+            @if (context.mode === 'edit') {
+                Editando <app-account-title [account]="context.account" />.
+            } @else {
+                Será criada abaixo de <app-account-title [account]="context.parent" />.
+            }
+        </p>
+    </hlm-dialog-header>
 
-    <!-- Opções de Conta -->
-    <div class="rounded-lg border divide-y">
-        @if(context.mode === 'create'){
-        <hlm-field class="p-3 flex flex-row items-center justify-between gap-3">
-            <div class="min-w-0">
-                <label hlmFieldLabel for="isSummary">
-                    Sintética
-                </label>
-                <p class="text-xs">
-                    Pode ter filhas.
-                </p>
-            </div>
-            <hlm-switch inputId="isSummary" [formField]="form.isSummary" />
+    <hlm-field-group class="flex flex-col gap-4">
+        <!-- Campo Nome -->
+        <hlm-field>
+            <label hlmFieldLabel for="name">Nome</label>
+            <input hlmInput id="name" formControlName="name" placeholder="Ex: Ativo Circulante" class="w-full" />
+            
+            @if (form.controls.name.hasError('required')) {
+                <hlm-field-error>O nome é obrigatório.</hlm-field-error>
+            }
+            @if (form.controls.name.hasError('domainError')) {
+                <hlm-field-error>
+                    {{ form.controls.name.getError('domainError') }}
+                </hlm-field-error>
+            }
         </hlm-field>
-        }
-        <hlm-field class="p-3 flex flex-row items-center justify-between gap-3">
-            <div class="min-w-0">
-                <label hlmFieldLabel for="isContra" class="vertical">
-                    Conta Redutora
-                </label>
-                <p class="text-xs">
-                    Reduz o saldo da superior.
-                </p>
-            </div>
-            <hlm-switch inputId="isContra" [formField]="form.isContra" />
+
+        <!-- Campo Descrição -->
+        <hlm-field>
+            <label hlmFieldLabel for="description">Descrição</label>
+            <hlm-input-group>
+                <textarea 
+                    hlmInputGroupTextarea 
+                    id="description" 
+                    formControlName="description" 
+                    rows="4" 
+                    maxlength="1000"
+                    placeholder="Adicione detalhes sobre a conta...">
+                </textarea>
+                <hlm-input-group-addon [align]="'block-end'">
+                    <span hlmInputGroupText class="text-muted-foreground text-xs">
+                        {{ form.controls.description.value.length }}/1000 caracteres
+                    </span>
+                </hlm-input-group-addon>
+            </hlm-input-group>
         </hlm-field>
-    </div>
 
-</hlm-field-group>
+        <!-- Opções de Configuração da Conta -->
+        <div class="rounded-lg border bg-card text-card-foreground shadow-sm divide-y">
+            @if (context.mode === 'create') {
+                <div class="p-4 flex items-center justify-between gap-4">
+                    <div class="flex flex-col gap-0.5">
+                        <label hlmFieldLabel for="isSummary" class="cursor-pointer m-0">Sintética</label>
+                        <p class="text-xs text-muted-foreground">Permite a inclusão de subcontas (filhas).</p>
+                    </div>
+                    <hlm-switch inputId="isSummary" formControlName="isSummary" />
+                </div>
+            }
+            
+            <div class="p-4 flex items-center justify-between gap-4">
+                <div class="flex flex-col gap-0.5">
+                    <label hlmFieldLabel for="isContra" class="cursor-pointer m-0">Conta Redutora</label>
+                    <p class="text-xs text-muted-foreground">Reduz o saldo da conta superior.</p>
+                </div>
+                <hlm-switch inputId="isContra" formControlName="isContra" />
+            </div>
+        </div>
+    </hlm-field-group>
 
-<hlm-dialog-footer>
-    <button hlmBtn variant="outline" hlmDialogClose>Cancel</button>
-    <button hlmBtn type="submit" (click)="onSubmit()">OK</button>
-</hlm-dialog-footer>
+    <hlm-dialog-footer class="mt-2 flex justify-end gap-2">
+        <button hlmBtn variant="outline" type="button" hlmDialogClose>Cancelar</button>
+        <button hlmBtn type="submit" [disabled]="form.invalid">Salvar</button>
+    </hlm-dialog-footer>
+</form>

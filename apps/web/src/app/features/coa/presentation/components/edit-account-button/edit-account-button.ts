@@ -3,10 +3,10 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePencil } from "@ng-icons/lucide";
 import { HlmButtonImports } from "@spartan-ng/helm/button";
 import { AccountEntity } from "@repo/coa-core";
-import { ExpandOnGroupHoverDirective } from "@libs/ui/directives/expand-on-group-hover.directive";
-import { HlmDialogService } from "@libs/ui/components/dialog/src";
-import { AccontFormDialog, AccontFormDialogContext, AccontFormDialogResult } from "../account-form-dialog/account-form-dialog";
 import { CoaFacade } from "../../facades/coa.facade";
+import { AccountFormDialog, AccountFormDialogContext, AccountFormDialogResult } from "../account-form-dialog/account-form-dialog";
+import { ExpandOnGroupHoverDirective } from "@libs/ui/directives";
+import { HlmDialogService } from "@spartan-ng/helm/dialog";
 
 @Component({
     selector: 'app-edit-account-button',
@@ -29,18 +29,19 @@ export class EditAccountButton {
     account = input.required<Readonly<AccountEntity>>();
 
     openDialog() {
-        this.hlmDialogService.open<AccontFormDialogContext, AccontFormDialogResult>(
-            AccontFormDialog, {
+        this.hlmDialogService.open<AccountFormDialogContext, AccountFormDialogResult>(
+            AccountFormDialog, {
             context: {
                 mode: 'edit',
                 account: this.account()
             },
+            // contentClass: 'sm:max-w-lg w-lg min-w-[320px]',
         }).closed$.subscribe((result) => {
             if (result) this.edit(result);
         })
     }
 
-    private edit(result: AccontFormDialogResult) {
+    private edit(result: AccountFormDialogResult) {
         this.facade.editAccount({
             accountId: this.account().id,
             name: result.name,
