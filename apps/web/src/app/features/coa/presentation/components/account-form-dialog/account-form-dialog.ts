@@ -1,5 +1,6 @@
-import { Component, inject, OnInit, signal } from "@angular/core";
+import { Component, inject, OnInit, signal, DestroyRef } from "@angular/core";
 import { FormBuilder, Validators, ValidatorFn, AbstractControl, ValidationErrors, ReactiveFormsModule } from "@angular/forms";
+import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
 
 import { BrnDialogRef, injectBrnDialogContext } from "@spartan-ng/brain/dialog";
 import { AccountEntity, AccountNameValue, StructuralCodeValue } from "@repo/coa-core";
@@ -28,7 +29,7 @@ export type AccountFormDialogContext =
     };
 
 interface AccountProps {
-    structuralCode: StructuralCodeValue,
+    structuralCode: StructuralCodeValue;
     name: AccountNameValue;
     description: string | null;
     isSummary: boolean;
@@ -64,24 +65,26 @@ export type AccountFormDialogResult = AccountProps;
 export class AccountFormDialog implements OnInit {
     private readonly fb = inject(FormBuilder);
     private readonly ref = inject<BrnDialogRef<AccountFormDialogResult>>(BrnDialogRef);
+    private readonly destroyRef = inject(DestroyRef);
     protected readonly context = injectBrnDialogContext<AccountFormDialogContext>();
 
     static defaultDialogOptions: Partial<HlmDialogOptions> = {
         contentClass: 'sm:max-w-lg w-lg min-w-[320px]'
     };
 
-    protected form = this.fb.nonNullable.group({
-        localIndex: [1, [Validators.required, this.structuralCodeValidator()]],
-        name: ['', [Validators.required, this.accountNameValidator()]],
+    protected readonly form = this.fb.nonNullable.group({
+        localIndex: [1, [Validators.required, this.domainValidator(v => this.buildStructuralCode(v), 'Código inválido.')]],
+        name: ['', [Validators.required, this.domainValidator(v => this.buildName(v), 'Nome de conta inválido.')]],
         description: [''],
         isSummary: [false],
         isContra: [false]
     });
 
-    protected codeStatus = signal<CodeAvailabilityState>('available');
-    protected parentCode = this.context.mode === 'create' ?
-        this.context.parent.structuralCode :
-        this.context.account.structuralCode.parent;
+    protected readonly controls = this.form.controls;
+    protected readonly codeStatus = signal<CodeAvailabilityState>('available');
+    protected readonly parentCode = this.context.mode === 'create'
+        ? this.context.parent.structuralCode
+        : this.context.account.structuralCode.parent;
 
     ngOnInit(): void {
         if (this.context.mode === 'edit') {
@@ -96,34 +99,19 @@ export class AccountFormDialog implements OnInit {
         } else {
             this.form.patchValue({
                 localIndex: this.context.nextAvailableIndex,
-                name: '',
-                description: '',
-                isSummary: false,
                 isContra: this.context.parent.isContra,
             });
         }
         this.setupCodeAvailabilityCheck();
     }
 
-    protected get localIndexError(): string {
-        const control = this.form.controls.localIndex;
+    protected getErrorMessage(field: 'localIndex' | 'name'): string {
+        const control = this.controls[field];
         if (!control.invalid || (!control.touched && !control.dirty)) return '';
 
-        if (control.hasError('required')) return 'O código é obrigatório.';
+        if (control.hasError('required')) return `O ${field === 'name' ? 'nome' : 'código'} é obrigatório.`;
         if (control.hasError('alreadyExists')) return 'Código já utilizado.';
-        if (control.hasError('domainError')) return control.getError('domainError');
-
-        return 'Código inválido.';
-    }
-
-    protected get nameError(): string {
-        const control = this.form.controls.name;
-        if (!control.invalid || (!control.touched && !control.dirty)) return '';
-
-        if (control.hasError('required')) return 'O nome é obrigatório.';
-        if (control.hasError('domainError')) return control.getError('domainError');
-
-        return 'Nome inválido.';
+        return control.getError('domainError') || 'Valor inválido.';
     }
 
     protected submit(): void {
@@ -132,99 +120,57 @@ export class AccountFormDialog implements OnInit {
             return;
         }
 
-        const {
-            localIndex,
-            name,
-            description,
-            isSummary,
-            isContra
-        } = this.form.getRawValue();
-
+        const values = this.form.getRawValue();
         this.ref.close({
-            structuralCode: this.buildStructuralCode(localIndex),
-            name: this.buildName(name),
-            description: this.buildDescription(description),
-            isSummary,
-            isContra,
+            structuralCode: this.buildStructuralCode(values.localIndex),
+            name: this.buildName(values.name),
+            description: values.description.trim() || null,
+            isSummary: values.isSummary,
+            isContra: values.isContra,
         });
     }
 
     private setupCodeAvailabilityCheck(): void {
-        const control = this.form.controls.localIndex;
+        const context = this.context;
+        if (context.mode !== 'create') return;
 
-        if (this.context.mode !== 'create') return;
-
-        const checkFn = this.context.checkIndexAvailability;
-
+        const control = this.controls.localIndex;
         control.valueChanges.pipe(
-            tap((value) => {
-                if (control.invalid || !value) {
-                    this.codeStatus.set('invalid');
-                } else {
-                    this.codeStatus.set('checking');
-                }
-            }),
-            debounceTime(100),
-            switchMap((value) => {
-                if (control.invalid || !value) {
-                    return of<CodeAvailabilityState>('invalid');
-                }
-                return checkFn(value);
-            })
-        ).subscribe((status) => {
+            tap(val => this.codeStatus.set(!val || control.invalid ? 'invalid' : 'checking')),
+            debounceTime(150),
+            switchMap(val =>
+                !val || control.invalid ?
+                    of<CodeAvailabilityState>('invalid') :
+                    context.checkIndexAvailability(val)),
+            takeUntilDestroyed(this.destroyRef)
+        ).subscribe(status => {
             this.codeStatus.set(status);
             if (status === 'taken') {
                 control.setErrors({ alreadyExists: true });
-            } else if (status === 'available') {
-                if (control.hasError('alreadyExists')) {
-                    const errors = { ...control.errors };
-                    delete errors['alreadyExists'];
-                    control.setErrors(Object.keys(errors).length ? errors : null);
-                }
+            } else if (status === 'available' && control.hasError('alreadyExists')) {
+                const { alreadyExists, ...errors } = control.errors || {};
+                control.setErrors(Object.keys(errors).length ? errors : null);
             }
         });
     }
 
-    private structuralCodeValidator(): ValidatorFn {
+    private domainValidator(builder: (value: any) => void, fallbackMsg: string): ValidatorFn {
         return (control: AbstractControl): ValidationErrors | null => {
             if (!control.value) return null;
             try {
-                this.buildStructuralCode(control.value);
+                builder(control.value);
                 return null;
             } catch (error: unknown) {
-                if (error instanceof ValueObjectMalformedException) {
-                    return { domainError: error.message };
-                }
-                return { domainError: 'Código inválido.' };
-            }
-        };
-    }
-
-    private accountNameValidator(): ValidatorFn {
-        return (control: AbstractControl): ValidationErrors | null => {
-            if (!control.value) return null;
-            try {
-                this.buildName(control.value);
-                return null;
-            } catch (error: unknown) {
-                if (error instanceof ValueObjectMalformedException) {
-                    return { domainError: error.message };
-                }
-                return { domainError: 'Nome de conta inválido.' };
+                return { domainError: error instanceof ValueObjectMalformedException ? error.message : fallbackMsg };
             }
         };
     }
 
     private buildStructuralCode(raw: number): StructuralCodeValue {
-        return this.parentCode?.createChild(raw)
-            ?? StructuralCodeValue.createRoot(raw);
-    }
-    private buildName(raw: string): AccountNameValue {
-        return AccountNameValue.create(raw);
+        return this.parentCode?.createChild(raw) ?? StructuralCodeValue.createRoot(raw);
     }
 
-    private buildDescription(value: string): string | null {
-        const trimmed = value.trim();
-        return trimmed === '' ? null : trimmed;
+    private buildName(raw: string): AccountNameValue {
+        return AccountNameValue.create(raw);
     }
 }

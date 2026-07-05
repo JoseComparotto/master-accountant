@@ -6,85 +6,55 @@
         </h1>
         <p hlmDialogDescription>
             @if (context.mode === 'edit') {
-            Editando <app-account-title [account]="context.account" />.
+                Editando <app-account-title [account]="context.account" />.
             } @else {
-            Será criada abaixo de <app-account-title [account]="context.parent" />.
+                Será criada abaixo de <app-account-title [account]="context.parent" />.
             }
         </p>
     </hlm-dialog-header>
 
     <hlm-field-group class="flex flex-col gap-4">
-
         <div class="flex flex-col sm:flex-row gap-4 items-start w-full">
 
-            <!-- Campo Código -->
             @if (context.mode === 'create') {
             <hlm-field class="w-full sm:w-auto shrink-0">
                 <label hlmFieldLabel for="localIndex">Código</label>
                 
-                <hlm-input-group 
-                    [hlmTooltip]="localIndexError" 
-                    class="w-full sm:w-fit"
-                    (click)="localIndexInput.focus()">
-                    
-                    @if(parentCode){
-                    <hlm-input-group-addon [align]="'inline-start'"
-                        class="h-full border-r border-input bg-muted/50 px-3 flex items-center rounded-l-lg transition-colors">
+                <hlm-input-group [hlmTooltip]="getErrorMessage('localIndex')" class="w-full sm:w-fit" (click)="localIndexInput.focus()">
+                    @if (parentCode) {
+                    <hlm-input-group-addon [align]="'inline-start'" class="h-full border-r border-input bg-muted/50 px-3 flex items-center rounded-l-lg transition-colors">
                         <span hlmInputGroupText class="text-muted-foreground font-mono select-none font-semibold pl-1">
                             {{ parentCode.value }}
                         </span>
                     </hlm-input-group-addon>
                     }
 
-                    <input #localIndexInput hlmInputGroupInput type="number" min="1" step="1" id="localIndex"
-                        autocomplete="off" [style.width.ch]="(`${form.controls.localIndex.value}`.length || 1) + 2"
+                    <input #localIndexInput hlmInputGroupInput type="number" min="1" step="1" id="localIndex" autocomplete="off"
+                        [style.width.ch]="(controls.localIndex.value?.toString()?.length || 1) + 2"
                         formControlName="localIndex"
                         class="border-0 rounded-none focus-visible:ring-0 font-mono font-semibold min-w-[3rem] sm:text-center" />
 
-                    <hlm-input-group-addon [align]="'inline-end'"
-                        class="h-full bg-transparent px-2 flex items-center rounded-r-lg select-none transition-colors">
+                    <hlm-input-group-addon [align]="'inline-end'" class="h-full bg-transparent px-2 flex items-center rounded-r-lg select-none transition-colors">
                         @switch (codeStatus()) {
-                            @case ('checking') {
-                            <ng-icon name="lucideLoader2" class="animate-spin text-muted-foreground size-4" />
-                            }
-                            @case ('available') {
-                            <ng-icon name="lucideCheck" class="text-emerald-500 size-4 stroke-[3]" />
-                            }
-                            @case ('taken') {
-                            <ng-icon name="lucideX" class="text-destructive size-4 stroke-[3]" />
-                            }
-                            @case ('invalid'){
-                            <ng-icon name="lucideAlertCircle" class="text-destructive size-4 stroke-[3]" />
-                            }
+                            @case ('checking') { <ng-icon name="lucideLoader2" class="animate-spin text-muted-foreground size-4" /> }
+                            @case ('available') { <ng-icon name="lucideCheck" class="text-emerald-500 size-4 stroke-[3]" /> }
+                            @case ('taken') { <ng-icon name="lucideX" class="text-destructive size-4 stroke-[3]" /> }
+                            @case ('invalid') { <ng-icon name="lucideAlertCircle" class="text-destructive size-4 stroke-[3]" /> }
                         }
                     </hlm-input-group-addon>
                 </hlm-input-group>
             </hlm-field>
             }
 
-            <!-- Campo Nome -->
             <hlm-field class="flex-1 w-full">
                 <label hlmFieldLabel for="name" [ariaRequired]>Nome</label>
                 
-                <!-- Aplicando hlmTooltip diretamente como diretiva condicional -->
-                <hlm-input-group 
-                    [hlmTooltip]="nameError" 
-                    class="w-full"
-                    (click)="nameInput.focus()">
-                    
-                    <input 
-                        cdkFocusInitial
-                        hlmInputGroupInput 
-                        id="name" #nameInput
-                        formControlName="name" 
-                        autocapitalize="on" 
-                        placeholder="Ex: Ativo Circulante"
-                        class="w-full border-0 rounded-l-lg rounded-r-none focus-visible:ring-0" 
-                    />
+                <hlm-input-group [hlmTooltip]="getErrorMessage('name')" class="w-full" (click)="nameInput.focus()">
+                    <input cdkFocusInitial hlmInputGroupInput id="name" #nameInput formControlName="name" autocapitalize="on" 
+                        placeholder="Ex: Ativo Circulante" class="w-full border-0 rounded-l-lg rounded-r-none focus-visible:ring-0" />
 
-                    <hlm-input-group-addon [align]="'inline-end'" 
-                        class="h-full bg-transparent px-2 flex items-center rounded-r-lg select-none transition-colors">
-                        @if (form.controls.name.invalid && (form.controls.name.touched || form.controls.name.dirty)) {
+                    <hlm-input-group-addon [align]="'inline-end'" class="h-full bg-transparent px-2 flex items-center rounded-r-lg select-none transition-colors">
+                        @if (controls.name.invalid && (controls.name.touched || controls.name.dirty)) {
                             <ng-icon name="lucideAlertCircle" class="text-destructive size-4 stroke-[3]" />
                         }
                     </hlm-input-group-addon>
@@ -93,20 +63,14 @@
 
         </div>
 
-        <!-- Campo Descrição -->
         <hlm-field>
             <label hlmFieldLabel for="description">Descrição</label>
             <hlm-input-group (click)="descriptionTextarea.focus()">
-                <textarea
-                    hlmInputGroupTextarea
-                    id="description" #descriptionTextarea
-                    formControlName="description"
-                    rows="4" maxlength="1000"
-                    placeholder="Adicione detalhes sobre a conta...">
-                </textarea>
+                <textarea hlmInputGroupTextarea id="description" #descriptionTextarea formControlName="description" rows="4" maxlength="1000"
+                    placeholder="Adicione detalhes sobre a conta..."></textarea>
                 <hlm-input-group-addon [align]="'block-end'">
                     <span hlmInputGroupText class="text-muted-foreground text-xs">
-                        {{ form.controls.description.value.length }}/1000 caracteres
+                        {{ controls.description.value?.length || 0 }}/1000 caracteres
                     </span>
                 </hlm-input-group-addon>
             </hlm-input-group>
