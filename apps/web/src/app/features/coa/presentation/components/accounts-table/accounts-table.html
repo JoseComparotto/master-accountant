@@ -1,37 +1,35 @@
-<div class="w-full">
-    <div class="rounded-xl border bg-card overflow-hidden">
-        <table hlmTable>
-            <thead hlmTableHeader>
-                <tr hlmTableRow>
-                    <th hlmTableHead>Conta</th>
-                    <th hlmTableHead class="w-px whitespace-nowrap text-right">Ações</th>
-                </tr>
-            </thead>
-            <tbody hlmTableBody>
-                @for (row of rows(); track row.id) {
-                <tr hlmTableRow class="group" [hlmContextMenuTrigger]="actions.dropdownTemplate">
-                    <td hlmTableCell class="w-full max-w-0">
-                        <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth">
-                            <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"
-                                class="p-0.5 rounded hover:bg-muted shrink-0"
-                                [ngClass]="hasChildren(row)?'':'invisible'">
-                                @if (isCollepsed(row.id)){
-                                <ng-icon name="lucideChevronRight" />
-                                } @else{
-                                <ng-icon name="lucideChevronDown" />
-                                }
-                            </button>
-                            <div class="min-w-0 truncate">
-                                <app-account-title [account]="row" />
-                            </div>
+<div class="rounded-xl border bg-card overflow-hidden">
+    <table hlmTable>
+        <thead hlmTableHeader>
+            <tr hlmTableRow>
+                <th hlmTableHead class="p-3">Conta</th>
+                <th hlmTableHead class="p-3 w-px whitespace-nowrap text-right">Ações</th>
+            </tr>
+        </thead>
+        <tbody hlmTableBody>
+            @for (row of rows(); track row.id) {
+            <tr hlmTableRow class="group" [hlmContextMenuTrigger]="actions.dropdownTemplate">
+                <td hlmTableCell class="w-full max-w-0">
+                    <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth -1">
+                        <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"
+                            class="p-0.5 rounded hover:bg-muted shrink-0" [ngClass]="hasChildren(row)?'':'invisible'">
+                            @if (isCollepsed(row.id)){
+                            <ng-icon name="lucideChevronRight" />
+                            } @else{
+                            <ng-icon name="lucideChevronDown" />
+                            }
+                        </button>
+                        <div class="min-w-0 truncate">
+                            <app-account-title [account]="row" />
                         </div>
-                    </td>
-                    <td hlmTableCell class="relative w-16">
-                        <app-account-actions #actions [account]="row" class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-end gap-1 whitespace-nowrap"/>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
+                    </div>
+                </td>
+                <td hlmTableCell class="relative w-16">
+                    <app-account-actions #actions [account]="row"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-end gap-1 whitespace-nowrap" />
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
 </div>

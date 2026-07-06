@@ -1,9 +1,63 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { Component, inject, OnInit, signal } from '@angular/core';
+import { RouterOutlet, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
+import { IconType, NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideLayoutGrid, lucideRefreshCcw, lucideSheet } from '@ng-icons/lucide';
+import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { HlmTabsImports } from '@spartan-ng/helm/tabs';
+import { CoaFacade } from '../../facades/coa.facade';
+import { CoaHeader } from '../../components/coa-header/coa-header';
+
+type TabId = 'interactive' | 'spreadsheet';
+type TabOptions = {
+  route: TabId;
+  label: string;
+  icon: IconType;
+}
+
 @Component({
   selector: 'app-coa-shell',
-  imports: [RouterOutlet],
+  imports: [
+    RouterOutlet,
+    RouterLink,
+    RouterLinkActive,
+    HlmButtonImports,
+    HlmTabsImports,
+    CoaHeader,
+    NgIcon
+  ],
   templateUrl: './coa-shell.html',
-  styleUrl: './coa-shell.css',
+  viewProviders: [
+    provideIcons({
+      lucideRefreshCcw,
+      lucideLayoutGrid,
+      lucideSheet,
+    })
+  ],
 })
-export class CoaShell {}
+export class CoaShell implements OnInit {
+  protected facade = inject(CoaFacade);
+  protected currentTab = signal<TabId>('spreadsheet');
+
+  protected tabs: TabOptions[] = [
+    {
+      label: 'Interativo',
+      route: 'interactive',
+      icon: 'lucideLayoutGrid'
+    },
+    {
+      label: 'Planilha',
+      route: 'spreadsheet',
+      icon: 'lucideSheet'
+    },
+  ];
+
+  ngOnInit(): void {
+    this.facade.load();
+  }
+
+  protected onTabChange(tab: TabId, active: boolean) {
+    if(active){
+      this.currentTab.set(tab);
+    }
+  }
+}

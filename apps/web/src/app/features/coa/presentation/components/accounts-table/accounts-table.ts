@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, model, output } from '@angular/core';
+import { Component, computed, input, model } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideChevronRight } from '@ng-icons/lucide';
@@ -21,7 +21,6 @@ import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
 
-  changeDetection: ChangeDetectionStrategy.OnPush,
   viewProviders: [provideIcons({
     lucideChevronDown,
     lucideChevronRight,

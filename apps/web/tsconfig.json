@@ -30,7 +30,8 @@
       "@spartan-ng/helm/switch": ["./src/libs/ui/components/switch/src/index.ts"],
       "@spartan-ng/helm/tooltip": ["./src/libs/ui/components/tooltip/src/index.ts"],
       "@spartan-ng/helm/dropdown-menu": ["./src/libs/ui/components/dropdown-menu/src/index.ts"],
-      "@spartan-ng/helm/context-menu": ["./src/libs/ui/components/context-menu/src/index.ts"]
+      "@spartan-ng/helm/context-menu": ["./src/libs/ui/components/context-menu/src/index.ts"],
+      "@spartan-ng/helm/tabs": ["./src/libs/ui/components/tabs/src/index.ts"]
     }
   },
   "angularCompilerOptions": {

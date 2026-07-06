@@ -12,13 +12,7 @@ import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
 	providers: [provideIcons({ lucideLoader })],
 	changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './accounts-page.html',
-  styleUrl: './accounts-page.css',
 })
-export class AccountsPage implements OnInit {
+export class AccountsPage {
   protected facade = inject(CoaFacade);
-
-  ngOnInit() {
-    this.facade.load();
-  }
-
 }

@@ -1,9 +1,27 @@
-<!-- <div class="coa-container">
+<div class="min-h-screen bg-muted/30 max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
     <header app-coa-header></header>
-    <main class="coa-sub-container">
+    <main class="flex flex-col gap-3">
+        <div class="flex flex-wrap items-center justify-between gap-3 ">
+            <hlm-tabs [tab]="currentTab()">
+                <hlm-tabs-list>
+                    @for (tab of tabs; track tab.route) {
+                    <a  hlmTabsTrigger class="p-2"
+                        [routerLink]="tab.route"
+                        routerLinkActive
+                        #rla="routerLinkActive"
+                        [attr.data-state]="rla.isActive ? 'active' : 'inactive'"
+                        (isActiveChange)="onTabChange(tab.route, $event)">
+                        <ng-icon [name]="tab.icon"/>
+                        {{ tab.label }}
+                    </a>
+                    }
+                </hlm-tabs-list>
+            </hlm-tabs>
+            <button hlmBtn variant="outline" title="Atualizar">
+                <ng-icon name="lucideRefreshCcw" />
+            </button>
+        </div>
         <router-outlet></router-outlet>
     </main>
     <footer app-coa-footer></footer>
-</div> -->
-
-<router-outlet></router-outlet>
+</div>

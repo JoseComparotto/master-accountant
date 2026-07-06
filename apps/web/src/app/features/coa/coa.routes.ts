@@ -8,9 +8,13 @@ export const COA_ROUTES: Routes = [
 
         children: [
             {
-                path: '',
+                path: 'spreadsheet',
                 loadComponent: () => import('./presentation/pages/accounts-page/accounts-page')
                     .then(m => m.AccountsPage)
+            },
+            {
+                path: '**',
+                redirectTo:'spreadsheet'
             },
         ]
     }
