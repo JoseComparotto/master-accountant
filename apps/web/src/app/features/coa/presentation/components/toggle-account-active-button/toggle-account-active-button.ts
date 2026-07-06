@@ -22,6 +22,7 @@ export class ToggleAccountActiveButton {
   protected facade = inject(CoaFacade);
 
   account = input.required<Readonly<AccountEntity>>();
+  expansible = input<boolean>(false);
 
   protected title = computed(() => {
     return this.account().isActive ? 'Inativar' : 'Ativar';

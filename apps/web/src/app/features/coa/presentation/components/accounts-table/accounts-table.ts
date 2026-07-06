@@ -7,6 +7,7 @@ import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { AccountActions } from "./accounts-actions/account-actions";
+import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 
 @Component({
   selector: 'app-accounts-table',
@@ -14,8 +15,9 @@ import { AccountActions } from "./accounts-actions/account-actions";
     AccountTitle,
     NgClass, NgIcon,
     HlmTableImports,
+    HlmContextMenuImports,
     AccountActions
-],
+  ],
   templateUrl: './accounts-table.html',
   styleUrl: './accounts-table.css',
 

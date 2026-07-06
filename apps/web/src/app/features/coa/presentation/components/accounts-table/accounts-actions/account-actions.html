@@ -1,11 +1,39 @@
 @if(canCreateChild()) {
-<app-create-child-account-button [account]="account()" />
+<app-create-child-account-button [account]="account()" class="hidden sm:block" [expansible]="true" />
 }
-
 @if(canEdit()) {
-<app-edit-account-button [account]="account()" />
+<app-edit-account-button [account]="account()" class="hidden sm:block" [expansible]="true" />
+}
+@if (canToggleActive()) {
+<app-toggle-account-active-button [account]="account()" class="hidden sm:block" [expansible]="true" />
 }
 
-@if (canToggleActive()) {
-<app-toggle-account-active-button [account]="account()" />
-}
+<button hlmBtn variant="ghost" size="icon" [hlmDropdownMenuTrigger]="dropdownTemplate" aria-label="Mais opções"
+    class="sm:hidden flex">
+    <ng-icon name="lucideMoreHorizontal" class="size-4" />
+</button>
+
+<ng-template #dropdownTemplate>
+    <div hlmDropdownMenu class="w-48">
+        @if(canCreateChild()) {
+        <div hlmDropdownMenuItem>
+            <app-create-child-account-button [account]="account()"
+                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5 [&>button]:variant-ghost" />
+        </div>
+        } @if(canCreateChild() && (canEdit() || canToggleActive())) {
+            <hlm-dropdown-menu-separator />
+        }
+        @if(canEdit()) {
+        <div hlmDropdownMenuItem>
+            <app-edit-account-button [account]="account()"
+                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5 [&>button]:variant-ghost" />
+        </div>
+        }
+        @if (canToggleActive()) {
+        <div hlmDropdownMenuItem>
+            <app-toggle-account-active-button [account]="account()"
+                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5 [&>button]:variant-ghost" />
+        </div>
+        }
+    </div>
+</ng-template>

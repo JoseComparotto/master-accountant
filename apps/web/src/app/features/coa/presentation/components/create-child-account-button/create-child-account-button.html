@@ -1,4 +1,6 @@
 <button hlmBtn variant="ghost" title="Criar filha" (click)="openDialog()" class="cursor-pointer">
     <ng-icon name="lucidePlus" />
-    <span appExpandOnGroupHover> Criar filha </span>
+    <span [appExpandOnGroupHover]="expansible()">
+        Criar filha
+    </span>
 </button>

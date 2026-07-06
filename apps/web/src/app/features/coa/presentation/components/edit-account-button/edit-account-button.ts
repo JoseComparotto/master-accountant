@@ -27,6 +27,7 @@ export class EditAccountButton {
     private facade = inject(CoaFacade);
 
     account = input.required<Readonly<AccountEntity>>();
+    expansible = input<boolean>(false);
 
     openDialog() {
         this.hlmDialogService.open<AccountFormDialogContext, AccountFormDialogResult>(

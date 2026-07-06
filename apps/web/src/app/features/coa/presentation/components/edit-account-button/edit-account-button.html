@@ -1,4 +1,6 @@
 <button hlmBtn variant="ghost" title="Editar" (click)="openDialog()" class="cursor-pointer">
     <ng-icon name="lucidePencil" />
-    <span appExpandOnGroupHover>Editar</span>
+    <span [appExpandOnGroupHover]="expansible()">
+        Editar
+    </span>
 </button>

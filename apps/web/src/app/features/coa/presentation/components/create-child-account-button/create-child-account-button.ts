@@ -28,6 +28,7 @@ export class CreateChildAccountButton {
     private facade = inject(CoaFacade);
 
     account = input.required<Readonly<AccountEntity>>();
+    expansible = input<boolean>(false);
 
     openDialog() {
         const account = this.account();
@@ -87,7 +88,7 @@ export class CreateChildAccountButton {
     }
     private canBeContra(): boolean{
         return canConvertToContra({
-            hasNormalChild: false // It's a new account
+            hasNormalChild: false // It's a new
         })
     }
 }

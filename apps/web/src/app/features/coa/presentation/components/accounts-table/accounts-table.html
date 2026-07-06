@@ -9,7 +9,7 @@
             </thead>
             <tbody hlmTableBody>
                 @for (row of rows(); track row.id) {
-                <tr hlmTableRow class="group">
+                <tr hlmTableRow class="group" [hlmContextMenuTrigger]="actions.dropdownTemplate">
                     <td hlmTableCell class="w-full max-w-0">
                         <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth">
                             <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"
@@ -27,7 +27,7 @@
                         </div>
                     </td>
                     <td hlmTableCell class="relative w-16">
-                        <app-account-actions [account]="row" class="absolute top-1/2 -translate-y-1/2 "/>
+                        <app-account-actions #actions [account]="row" class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-end gap-1 whitespace-nowrap"/>
                     </td>
                 </tr>
                 }
