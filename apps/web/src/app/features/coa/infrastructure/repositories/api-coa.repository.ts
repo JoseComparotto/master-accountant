@@ -36,16 +36,16 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
     private ongoingFetch$: Observable<ChartOfAccountsEntity> | null = null;
 
     getUnique(options: GetUniqueOptions = { consistency: 'eventual' }): Observable<ChartOfAccountsEntity> {
-        if (options.consistency === 'strong') {
-            return this.fetchUniqueFromApi();
-        }
+        // if (options.consistency === 'strong') {
+        //     return this.fetchUniqueFromApi();
+        // }
 
         return defer(() => {
             const continuousStream$ = this.chart$.asObservable().pipe(
                 filter((chart): chart is ChartOfAccountsEntity => chart !== null)
             );
 
-            if (!this.chart$.value) {
+            if (!this.chart$.value  || options.consistency === 'strong') {
                 return merge(
                     this.fetchUniqueFromApi().pipe(ignoreElements()),
                     continuousStream$

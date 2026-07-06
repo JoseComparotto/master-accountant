@@ -6,6 +6,7 @@ import { InactivateAccountUseCase } from '../../application/use-cases/inactivate
 import { EditAccountInput, EditAccountUseCase } from '../../application/use-cases/edit-account.use-case';
 import { CreateAccountUseCase } from '../../application/use-cases/create-account.use-case';
 import { UuidValue } from '@repo/shared-core';
+import { RefreshChartOfAccountsUseCase } from '../../application/use-cases/refresh-coa.use-case';
 
 interface ChartState {
   data: Readonly<ChartOfAccountsEntity> | null;
@@ -18,6 +19,7 @@ interface ChartState {
 })
 export class CoaFacade {
   private getChartUC = inject(GetChartOfAccountsUseCase);
+  private refreshChartUC = inject(RefreshChartOfAccountsUseCase);
   private activateAccountUC = inject(ActivateAccountUseCase);
   private inactivateAccountUC = inject(InactivateAccountUseCase);
   private editAccountUC = inject(EditAccountUseCase);
@@ -34,7 +36,7 @@ export class CoaFacade {
 
     this.updateState({ loading: true, error: null });
 
-    this.getChartUC.execute().subscribe({
+    this.refreshChartUC.execute().subscribe({
       next: (aggregate) => this.updateState({ data: aggregate, loading: false }),
       error: (err) => this.updateState({ error: err.message, loading: false })
     });
