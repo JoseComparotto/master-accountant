@@ -1,9 +1,9 @@
 import { Component, inject, input, ViewChild, TemplateRef } from '@angular/core';
 import { AccountEntity } from '@repo/coa-core';
-import { ToggleAccountActiveButton } from "../../toggle-account-active-button/toggle-account-active-button";
-import { CoaFacade } from '../../../facades/coa.facade';
-import { EditAccountButton } from "../../edit-account-button/edit-account-button";
-import { CreateChildAccountButton } from "../../create-child-account-button/create-child-account-button";
+import { ToggleAccountActiveButton } from "../toggle-account-active-button/toggle-account-active-button";
+import { CoaFacade } from '../../facades/coa.facade';
+import { EditAccountButton } from "../edit-account-button/edit-account-button";
+import { CreateChildAccountButton } from "../create-child-account-button/create-child-account-button";
 import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { HlmButtonImports } from '@spartan-ng/helm/button';
 import { NgIcon, provideIcons } from '@ng-icons/core';

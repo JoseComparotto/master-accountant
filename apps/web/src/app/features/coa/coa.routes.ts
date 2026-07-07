@@ -8,13 +8,23 @@ export const COA_ROUTES: Routes = [
 
         children: [
             {
+                path: 'explorer',
+                loadComponent: () => import('./presentation/pages/explorer-view/explorer-view')
+                    .then(m => m.ExplorerView)
+            },
+            {
+                path: 'explorer/:id',
+                loadComponent: () => import('./presentation/pages/explorer-view/explorer-view')
+                    .then(m => m.ExplorerView)
+            },
+            {
                 path: 'spreadsheet',
-                loadComponent: () => import('./presentation/pages/accounts-page/accounts-page')
-                    .then(m => m.AccountsPage)
+                loadComponent: () => import('./presentation/pages/spreadsheet-view/spreadsheet-view')
+                    .then(m => m.SpreadsheetView)
             },
             {
                 path: '**',
-                redirectTo:'spreadsheet'
+                redirectTo:'explorer'
             },
         ]
     }

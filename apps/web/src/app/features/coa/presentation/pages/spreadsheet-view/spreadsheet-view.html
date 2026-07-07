@@ -7,8 +7,10 @@
             </tr>
         </thead>
         <tbody hlmTableBody>
-            @for (row of rows(); track row.id) {
-            <tr hlmTableRow class="group" [hlmContextMenuTrigger]="actions.dropdownTemplate">
+            @for (row of rows(); track row.id.value) {
+            <tr hlmTableRow class="group cursor-pointer"
+                [hlmContextMenuTrigger]="actions.dropdownTemplate"
+                (click)="onRowClick($event, row)">
                 <td hlmTableCell class="w-full max-w-0">
                     <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth -1">
                         <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"

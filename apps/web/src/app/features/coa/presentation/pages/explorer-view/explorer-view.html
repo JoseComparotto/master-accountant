@@ -1,0 +1,18 @@
+<nav hlmBreadcrumb>
+    <ol hlmBreadcrumbList>
+        <li hlmBreadcrumbItem>
+            <a [routerLink]="['/coa/explorer']" class="flex items-center gap-1">
+                <ng-icon name="lucideHome" />
+                <span>Plano de Contas</span>
+            </a>
+        </li>
+        @for(item of breadcrumbItems();track item.id.value){
+        <li hlmBreadcrumbSeparator></li>
+        <li hlmBreadcrumbItem>
+            <a [routerLink]="['/coa/explorer', item.id.value]">
+                <app-account-title [account]="item" />
+            </a>
+        </li>
+        }
+    </ol>
+</nav>

@@ -1,39 +1,44 @@
-import { Component, computed, input, model } from '@angular/core';
+import { Component, computed, inject, input, model } from '@angular/core';
 import { NgClass } from '@angular/common';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideChevronDown, lucideChevronRight } from '@ng-icons/lucide';
-import { AccountTitle } from '../account-title/account-title';
+import { AccountTitle } from '../../components/account-title/account-title';
 import { AccountEntity, ChartOfAccountsEntity } from '@repo/coa-core';
 import { UuidValue } from '@repo/shared-core';
 import { HlmTableImports } from '@spartan-ng/helm/table';
-import { AccountActions } from "./accounts-actions/account-actions";
+import { AccountActions } from "../../components/accounts-actions/account-actions";
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
+import { CoaFacade } from '../../facades/coa.facade';
+import { Router } from "@angular/router";
 
 @Component({
-  selector: 'app-accounts-table',
+  selector: 'app-coa-spreadsheet',
   imports: [
     AccountTitle,
     NgClass, NgIcon,
     HlmTableImports,
     HlmContextMenuImports,
-    AccountActions
+    AccountActions,
   ],
-  templateUrl: './accounts-table.html',
-  styleUrl: './accounts-table.css',
+  templateUrl: './spreadsheet-view.html',
+  styleUrl: './spreadsheet-view.css',
 
   viewProviders: [provideIcons({
     lucideChevronDown,
     lucideChevronRight,
   })],
 })
-export class AccountsTable {
-  chart = input.required<Readonly<ChartOfAccountsEntity>>();
+export class SpreadsheetView {
+  private readonly facade = inject(CoaFacade);
+  private readonly router = inject(Router);
+  private readonly chart = this.facade.chart;
 
   showInactive = model(true);
   collapsedIds = model<Set<string>>(new Set());
 
   rows = computed(() => {
     const chart = this.chart();
+    if (!chart) return [];
 
     const children = ({ id }: { id: UuidValue }) => {
       return chart.getAccountsByParentId(id)
@@ -56,7 +61,9 @@ export class AccountsTable {
   });
 
   hasChildren(account: Readonly<AccountEntity>) {
-    return this.chart().getAccountsByParentId(account.id).length > 0;
+    const chart = this.chart();
+    if (!chart) return false;
+    return chart.getAccountsByParentId(account.id).length > 0;
   }
 
   isCollepsed(id: UuidValue) {
@@ -74,6 +81,20 @@ export class AccountsTable {
 
       return next;
     })
+  }
+
+  onRowClick(event: MouseEvent, row: Readonly<AccountEntity>) {
+    const target = event.target as HTMLElement;
+
+    if (
+      target.closest('button') ||
+      target.closest('a') ||
+      target.closest('[role="button"]')
+    ) {
+      return;
+    }
+
+    this.router.navigate(['/coa/explorer', row.id.value])
   }
 
 }
