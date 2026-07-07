@@ -63,6 +63,7 @@ export class ExplorerView {
             items.unshift(current);
             current = chart.getAccountById(current.parentId);
         }
+        items.unshift(current);
 
         return items;
     });
