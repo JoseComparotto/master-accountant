@@ -1,39 +1,37 @@
-<ng-scrollbar hlm class="h-full w-full rounded-xl border bg-card" appearance="compact">
-    <div scrollViewport class="w-full h-full">
-        <table hlmTable class="w-full border-collapse">
-            <thead hlmTableHeader class="sticky top-0 z-10 bg-card shadow-sm">
-                <tr hlmTableRow class="bg-card">
-                    <th hlmTableHead class="p-4 bg-card">Conta</th>
-                    <th hlmTableHead class="p-4 w-px whitespace-nowrap text-right bg-card">Ações</th>
-                </tr>
-            </thead>
-            <tbody hlmTableBody>
-                @for (row of rows(); track row.id.value) {
-                <tr hlmTableRow class="group cursor-pointer" [hlmContextMenuTrigger]="actions.dropdownTemplate"
-                    (click)="onRowClick($event, row)">
-                    <td hlmTableCell class="w-full max-w-0">
-                        <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth -1">
-                            <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"
-                                class="p-0.5 rounded hover:bg-muted shrink-0"
-                                [ngClass]="hasChildren(row)?'':'invisible'">
-                                @if (isCollepsed(row.id)){
-                                <ng-icon name="lucideChevronRight" />
-                                } @else{
-                                <ng-icon name="lucideChevronDown" />
-                                }
-                            </button>
-                            <div class="min-w-0 truncate">
-                                <app-account-title [account]="row" />
-                            </div>
+<div class="rounded-xl border bg-card overflow-hidden">
+    <table hlmTable>
+        <thead hlmTableHeader>
+            <tr hlmTableRow>
+                <th hlmTableHead class="p-3">Conta</th>
+                <th hlmTableHead class="p-3 w-px whitespace-nowrap text-right">Ações</th>
+            </tr>
+        </thead>
+        <tbody hlmTableBody>
+            @for (row of rows(); track row.id.value) {
+            <tr hlmTableRow class="group cursor-pointer"
+                [hlmContextMenuTrigger]="actions.dropdownTemplate"
+                (click)="onRowClick($event, row)">
+                <td hlmTableCell class="w-full max-w-0">
+                    <div class="flex items-center gap-1 tree-row" [style.--row-depth]="row.structuralCode.depth -1">
+                        <button hlmBtn variant="ghost" (click)="toggleCollapsed(row.id)"
+                            class="p-0.5 rounded hover:bg-muted shrink-0" [ngClass]="hasChildren(row)?'':'invisible'">
+                            @if (isCollepsed(row.id)){
+                            <ng-icon name="lucideChevronRight" />
+                            } @else{
+                            <ng-icon name="lucideChevronDown" />
+                            }
+                        </button>
+                        <div class="min-w-0 truncate">
+                            <app-account-title [account]="row" />
                         </div>
-                    </td>
-                    <td hlmTableCell class="relative w-16">
-                        <app-account-actions #actions [account]="row" variant="expansible" buttonVariant="ghost"
-                            class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-end gap-1 whitespace-nowrap" />
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</ng-scrollbar>
+                    </div>
+                </td>
+                <td hlmTableCell class="relative w-16">
+                    <app-account-actions #actions [account]="row" variant="expansible" buttonVariant="ghost"
+                        class="absolute right-2 top-1/2 -translate-y-1/2 flex items-center justify-end gap-1 whitespace-nowrap" />
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>

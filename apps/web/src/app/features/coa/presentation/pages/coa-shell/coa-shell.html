@@ -1,9 +1,8 @@
-<div class="h-screen bg-muted/30 flex flex-col overflow-hidden">
-    <div class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 sm:py-10 flex flex-col flex-1 min-h-0">
-        <header app-coa-header class="shrink-0"></header>
-        
-        <main class="flex flex-col gap-3 flex-1 min-h-0 overflow-hidden">
-            <div class="flex flex-wrap items-center justify-between gap-3 shrink-0">
+<div class="min-h-screen bg-muted/30 ">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-10">
+        <header app-coa-header></header>
+        <main class="flex flex-col gap-3">
+            <div class="flex flex-wrap items-center justify-between gap-3 ">
                 <hlm-tabs [tab]="currentTab()">
                     <hlm-tabs-list>
                         @for (tab of tabs; track tab.route) {
@@ -22,20 +21,18 @@
             </div>
 
             @if (facade.error(); as error) {
-            <div class="alert-error shrink-0">⚠️ Erro: {{ error }}</div>
+            <div class="alert-error">⚠️ Erro: {{ error }}</div>
             }
             @else if (facade.loading()) {
-            <div class="flex flex-1 items-center justify-center">
+            <div class="flex h-screen items-center justify-center">
                 <hlm-spinner icon="lucideLoader" />
             </div>
             }
-            @else if(facade.chart(); as chart){
-            <div class="flex-1 min-h-0 w-full">
-                <router-outlet></router-outlet>
-            </div>
+            @else if(facade.chart();as chart){
+            <router-outlet></router-outlet>
             }
 
         </main>
-        <footer app-coa-footer class="shrink-0 mt-auto pt-2"></footer>
+        <footer app-coa-footer></footer>
     </div>
 </div>
