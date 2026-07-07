@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal } from "@angular/core";
 import { HlmBreadcrumbImports } from "@spartan-ng/helm/breadcrumb";
-import { HlmButtonGroup } from "@spartan-ng/helm/button-group";
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideHome } from "@ng-icons/lucide";
@@ -8,16 +7,20 @@ import { AccountTitle } from "../../components/account-title/account-title";
 import { AccountEntity, StructuralCodeValue } from "@repo/coa-core";
 import { CoaFacade } from "../../facades/coa.facade";
 import { UuidValue } from "@repo/shared-core";
+import { AccountClassTheme } from "../../directives/account-class-theme";
+import { AccountActions } from "../../components/accounts-actions/account-actions";
 
 @Component({
     selector: 'app-accounts-explorer',
     standalone: true,
     imports: [
-        HlmBreadcrumbImports,
-        RouterLink,
-        NgIcon,
-        AccountTitle
-    ],
+    HlmBreadcrumbImports,
+    AccountClassTheme,
+    RouterLink,
+    NgIcon,
+    AccountTitle,
+    AccountActions
+],
     templateUrl: './explorer-view.html',
     viewProviders: [
         provideIcons({

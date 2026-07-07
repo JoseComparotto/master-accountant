@@ -3,7 +3,7 @@ import { NgIcon, provideIcons } from "@ng-icons/core";
 import { AccountEntity } from '@repo/coa-core';
 import { lucideEye, lucideEyeOff } from '@ng-icons/lucide';
 import { CoaFacade } from '../../facades/coa.facade';
-import { HlmButtonImports } from '@spartan-ng/helm/button';
+import { ButtonVariants, HlmButtonImports } from '@spartan-ng/helm/button';
 import { ExpandOnGroupHoverDirective } from '@libs/ui/directives';
 
 @Component({
@@ -23,6 +23,7 @@ export class ToggleAccountActiveButton {
 
   account = input.required<Readonly<AccountEntity>>();
   expansible = input<boolean>(false);
+  variant = input<ButtonVariants['variant']>('default');
 
   protected title = computed(() => {
     return this.account().isActive ? 'Inativar' : 'Ativar';

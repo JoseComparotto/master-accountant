@@ -1,7 +1,7 @@
 import { Component, inject, input } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePlus } from "@ng-icons/lucide";
-import { HlmButtonImports } from "@spartan-ng/helm/button";
+import { ButtonVariants, HlmButtonImports } from "@spartan-ng/helm/button";
 import { AccountEntity, canConvertToContra, canConvertToNormal } from "@repo/coa-core";
 import { CoaFacade } from "../../facades/coa.facade";
 import { AccountFormDialogContext, AccountFormDialogResult, AccountFormDialog, CodeAvailabilityState } from "../account-form-dialog/account-form-dialog";
@@ -29,6 +29,7 @@ export class CreateChildAccountButton {
 
     account = input.required<Readonly<AccountEntity>>();
     expansible = input<boolean>(false);
+    variant = input<ButtonVariants['variant']>('default');
 
     openDialog() {
         const account = this.account();
@@ -81,12 +82,12 @@ export class CreateChildAccountButton {
         return chart.getNextChildIndex(account.id);
     }
 
-    private canBeNormal(): boolean{
+    private canBeNormal(): boolean {
         return canConvertToNormal({
             isParentContra: this.account().isContra
         });
     }
-    private canBeContra(): boolean{
+    private canBeContra(): boolean {
         return canConvertToContra({
             hasNormalChild: false // It's a new
         })

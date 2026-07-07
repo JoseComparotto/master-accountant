@@ -1,38 +1,75 @@
-@if(canCreateChild()) {
-<app-create-child-account-button [account]="account()" class="hidden sm:block" [expansible]="true" />
+@if(variant()=='expansible'){
+
+@if(showCreateChild()) {
+<app-create-child-account-button
+    [account]="account()"
+    class="hidden sm:block"
+    [variant]="buttonVariant()"
+    [expansible]="true"/>
 }
-@if(canEdit()) {
-<app-edit-account-button [account]="account()" class="hidden sm:block" [expansible]="true" />
+@if(showEdit()) {
+<app-edit-account-button
+    [account]="account()"
+    class="hidden sm:block"
+    [variant]="buttonVariant()"
+    [expansible]="true"/>
 }
-@if (canToggleActive()) {
-<app-toggle-account-active-button [account]="account()" class="hidden sm:block" [expansible]="true" />
+@if (showToggleActive()) {
+<app-toggle-account-active-button
+    [account]="account()"
+    class="hidden sm:block"
+    [variant]="buttonVariant()"
+    [expansible]="true"/>
 }
 
-<button hlmBtn variant="ghost" size="icon" [hlmDropdownMenuTrigger]="dropdownTemplate" aria-label="Mais opções"
+<button hlmBtn [variant]="buttonVariant()" size="icon" [hlmDropdownMenuTrigger]="dropdownTemplate" aria-label="Mais opções"
     class="sm:hidden flex">
     <ng-icon name="lucideMoreHorizontal" class="size-4" />
 </button>
 
+}@else if (variant()=='expanded') {
+
+@if(showCreateChild()) {
+<app-create-child-account-button
+    [account]="account()"
+    [variant]="buttonVariant()"
+    [expansible]="false" />
+}
+@if(showEdit()) {
+<app-edit-account-button
+    [account]="account()"
+    [variant]="buttonVariant()"
+    [expansible]="false" />
+}
+@if (showToggleActive()) {
+<app-toggle-account-active-button
+    [account]="account()"
+    [variant]="buttonVariant()"
+    [expansible]="false"/>
+}
+
+}
+
 <ng-template #dropdownTemplate>
     <div hlmDropdownMenu class="w-48">
-        @if(canCreateChild()) {
+        @if(showCreateChild()) {
         <div hlmDropdownMenuItem>
-            <app-create-child-account-button [account]="account()"
-                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5 [&>button]:variant-ghost" />
+            <app-create-child-account-button [account]="account()" variant="ghost"
+                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5" />
         </div>
-        } @if(canCreateChild() && (canEdit() || canToggleActive())) {
-            <hlm-dropdown-menu-separator />
+        } @if(showCreateChild() && (showEdit() || showToggleActive())) {
+        <hlm-dropdown-menu-separator />
         }
-        @if(canEdit()) {
+        @if(showEdit()) {
         <div hlmDropdownMenuItem>
-            <app-edit-account-button [account]="account()"
-                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5 [&>button]:variant-ghost" />
+            <app-edit-account-button [account]="account()" variant="ghost"
+                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5" />
         </div>
         }
-        @if (canToggleActive()) {
+        @if (showToggleActive()) {
         <div hlmDropdownMenuItem>
-            <app-toggle-account-active-button [account]="account()"
-                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5 [&>button]:variant-ghost" />
+            <app-toggle-account-active-button [account]="account()" variant="ghost"
+                class="w-full block [&>button]:w-full [&>button]:justify-start [&>button]:h-9 [&>button]:px-2.5" />
         </div>
         }
     </div>

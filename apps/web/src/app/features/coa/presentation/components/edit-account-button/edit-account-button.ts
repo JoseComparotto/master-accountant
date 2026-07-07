@@ -1,7 +1,7 @@
 import { Component, inject, input } from "@angular/core";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucidePencil } from "@ng-icons/lucide";
-import { HlmButtonImports } from "@spartan-ng/helm/button";
+import { ButtonVariants, HlmButtonImports } from "@spartan-ng/helm/button";
 import { AccountEntity } from "@repo/coa-core";
 import { CoaFacade } from "../../facades/coa.facade";
 import { AccountFormDialog, AccountFormDialogContext, AccountFormDialogResult } from "../account-form-dialog/account-form-dialog";
@@ -27,6 +27,7 @@ export class EditAccountButton {
     private facade = inject(CoaFacade);
 
     account = input.required<Readonly<AccountEntity>>();
+    variant = input<ButtonVariants['variant']>('default');
     expansible = input<boolean>(false);
 
     openDialog() {

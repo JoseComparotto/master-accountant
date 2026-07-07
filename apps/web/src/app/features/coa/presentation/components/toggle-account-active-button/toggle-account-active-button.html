@@ -1,4 +1,4 @@
-<button hlmBtn variant="ghost" [title]="title()" (click)="toggle()" class="cursor-pointer">
+<button hlmBtn [variant]="variant()" [title]="title()" (click)="toggle()" class="cursor-pointer">
     <ng-icon [name]="iconName()" />
     <span [appExpandOnGroupHover]="expansible()">
         {{title()}}
