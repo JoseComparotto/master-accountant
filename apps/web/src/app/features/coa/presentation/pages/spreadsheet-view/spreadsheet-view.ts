@@ -8,6 +8,8 @@ import { UuidValue } from '@repo/shared-core';
 import { HlmTableImports } from '@spartan-ng/helm/table';
 import { AccountActions } from "../../components/accounts-actions/account-actions";
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
+import { HlmScrollAreaImports } from '@spartan-ng/helm/scroll-area';
+import { NgScrollbarModule } from 'ngx-scrollbar';
 import { CoaFacade } from '../../facades/coa.facade';
 import { Router } from "@angular/router";
 
@@ -18,11 +20,15 @@ import { Router } from "@angular/router";
     NgClass, NgIcon,
     HlmTableImports,
     HlmContextMenuImports,
+    HlmScrollAreaImports,
+    NgScrollbarModule,
     AccountActions,
   ],
   templateUrl: './spreadsheet-view.html',
   styleUrl: './spreadsheet-view.css',
-
+  host: {
+    class: 'block h-full w-full min-h-0'
+  },
   viewProviders: [provideIcons({
     lucideChevronDown,
     lucideChevronRight,

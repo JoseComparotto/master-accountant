@@ -13,26 +13,69 @@
     "module": "preserve",
     "rootDir": "./src",
     "paths": {
-      "@/*": ["./src/app/*"],
-      "@libs/ui/directives": ["./src/libs/ui/directives/index.ts"],
-      "@spartan-ng/helm/button": ["./src/libs/ui/components/button/src/index.ts"],
-      "@spartan-ng/helm/button-group": ["./src/libs/ui/components/button-group/src/index.ts"],
-      "@spartan-ng/helm/dialog": ["./src/libs/ui/components/dialog/src/index.ts"],
-      "@spartan-ng/helm/field": ["./src/libs/ui/components/field/src/index.ts"],
-      "@spartan-ng/helm/input": ["./src/libs/ui/components/input/src/index.ts"],
-      "@spartan-ng/helm/label": ["./src/libs/ui/components/label/src/index.ts"],
-      "@spartan-ng/helm/spinner": ["./src/libs/ui/components/spinner/src/index.ts"],
-      "@spartan-ng/helm/utils": ["./src/libs/ui/components/utils/src/index.ts"],
-      "@spartan-ng/helm/separator": ["./src/libs/ui/components/separator/src/index.ts"],
-      "@spartan-ng/helm/table": ["./src/libs/ui/components/table/src/index.ts"],
-      "@spartan-ng/helm/input-group": ["./src/libs/ui/components/input-group/src/index.ts"],
-      "@spartan-ng/helm/textarea": ["./src/libs/ui/components/textarea/src/index.ts"],
-      "@spartan-ng/helm/switch": ["./src/libs/ui/components/switch/src/index.ts"],
-      "@spartan-ng/helm/tooltip": ["./src/libs/ui/components/tooltip/src/index.ts"],
-      "@spartan-ng/helm/dropdown-menu": ["./src/libs/ui/components/dropdown-menu/src/index.ts"],
-      "@spartan-ng/helm/context-menu": ["./src/libs/ui/components/context-menu/src/index.ts"],
-      "@spartan-ng/helm/tabs": ["./src/libs/ui/components/tabs/src/index.ts"],
-      "@spartan-ng/helm/breadcrumb": ["./src/libs/ui/components/breadcrumb/src/index.ts"]
+      "@/*": [
+        "./src/app/*"
+      ],
+      "@libs/ui/directives": [
+        "./src/libs/ui/directives/index.ts"
+      ],
+      "@spartan-ng/helm/button": [
+        "./src/libs/ui/components/button/src/index.ts"
+      ],
+      "@spartan-ng/helm/button-group": [
+        "./src/libs/ui/components/button-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/dialog": [
+        "./src/libs/ui/components/dialog/src/index.ts"
+      ],
+      "@spartan-ng/helm/field": [
+        "./src/libs/ui/components/field/src/index.ts"
+      ],
+      "@spartan-ng/helm/input": [
+        "./src/libs/ui/components/input/src/index.ts"
+      ],
+      "@spartan-ng/helm/label": [
+        "./src/libs/ui/components/label/src/index.ts"
+      ],
+      "@spartan-ng/helm/spinner": [
+        "./src/libs/ui/components/spinner/src/index.ts"
+      ],
+      "@spartan-ng/helm/utils": [
+        "./src/libs/ui/components/utils/src/index.ts"
+      ],
+      "@spartan-ng/helm/separator": [
+        "./src/libs/ui/components/separator/src/index.ts"
+      ],
+      "@spartan-ng/helm/table": [
+        "./src/libs/ui/components/table/src/index.ts"
+      ],
+      "@spartan-ng/helm/input-group": [
+        "./src/libs/ui/components/input-group/src/index.ts"
+      ],
+      "@spartan-ng/helm/textarea": [
+        "./src/libs/ui/components/textarea/src/index.ts"
+      ],
+      "@spartan-ng/helm/switch": [
+        "./src/libs/ui/components/switch/src/index.ts"
+      ],
+      "@spartan-ng/helm/tooltip": [
+        "./src/libs/ui/components/tooltip/src/index.ts"
+      ],
+      "@spartan-ng/helm/dropdown-menu": [
+        "./src/libs/ui/components/dropdown-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/context-menu": [
+        "./src/libs/ui/components/context-menu/src/index.ts"
+      ],
+      "@spartan-ng/helm/tabs": [
+        "./src/libs/ui/components/tabs/src/index.ts"
+      ],
+      "@spartan-ng/helm/breadcrumb": [
+        "./src/libs/ui/components/breadcrumb/src/index.ts"
+      ],
+      "@spartan-ng/helm/scroll-area": [
+        "./src/libs/ui/components/scroll-area/src/index.ts"
+      ]
     }
   },
   "angularCompilerOptions": {
