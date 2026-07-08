@@ -1,0 +1,25 @@
+<button (click)="click.emit()"
+    class="w-full h-full group text-left rounded-xl border bg-card p-4 hover:border-foreground/20 hover:shadow-sm transition"
+    [ngClass]="!account().isActive ? 'opacity-60' : ''">
+    <div class="flex items-start gap-3">
+        <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0"
+            [appAccountClassTheme]="account().accountClass" [themeVariants]="['soft','text']">
+            <ng-icon [name]="account().isSummary ? 'lucideFolderTree': 'lucideFileText'" />
+        </div>
+        <div class="min-w-0 flex-1">
+            <app-account-title [account]="account()" />
+            <div class="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
+                @if(account().isSummary){
+                <span>Sintética</span>
+                <span>·</span>
+                <span>{{childrenCount()}} filhas</span>
+                } @else {
+                <span>Analítica</span>
+                }
+            </div>
+        </div>
+
+        <ng-icon name="lucideChevronRight"
+            class="size-4 text-muted-foreground group-hover:translate-x-0.5 transition shrink-0" />
+    </div>
+</button>

@@ -43,7 +43,7 @@ export class CoaShell implements OnInit {
 
   protected tabs: TabOptions[] = [
     {
-      label: 'Explorar',
+      label: 'Explorador',
       route: 'explorer',
       icon: 'lucideLayoutGrid'
     },

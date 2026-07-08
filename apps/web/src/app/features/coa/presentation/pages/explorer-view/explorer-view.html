@@ -62,6 +62,19 @@
                 [actions]="['edit','toggleActive']" class="shrink-0 self-start gap-2" />
         </div>
     </div>
+    <div>
+        <div class="text-sm text-muted-foreground mb-3">
+            @if (children().length;as childrenCount) {
+                {{childrenCount}} {{childrenCount===1 ? 'conta': 'contas'}}
+            }
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            @for (child of children(); track child.id.value) {
+            <app-account-child-card [account]="child" (click)="navigateTo(child)" />
+            }
+        </div>
+    </div>
+
     } @else {
     <div class="hidden sm:grid gap-3 grid-rows-2 h-full">
         <div class="grid grid-cols-3 gap-3">
