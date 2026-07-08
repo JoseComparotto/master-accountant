@@ -1,6 +1,6 @@
 <div class="flex flex-col gap-4">
     <div class="flex items-center justify-between">
-        <nav hlmBreadcrumb>
+        <nav hlmBreadcrumb class="m-2">
             <ol hlmBreadcrumbList>
                 <li hlmBreadcrumbItem>
                     <a [routerLink]="['/coa/explorer']" class="flex items-center gap-1">
@@ -16,6 +16,9 @@
                     </a>
                 </li>
                 }
+                @if(account()){
+                <li hlmBreadcrumbSeparator></li>
+                }
             </ol>
         </nav>
 
@@ -25,7 +28,7 @@
     </div>
     @if(account(); as currentAccount){
 
-    <div class="rounded-2xl border p-5" [appAccountClassTheme]="currentAccount.accountClass" variant="soft">
+    <div class="rounded-2xl border p-5" [appAccountClassTheme]="currentAccount.accountClass" [themeVariants]="['soft']">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:flex-wrap">
             <div class="min-w-0 flex-1">
                 <h1>
@@ -38,6 +41,24 @@
             <app-account-actions [account]="currentAccount" variant="expanded" buttonVariant="outline"
                 [actions]="['edit','toggleActive']" class="shrink-0 self-start gap-2" />
         </div>
+    </div>
+    } @else {
+    <div class="hidden sm:grid gap-3 grid-rows-2 h-full">
+        <div class="grid grid-cols-3 gap-3">
+            @for(root of patrimonialRoots(); track root.id.value){
+            <app-account-root-card [account]="root" variant="card" (click)="navigateTo(root)" />
+            }
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+            @for(root of resultRoots(); track root.id.value){
+            <app-account-root-card [account]="root" variant="card" (click)="navigateTo(root)" />
+            }
+        </div>
+    </div>
+    <div class="grid sm:hidden gap-2">
+        @for(root of roots(); track root.id.value){
+        <app-account-root-card [account]="root" variant="row" (click)="navigateTo(root)" />
+        }
     </div>
     }
 </div>

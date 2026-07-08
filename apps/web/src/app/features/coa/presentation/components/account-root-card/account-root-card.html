@@ -1,0 +1,23 @@
+@if(variant() === 'row'){
+<button (click)="click.emit()" [appAccountClassTheme]="account().accountClass" [themeVariants]="['soft','border']"
+    class="w-full group flex items-center gap-3 rounded-xl border-2 px-4 py-3 hover:shadow-md transition active:scale-[0.99]">
+    <div class="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
+        [appAccountClassTheme]="account().accountClass" [themeVariants]="['bg']">
+        <ng-icon [name]="iconName()" />
+    </div>
+    <div class="font-medium" [appAccountClassTheme]="account().accountClass" [themeVariants]="['text']">
+        {{label()}}
+    </div>
+</button>
+} @else if(variant() === 'card') {
+<button (click)="click.emit()" [appAccountClassTheme]="account().accountClass" [themeVariants]="['soft','border']"
+    class="w-full h-full group flex flex-col items-center justify-center gap-2 rounded-xl border-2 p-4 hover:shadow-md transition active:scale-[0.99]">
+    <div class="w-10 h-10 rounded-lg flex items-center justify-center text-white"
+        [appAccountClassTheme]="account().accountClass" [themeVariants]="['bg']">
+        <ng-icon [name]="iconName()" size="1.5rem" />
+    </div>
+    <div class="font-medium" [appAccountClassTheme]="account().accountClass" [themeVariants]="['text']">
+        {{label()}}
+    </div>
+</button>
+}

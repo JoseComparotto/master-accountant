@@ -11,12 +11,12 @@ import { getAccountTheme, ThemeVariant } from '../constants/account-theme.consta
 export class AccountClassTheme {
 
   appAccountClassTheme = input.required<AccountClassEnum>();
-  variant = input.required<ThemeVariant>();
+  themeVariants = input.required<ThemeVariant[]>();
   isContra = input<boolean>(false);
 
   protected themeClasses = computed(() => {
     const theme = getAccountTheme(this.appAccountClassTheme(), this.isContra());
-    return theme[this.variant()];
+    return this.themeVariants().map(v=>theme[v]);
   });
 
 }

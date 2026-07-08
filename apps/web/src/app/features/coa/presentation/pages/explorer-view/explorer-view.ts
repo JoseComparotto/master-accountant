@@ -4,23 +4,25 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideHome } from "@ng-icons/lucide";
 import { AccountTitle } from "../../components/account-title/account-title";
-import { AccountEntity, StructuralCodeValue } from "@repo/coa-core";
+import { AccountClassEnum, AccountEntity, StructuralCodeValue } from "@repo/coa-core";
 import { CoaFacade } from "../../facades/coa.facade";
 import { UuidValue } from "@repo/shared-core";
 import { AccountClassTheme } from "../../directives/account-class-theme";
 import { AccountActions } from "../../components/accounts-actions/account-actions";
+import { AccountRootCard } from "../../components/account-root-card/account-root-card";
 
 @Component({
     selector: 'app-accounts-explorer',
     standalone: true,
     imports: [
-    HlmBreadcrumbImports,
-    AccountClassTheme,
-    RouterLink,
-    NgIcon,
-    AccountTitle,
-    AccountActions
-],
+        HlmBreadcrumbImports,
+        AccountClassTheme,
+        RouterLink,
+        NgIcon,
+        AccountTitle,
+        AccountActions,
+        AccountRootCard
+    ],
     templateUrl: './explorer-view.html',
     viewProviders: [
         provideIcons({
@@ -35,6 +37,15 @@ export class ExplorerView {
     private readonly route = inject(ActivatedRoute);
 
     protected readonly chart = this.facade.chart;
+    protected readonly roots = computed<Readonly<AccountEntity>[]>(() => {
+        return this.chart()?.roots ?? [];
+    });
+    protected readonly patrimonialRoots = computed<Readonly<AccountEntity>[]>(() => {
+        return this.chart()?.patrimonialRoots ?? [];
+    });
+    protected readonly resultRoots = computed<Readonly<AccountEntity>[]>(() => {
+        return this.chart()?.resultRoots ?? [];
+    });
 
     protected readonly accountId = signal<UuidValue | null>(null);
     protected readonly account = computed<Readonly<AccountEntity> | null>(() => {
@@ -46,7 +57,7 @@ export class ExplorerView {
         if (account) {
             return account;
         } else {
-            this.router.navigate(['/coa/explorer']);
+            this.navigateTo(null);
             return null;
         }
     });
@@ -58,12 +69,12 @@ export class ExplorerView {
 
         const items: Readonly<AccountEntity>[] = [];
 
-        let current = account;
-        while (current!.parentId) {
+        let currentId = account.parentId;
+        while (currentId) {
+            const current = chart.getAccountById(currentId);
             items.unshift(current);
-            current = chart.getAccountById(current.parentId);
+            currentId = current.parentId
         }
-        items.unshift(current);
 
         return items;
     });
@@ -78,9 +89,14 @@ export class ExplorerView {
                 const accountId = UuidValue.createOptional(accountIdRaw) ?? null;
                 this.accountId.set(accountId);
             } catch {
-                this.router.navigate(['/coa/explorer']);
+                this.navigateTo(null);
             }
         })
     }
 
+    protected navigateTo(account: Readonly<AccountEntity> | null) {
+        const path = ['/coa/explorer'];
+        if (account) path.push(account.id.value);
+        this.router.navigate(path);
+    }
 }

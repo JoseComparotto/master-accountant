@@ -38,6 +38,7 @@ import {
 import { MUTABLE_FIELDS } from "../constants/account-mutable-fieds.constant.js";
 import { AccountsUpdateBatchPipeline } from "../services/accounts-update-batch.pipeline.js";
 import { AccountCreatedEvent, ChartOfAccountsCreatedEvent, ChartOfAccountsEvents } from "../events/coa.events.js";
+import { AccountClassEnum } from "../enums/account-class.enum.js";
 
 export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> {
 
@@ -50,6 +51,25 @@ export class ChartOfAccountsEntity extends AggregateRoot<ChartOfAccountsEvents> 
 
     public get roots(): Readonly<AccountEntity>[] {
         return this._collection.getByParentId(null);
+    }
+
+    public get patrimonialRoots(): Readonly<AccountEntity>[] {
+        return this.roots.filter(r =>
+            [
+                AccountClassEnum.ASSET,
+                AccountClassEnum.LIABILITY,
+                AccountClassEnum.EQUITY,
+            ].includes(r.accountClass)
+        );
+    }
+
+    public get resultRoots(): Readonly<AccountEntity>[] {
+        return this.roots.filter(r =>
+            [
+                AccountClassEnum.INCOME,
+                AccountClassEnum.EXPENSE,
+            ].includes(r.accountClass)
+        );
     }
 
     public get accounts(): Readonly<AccountEntity>[] {
