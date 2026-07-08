@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from "@angular/core";
 import { HlmBreadcrumbImports } from "@spartan-ng/helm/breadcrumb";
+import { HlmDropdownMenuImports } from '@spartan-ng/helm/dropdown-menu';
 import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideHome } from "@ng-icons/lucide";
@@ -16,6 +17,7 @@ import { AccountRootCard } from "../../components/account-root-card/account-root
     standalone: true,
     imports: [
         HlmBreadcrumbImports,
+        HlmDropdownMenuImports,
         AccountClassTheme,
         RouterLink,
         NgIcon,
@@ -67,7 +69,9 @@ export class ExplorerView {
         const account = this.account();
         if (!chart || !account) return [];
 
-        const items: Readonly<AccountEntity>[] = [];
+        const items: Readonly<AccountEntity>[] = [
+            account
+        ];
 
         let currentId = account.parentId;
         while (currentId) {
@@ -78,6 +82,14 @@ export class ExplorerView {
 
         return items;
     });
+
+    protected readonly children = computed(() => {
+        const chart = this.chart();
+        const accountId = this.accountId();
+        if (!chart) return [];
+        if (!accountId) return chart.roots;
+        return chart.getAccountsByParentId(accountId);
+    })
 
     constructor() {
         this.route.url.subscribe(() => {
