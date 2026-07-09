@@ -1,4 +1,4 @@
-<header>
+<header class="w-full flex items-start justify-between flex-wrap gap-4">
     <div class="flex items-center gap-3">
         <div class="w-11 h-11 rounded-xl bg-foreground text-background flex items-center justify-center">
             <ng-icon name="lucideBookOpen" size="1.5rem" />
@@ -10,4 +10,5 @@
             </p>
         </div>
     </div>
+    <app-account-search (selectedChange)="redirectTo($event)"/>
 </header>

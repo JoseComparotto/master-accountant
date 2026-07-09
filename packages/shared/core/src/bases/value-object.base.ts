@@ -1,5 +1,8 @@
+import { ValueObjectMalformedException } from "../exceptions/domain.exception.js";
+
 export type ValueObjectFactoryFn<P, V extends ValueObject<P>> = (p: P) => V;
 export type ValueObjectOptionalFactoryFn<P, V extends ValueObject<P>> = (p: P | null | undefined) => V | undefined;
+export type ValueObjectSafeParseFactoryFn<P, V extends ValueObject<P>> = (p: P) => V | undefined;
 
 export abstract class ValueObject<T, U = T> {
     // O estado interno é protegido e imutável
@@ -142,6 +145,21 @@ export abstract class ValueObject<T, U = T> {
             if (p === null || p === undefined) return undefined;
             return factory(p);
         };
+    }
+
+    protected static defineSafeParse<P, V extends ValueObject<P>>(
+        factory: ValueObjectFactoryFn<P, V>
+    ): ValueObjectSafeParseFactoryFn<P, V> {
+        return (p: P) =>{
+            try{
+                return factory(p);
+            }catch(e){
+                if(e instanceof ValueObjectMalformedException){
+                    return undefined
+                }
+                throw e;
+            }
+        }
     }
 }
 

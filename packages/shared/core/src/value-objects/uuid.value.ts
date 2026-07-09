@@ -12,6 +12,7 @@ export class UuidValue extends ValueObject<string> {
     }
 
     public static readonly createOptional = super.defineOptional(this.create);
+    public static readonly safeParse = super.defineSafeParse(this.create);
 
     /**
      * Static Factory: Gera um novo UUIDv4 seguro de forma nativa
