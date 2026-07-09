@@ -40,19 +40,18 @@
             </ol>
         </nav>
 
-
-
         @if(account(); as currentAccount){
         <app-account-actions [account]="currentAccount" variant="expanded" [actions]="['createChild']" />
         }
     </div>
     @if(account(); as currentAccount){
 
-    <div class="rounded-2xl border p-5" [appAccountClassTheme]="currentAccount.accountClass" [themeVariants]="['soft']">
+    <div class="rounded-2xl border p-5 group" [appAccountClassTheme]="currentAccount.accountClass" [themeVariants]="['soft']">
         <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between sm:flex-wrap">
             <div class="min-w-0 flex-1">
-                <h1>
+                <h1 class="flex flex-row items-center">
                     <app-account-title [account]="currentAccount" class="text-2xl" />
+                    <app-account-copy-link [account]="currentAccount"/>
                 </h1>
                 <p class="text-sm text-muted-foreground mt-2 max-w-prose">
                     {{currentAccount.description}}

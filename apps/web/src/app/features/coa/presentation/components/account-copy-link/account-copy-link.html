@@ -1,0 +1,5 @@
+<button hlmBtn variant="ghost" size="sm"
+    class="opacity-0 group-hover:opacity-100 transition-opacity duration-200 p-1 h-8 w-8"
+    [attr.aria-label]="'Copiar link para ' + account().name.value" (click)="copyLink($event)">
+    <ng-icon name="lucideLink" class="h-4 w-4 text-muted-foreground" />
+</button>

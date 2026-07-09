@@ -10,6 +10,7 @@ import { AccountActions } from "../../components/accounts-actions/account-action
 import { HlmContextMenuImports } from '@spartan-ng/helm/context-menu';
 import { CoaFacade } from '../../facades/coa.facade';
 import { Router } from "@angular/router";
+import { AccountCopyLink } from "../../components/account-copy-link/account-copy-link";
 
 @Component({
   selector: 'app-coa-spreadsheet',
@@ -19,7 +20,8 @@ import { Router } from "@angular/router";
     HlmTableImports,
     HlmContextMenuImports,
     AccountActions,
-  ],
+    AccountCopyLink
+],
   templateUrl: './spreadsheet-view.html',
   styleUrl: './spreadsheet-view.css',
 

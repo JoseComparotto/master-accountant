@@ -12,21 +12,23 @@ import { AccountClassTheme } from "../../directives/account-class-theme";
 import { AccountActions } from "../../components/accounts-actions/account-actions";
 import { AccountRootCard } from "../../components/account-root-card/account-root-card";
 import { AccountChildCard } from "../../components/account-child-card/account-child-card";
+import { AccountCopyLink } from "../../components/account-copy-link/account-copy-link";
 
 @Component({
     selector: 'app-accounts-explorer',
     standalone: true,
     imports: [
-        HlmBreadcrumbImports,
-        HlmDropdownMenuImports,
-        AccountClassTheme,
-        RouterLink,
-        NgIcon,
-        AccountTitle,
-        AccountActions,
-        AccountRootCard,
-        AccountChildCard
-    ],
+    HlmBreadcrumbImports,
+    HlmDropdownMenuImports,
+    AccountClassTheme,
+    RouterLink,
+    NgIcon,
+    AccountTitle,
+    AccountActions,
+    AccountRootCard,
+    AccountChildCard,
+    AccountCopyLink
+],
     templateUrl: './explorer-view.html',
     viewProviders: [
         provideIcons({

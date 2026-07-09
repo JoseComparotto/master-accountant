@@ -6,15 +6,17 @@ import { lucideChevronRight, lucideFileText, lucideFolderTree } from "@ng-icons/
 import { AccountTitle } from "../account-title/account-title";
 import { NgClass } from "@angular/common";
 import { CoaFacade } from "../../facades/coa.facade";
+import { AccountCopyLink } from "../account-copy-link/account-copy-link";
 
 @Component({
     selector: 'app-account-child-card',
     imports: [
-        AccountClassTheme,
-        NgIcon,
-        AccountTitle,
-        NgClass
-    ],
+    AccountClassTheme,
+    NgIcon,
+    AccountTitle,
+    NgClass,
+    AccountCopyLink
+],
     templateUrl: './account-child-card.html',
     viewProviders: [
         provideIcons({
