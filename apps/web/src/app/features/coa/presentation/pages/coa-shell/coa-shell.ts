@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, ActivatedRoute } from '@angular/router';
 import { IconType, NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideLayoutGrid, lucideLoader, lucideRefreshCcw, lucideSheet } from '@ng-icons/lucide';
@@ -7,6 +7,8 @@ import { HlmTabsImports } from '@spartan-ng/helm/tabs';
 import { CoaFacade } from '../../facades/coa.facade';
 import { CoaHeader } from '../../components/coa-header/coa-header';
 import { HlmSpinnerImports } from '@spartan-ng/helm/spinner';
+import { HlmSwitch } from "@spartan-ng/helm/switch";
+import { HlmLabel } from '@spartan-ng/helm/label';
 
 type TabId = 'explorer' | 'spreadsheet';
 type TabOptions = {
@@ -26,6 +28,8 @@ type TabOptions = {
     HlmTabsImports,
     CoaHeader,
     NgIcon,
+    HlmSwitch,
+    HlmLabel,
   ],
   templateUrl: './coa-shell.html',
   viewProviders: [
@@ -40,6 +44,9 @@ type TabOptions = {
 export class CoaShell implements OnInit {
   protected facade = inject(CoaFacade);
   protected currentTab = signal<TabId>('spreadsheet');
+
+  protected showInactive = this.facade.showInactive;
+  protected hasInactive = this.facade.hasInactive;
 
   protected tabs: TabOptions[] = [
     {
@@ -59,7 +66,7 @@ export class CoaShell implements OnInit {
   }
 
   protected onTabChange(tab: TabId, active: boolean) {
-    if(active){
+    if (active) {
       this.currentTab.set(tab);
     }
   }

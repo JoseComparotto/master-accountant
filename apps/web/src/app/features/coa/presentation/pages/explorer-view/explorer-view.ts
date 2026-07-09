@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { NgIcon, provideIcons } from "@ng-icons/core";
 import { lucideHome } from "@ng-icons/lucide";
 import { AccountTitle } from "../../components/account-title/account-title";
-import { AccountClassEnum, AccountEntity, StructuralCodeValue } from "@repo/coa-core";
+import { AccountEntity } from "@repo/coa-core";
 import { CoaFacade } from "../../facades/coa.facade";
 import { UuidValue } from "@repo/shared-core";
 import { AccountClassTheme } from "../../directives/account-class-theme";
@@ -17,16 +17,16 @@ import { AccountChildCard } from "../../components/account-child-card/account-ch
     selector: 'app-accounts-explorer',
     standalone: true,
     imports: [
-    HlmBreadcrumbImports,
-    HlmDropdownMenuImports,
-    AccountClassTheme,
-    RouterLink,
-    NgIcon,
-    AccountTitle,
-    AccountActions,
-    AccountRootCard,
-    AccountChildCard
-],
+        HlmBreadcrumbImports,
+        HlmDropdownMenuImports,
+        AccountClassTheme,
+        RouterLink,
+        NgIcon,
+        AccountTitle,
+        AccountActions,
+        AccountRootCard,
+        AccountChildCard
+    ],
     templateUrl: './explorer-view.html',
     viewProviders: [
         provideIcons({
@@ -41,6 +41,7 @@ export class ExplorerView {
     private readonly route = inject(ActivatedRoute);
 
     protected readonly chart = this.facade.chart;
+    protected readonly showInactive = this.facade.showInactive;
     protected readonly roots = computed<Readonly<AccountEntity>[]>(() => {
         return this.chart()?.roots ?? [];
     });
@@ -90,7 +91,10 @@ export class ExplorerView {
         const accountId = this.accountId();
         if (!chart) return [];
         if (!accountId) return chart.roots;
-        return chart.getAccountsByParentId(accountId);
+        const children = chart.getAccountsByParentId(accountId);
+
+        if (this.showInactive()) return children;
+        return children.filter(c => c.isActive);
     })
 
     constructor() {

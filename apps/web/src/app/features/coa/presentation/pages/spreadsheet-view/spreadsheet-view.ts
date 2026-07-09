@@ -33,8 +33,8 @@ export class SpreadsheetView {
   private readonly router = inject(Router);
   private readonly chart = this.facade.chart;
 
-  showInactive = model(true);
-  collapsedIds = model<Set<string>>(new Set());
+  protected showInactive = this.facade.showInactive;
+  protected collapsedIds = model<Set<string>>(new Set());
 
   rows = computed(() => {
     const chart = this.chart();
@@ -63,7 +63,10 @@ export class SpreadsheetView {
   hasChildren(account: Readonly<AccountEntity>) {
     const chart = this.chart();
     if (!chart) return false;
-    return chart.getAccountsByParentId(account.id).length > 0;
+    const children = chart.getAccountsByParentId(account.id);
+    const childrenCount = this.showInactive() ? children.length :
+      children.filter(c=>c.isActive).length;
+    return childrenCount > 0;
   }
 
   isCollepsed(id: UuidValue) {

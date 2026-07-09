@@ -1,4 +1,4 @@
-import { computed, inject, Injectable, OnInit, signal } from '@angular/core';
+import { computed, inject, Injectable, model, signal } from '@angular/core';
 import { ChartOfAccountsEntity, CreateChildAccountInput } from '@repo/coa-core';
 import { GetChartOfAccountsUseCase } from '../../application/use-cases/get-coa.use-case';
 import { ActivateAccountUseCase } from '../../application/use-cases/activate-account.use-case';
@@ -31,6 +31,12 @@ export class CoaFacade {
   readonly loading = computed(() => this.state().loading);
   readonly error = computed(() => this.state().error);
 
+  readonly showInactive = signal<boolean>(false);
+
+  readonly hasInactive = computed<boolean>(() => {
+    return this.chart()?.accounts.some(a => !a.isActive) ?? false;
+  });
+
   load() {
     if (this.loading()) return;
 
@@ -49,8 +55,13 @@ export class CoaFacade {
   }
 
   inactivateAccount(id: UuidValue) {
+    const showInactive = this.showInactive;
+    const hadInactive = this.hasInactive();
     this.inactivateAccountUC.execute(id).subscribe({
-      error: (err) => this.updateState({ error: err.message })
+      error: (err) => this.updateState({ error: err.message }),
+      complete() {
+        if (!hadInactive) showInactive.set(true);
+      },
     });
   }
 

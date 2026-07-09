@@ -27,6 +27,7 @@ import { CoaFacade } from "../../facades/coa.facade";
 export class AccountChildCard {
     private readonly facade = inject(CoaFacade);
     private readonly chart = this.facade.chart;
+    private readonly showInactive = this.facade.showInactive;
 
     account = input.required<Readonly<AccountEntity>>();
     click = output();
@@ -34,6 +35,9 @@ export class AccountChildCard {
     protected readonly childrenCount = computed(()=> {
         const chart = this.chart();
         const account = this.account();
-        return chart?.getAccountsByParentId(account.id).length ?? 0;
+        const children = chart?.getAccountsByParentId(account.id)??[];
+
+        if(this.showInactive())return children.length;
+        return children.filter(c=>c.isActive).length;
     });
 }

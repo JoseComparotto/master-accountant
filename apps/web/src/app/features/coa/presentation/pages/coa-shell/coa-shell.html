@@ -15,9 +15,17 @@
                         }
                     </hlm-tabs-list>
                 </hlm-tabs>
-                <button hlmBtn variant="outline" title="Recarregar" (click)="facade.load()">
-                    <ng-icon name="lucideRefreshCcw" />
-                </button>
+                <div class="flex flex-row items-center justify-center gap-3">
+                    @if(hasInactive()){
+                    <label class="flex items-center" hlmLabel>
+                        <span>Mostrar inativas</span>
+                        <hlm-switch [(checked)]="showInactive"/>
+                    </label>
+                    }
+                    <button hlmBtn variant="outline" title="Recarregar" (click)="facade.load()">
+                        <ng-icon name="lucideRefreshCcw" />
+                    </button>
+                </div>
             </div>
 
             @if (facade.error(); as error) {
