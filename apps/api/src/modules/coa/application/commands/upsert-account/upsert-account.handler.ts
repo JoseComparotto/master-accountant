@@ -24,6 +24,7 @@ export class UpsertAccountCommandHandler extends BaseUpsertAccountCommandHandler
             const updated: Readonly<AccountEntity> = chart.updateAccount(id, {
                 ...primitiveData,
                 name, parentId,
+                description: primitiveData.description ?? null
             });
 
             await firstValueFrom(this.repo.save(chart));

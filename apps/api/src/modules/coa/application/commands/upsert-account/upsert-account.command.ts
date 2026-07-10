@@ -1,4 +1,4 @@
-import { AccountDto, UpsertAccountInputDto } from "@repo/coa-contracts";
+import { AccountDto, UpsertAccountInputDto } from "../../../presentation/http/dtos/accounts.dto";
 import { IAccountCommand, AccountCommandHandler } from "../../bases/account-command-handler.base";
 
 export class UpsertAccountCommand implements IAccountCommand {

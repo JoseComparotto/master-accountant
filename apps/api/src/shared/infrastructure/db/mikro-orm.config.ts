@@ -3,7 +3,7 @@ import { TsMorphMetadataProvider } from '@mikro-orm/reflection';
 import { Migrator } from '@mikro-orm/migrations';
 
 export default defineConfig({
-  dbName: process.env.DATABASE_URL,
+  dbName: process.env.DATABASE_URL ?? ':memory:',
   pool: { min: 1, max: 1 },
 
   metadataProvider: TsMorphMetadataProvider,

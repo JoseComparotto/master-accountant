@@ -1,6 +1,6 @@
 import { QueryHandler } from "@nestjs/cqrs";
-import { AccountDto, ChartOfAccountsDto } from "@repo/coa-contracts";
 import { GetChartOfAccountsQuery, BaseGetChartOfAccountsQueryHandler } from "./get-coa.queryt";
+import { ChartOfAccountsDto } from "../../../presentation/http/dtos/coa.dto";
 
 @QueryHandler(GetChartOfAccountsQuery)
 export class GetChartOfAccountsQueryHandler extends BaseGetChartOfAccountsQueryHandler {

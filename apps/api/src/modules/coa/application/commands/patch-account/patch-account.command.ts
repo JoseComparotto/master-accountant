@@ -1,4 +1,4 @@
-import { PatchAccountInputDto } from "@repo/coa-contracts";
+import { PatchAccountInputDto } from "../../../presentation/http/dtos/accounts.dto";
 import { IAccountCommand } from "../../bases/account-command-handler.base";
 
 export class PatchAccountCommand implements IAccountCommand {

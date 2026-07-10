@@ -1,14 +1,17 @@
-import { Controller, Res } from "@nestjs/common";
+import { Controller, Get, Put, Patch, Body, Headers, Res, HttpStatus } from "@nestjs/common";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
-import { apiContract, ChartOfAccountsDto } from "@repo/coa-contracts";
-import { tsRestHandler, TsRestHandler } from "@ts-rest/nest";
-import { GetChartOfAccountsQuery } from "../../../application/queries/get-coa/get-coa.queryt";
 import type { Response } from "express";
+
+import { GetChartOfAccountsQuery } from "../../../application/queries/get-coa/get-coa.queryt";
 import { UpdateChartOfAccountsCommand, UpdateChartOfAccountsResult } from "../../../application/commands/update-coa/update-coa.command";
 import { ApplyBatchActionsCommand } from "../../../application/commands/apply-coa-batch-actions/apply-coa-batch-actions.command";
 import { CoaPatchTranslator } from "../services/coa-patch-translator.service";
 
-@Controller()
+import { ChartOfAccountsDto, UpdateChartOfAccountsInputDto } from "../dtos/coa.dto";
+import { CoaPatchOperation } from "../dtos/coa-patch-operation.dto";
+import { ApiBody, getSchemaPath } from "@nestjs/swagger";
+
+@Controller('coa')
 export class ChartOfAccountsController {
     constructor(
         private readonly queryBus: QueryBus,
@@ -16,60 +19,64 @@ export class ChartOfAccountsController {
         private readonly translator: CoaPatchTranslator,
     ) { }
 
-    @TsRestHandler(apiContract.coa.get)
-    async getCoa(
-        @Res({ passthrough: true }) expressRes: Response
-    ) {
-        return tsRestHandler(apiContract.coa.get, async () => {
-            const query = new GetChartOfAccountsQuery();
-            const chart: ChartOfAccountsDto = await this.queryBus.execute(query);
+    @Get()
+    async getCoa(@Res({ passthrough: true }) expressRes: Response): Promise<ChartOfAccountsDto> {
+        const query = new GetChartOfAccountsQuery();
+        const chart: ChartOfAccountsDto = await this.queryBus.execute(query);
 
-            expressRes.setHeader('ETag', `"${chart.version}"`);
-            return { status: 200, body: chart };
-        });
+        expressRes.setHeader('ETag', `"${chart.version}"`);
+        return chart;
     }
 
-    @TsRestHandler(apiContract.coa.update)
+    @Put()
     async updateCoa(
+        @Headers('if-match') ifMatch: string,
+        @Body() body: UpdateChartOfAccountsInputDto,
         @Res({ passthrough: true }) expressRes: Response
-    ) {
-        return tsRestHandler(apiContract.coa.update, async ({ body, headers }) => {
-            const clientVersion = this.parseETag(headers['if-match']);
+    ): Promise<ChartOfAccountsDto> {
+        const clientVersion = this.parseETag(ifMatch || '');
 
-            const { match, chart }: UpdateChartOfAccountsResult = await this.commandBus.execute(
-                new UpdateChartOfAccountsCommand(body, clientVersion)
-            );
+        const { match, chart }: UpdateChartOfAccountsResult = await this.commandBus.execute(
+            new UpdateChartOfAccountsCommand(body, clientVersion)
+        );
 
-            expressRes.setHeader('ETag', `"${chart.version}"`);
+        expressRes.setHeader('ETag', `"${chart.version}"`);
 
-            return {
-                status: match ? 200 : 412,
-                body: chart
-            };
-        });
+        if (!match) {
+            expressRes.status(HttpStatus.PRECONDITION_FAILED); // Status 412
+        } else {
+            expressRes.status(HttpStatus.OK);
+        }
+
+        return chart;
     }
 
-    @TsRestHandler(apiContract.coa.patch)
+    @Patch()
+    @ApiBody({
+        type: [CoaPatchOperation]
+    })
     async patchCoa(
+        @Headers('if-match') ifMatch: string,
+        @Body() body: CoaPatchOperation[],
         @Res({ passthrough: true }) expressRes: Response
-    ) {
-        return tsRestHandler(apiContract.coa.patch, async ({ body, headers }) => {
+    ): Promise<ChartOfAccountsDto> {
+        const clientVersion = this.parseETag(ifMatch || '');
 
-            const clientVersion = this.parseETag(headers['if-match']);
+        const actions = this.translator.translateBatch(body);
 
-            const actions = this.translator.translateBatch(body);
+        const { match, chart }: UpdateChartOfAccountsResult = await this.commandBus.execute(
+            new ApplyBatchActionsCommand(actions, clientVersion)
+        );
 
-            const { match, chart }: UpdateChartOfAccountsResult = await this.commandBus.execute(
-                new ApplyBatchActionsCommand(actions, clientVersion)
-            );
+        expressRes.setHeader('ETag', `"${chart.version}"`);
 
-            expressRes.setHeader('ETag', `"${chart.version}"`);
+        if (!match) {
+            expressRes.status(HttpStatus.PRECONDITION_FAILED); // Status 412
+        } else {
+            expressRes.status(HttpStatus.OK);
+        }
 
-            return {
-                status: match ? 200 : 412,
-                body: chart
-            };
-        });
+        return chart;
     }
 
     private parseETag(ifMatchRaw: string): number {

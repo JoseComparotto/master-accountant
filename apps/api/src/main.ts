@@ -1,38 +1,42 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { OpenAPIObject, SwaggerModule } from '@nestjs/swagger';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { DomainExceptionFilter } from './shared/presentation/filters/domain-exception.filter';
-import { openApiDocument } from '@repo/coa-contracts';
-import { TsRestValidationFilter } from './shared/presentation/filters/ts-rest-validation.filter';
-import { INestApplication } from '@nestjs/common';
+import { ValidationFilter, ValidationException } from './shared/presentation/filters/validation.filter';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AppConfig } from './config/configuration';
+import { generateOpenApiDocument } from './openapi';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService: ConfigService<AppConfig> = app.get(ConfigService);
   const { port, globalPrefix } = configService.getOrThrow('api', { infer: true });
 
-  app.setGlobalPrefix(globalPrefix, { exclude: ['/', '/api'] });
+  const document = generateOpenApiDocument(app);
 
-  app.useGlobalFilters(new TsRestValidationFilter());
+  app.setGlobalPrefix(globalPrefix, { exclude: ['/', '/api'] });
+  document.servers = [{ url: globalPrefix }];
+
+  app.useGlobalPipes(
+    new ValidationPipe({
+      transform: true,
+      whitelist: true,
+      forbidNonWhitelisted: true,
+      exceptionFactory: (errors) => new ValidationException(errors),
+    }),
+  );
+
+  app.useGlobalFilters(new ValidationFilter());
   app.useGlobalFilters(new DomainExceptionFilter());
 
   app.enableCors();
 
-  setupSwagger(app, globalPrefix);
+  SwaggerModule.setup('docs', app, document);
 
   await app.listen(port);
 }
 bootstrap();
 
-function setupSwagger(app: INestApplication<any>, globalPrefix: string) {
-  const docs: OpenAPIObject = {
-    ...openApiDocument,
-    servers: [
-      { url: globalPrefix }
-    ]
-  };
-
-  SwaggerModule.setup('docs', app, docs);
+function setupSwagger(app: INestApplication<any>) {
 }

@@ -1,5 +1,4 @@
-import { Component, computed, input } from '@angular/core';
-import { AccountDto } from '@repo/coa-contracts';
+import { Component, input } from '@angular/core';
 import { AccountClassTheme } from "../../directives/account-class-theme";
 import { AccountSummaryWeigth } from "../../directives/account-summary-weigth";
 import { AccountActiveEffect } from "../../directives/account-active-effect";

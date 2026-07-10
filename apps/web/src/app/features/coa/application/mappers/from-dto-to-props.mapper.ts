@@ -1,6 +1,6 @@
-import { AccountDto } from "@repo/coa-contracts";
 import { AccountNameValue, AccountProps, StructuralCodeValue } from "@repo/coa-core";
 import { UuidValue } from "@repo/shared-core";
+import { AccountDto } from "../../infrastructure/dtos/coa.dto";
 
 export function fromDtoToProps(dto: AccountDto): AccountProps {
     return {

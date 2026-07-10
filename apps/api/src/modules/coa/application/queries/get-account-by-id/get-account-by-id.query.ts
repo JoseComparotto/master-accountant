@@ -1,5 +1,5 @@
+import { AccountDto } from "../../../presentation/http/dtos/accounts.dto";
 import { IAccountQuery, BaseAccountQueryHandler } from "../../bases/account-query-handler.base";
-import { AccountDto } from "@repo/coa-contracts";
 
 export class GetAccountByIdQuery implements IAccountQuery {
     constructor(

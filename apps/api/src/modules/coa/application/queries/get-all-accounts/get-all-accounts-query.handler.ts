@@ -1,6 +1,6 @@
 import { QueryHandler } from "@nestjs/cqrs";
 import { BaseGetAllAccountsQueryHandler, GetAllAccountsQuery } from "./get-all-accounts.query";
-import { AccountDto } from "@repo/coa-contracts";
+import { AccountDto } from "../../../presentation/http/dtos/accounts.dto";
 
 @QueryHandler(GetAllAccountsQuery)
 export class GetAllAccountsQueryHandler extends BaseGetAllAccountsQueryHandler {

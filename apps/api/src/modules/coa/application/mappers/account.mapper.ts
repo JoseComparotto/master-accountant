@@ -1,5 +1,5 @@
-import { AccountDto } from "@repo/coa-contracts";
 import { AccountEntity, ChartOfAccountsEntity } from "@repo/coa-core";
+import { AccountDto } from "../../presentation/http/dtos/accounts.dto";
 
 export class AccountMapper {
     static toDto(account: Readonly<AccountEntity>): AccountDto {

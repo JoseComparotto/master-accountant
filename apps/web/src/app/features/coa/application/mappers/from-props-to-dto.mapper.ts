@@ -1,7 +1,7 @@
-import { ReplaceAccountsInputDto } from "@repo/coa-contracts";
 import { AccountEntity, AccountProps } from "@repo/coa-core";
+import { ReplaceAccountInputDto } from "../../infrastructure/dtos/coa.dto";
 
-export function fromPropsToDto(props: AccountProps): ReplaceAccountsInputDto[number] {
+export function fromPropsToDto(props: AccountProps): ReplaceAccountInputDto {
     return {
         id: props.id.value,
         parentId: props.parentId?.value ?? null,
@@ -14,6 +14,6 @@ export function fromPropsToDto(props: AccountProps): ReplaceAccountsInputDto[num
         isActive: props.isActive,
     }
 }
-export function fromDomainToDto(domain: Readonly<AccountEntity>): ReplaceAccountsInputDto[number]  {
+export function fromDomainToDto(domain: Readonly<AccountEntity>): ReplaceAccountInputDto  {
     return fromPropsToDto(domain.toProps())
 }

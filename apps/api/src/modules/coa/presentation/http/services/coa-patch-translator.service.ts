@@ -1,8 +1,13 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
+import { validateSync } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
+
 import { CoaBatchAction } from '../../../application/commands/apply-coa-batch-actions/apply-coa-batch-actions.command';
 import { CreateAccountCommand } from '../../../application/commands/create-account/create-account.command';
-import { CoaPatchOperation, PatchAccountInputSchema } from '@repo/coa-contracts';
 import { PatchAccountCommand } from '../../../application/commands/patch-account/patch-account.command';
+
+import { CoaPatchOperation } from '../dtos/coa-patch-operation.dto';
+import { CreateAccountInputDto, PatchAccountInputDto } from '../dtos/accounts.dto';
 
 @Injectable()
 export class CoaPatchTranslator {
@@ -24,8 +29,22 @@ export class CoaPatchTranslator {
         if (createMatch && op.op === 'add') {
             const [, accountId] = createMatch;
 
+            const createDto = plainToInstance(CreateAccountInputDto, op.value);
+
+            const errors = validateSync(createDto, { 
+                whitelist: true, 
+                forbidNonWhitelisted: true 
+            });
+
+            if (errors.length > 0) {
+                throw new BadRequestException({
+                    message: `Falha na validação da nova conta enviada no JSON Patch`,
+                    errors: errors.map(err => Object.values(err.constraints || {})).flat()
+                });
+            }
+
             return new CreateAccountCommand({
-                ...op.value,
+                ...createDto,
                 id: accountId !== '-' ? accountId : undefined
             });
         }
@@ -36,11 +55,26 @@ export class CoaPatchTranslator {
         if (patchMatch && op.op === 'replace') {
             const [, accountId, attribute] = patchMatch;
 
-            const patch = PatchAccountInputSchema.parse({
-                [attribute!]: op.value
-            })
+            // Monta o objeto plano com a propriedade dinâmica informada no path do JSON Patch
+            const rawPatch = { [attribute!]: op.value };
 
-            return new PatchAccountCommand(accountId!, patch);
+            // Transforma o objeto plano numa instância da classe DTO para expor os metadados dos decoradores
+            const patchDto = plainToInstance(PatchAccountInputDto, rawPatch);
+
+            // Executa a validação síncrona equivalente ao antigo .parse() do Zod
+            const errors = validateSync(patchDto, { 
+                whitelist: true, 
+                forbidNonWhitelisted: true 
+            });
+
+            if (errors.length > 0) {
+                throw new BadRequestException({
+                    message: `Falha na validação do atributo '${attribute}' enviado no JSON Patch`,
+                    errors: errors.map(err => Object.values(err.constraints || {})).flat()
+                });
+            }
+
+            return new PatchAccountCommand(accountId!, patchDto);
         }
 
         // Caso o cliente envie algo fora do contrato estipulado (ex: op 'remove' ou path bizarro)

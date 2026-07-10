@@ -1,10 +1,10 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { Ensure, UuidValue } from "@repo/shared-core";
 import { AccountMapper } from "../../mappers/account.mapper";
-import { AccountDto } from "@repo/coa-contracts";
 import { AccountCommandHandler } from "../../bases/account-command-handler.base";
 import { InactivateAccountCommand } from "./inactivate-account.command";
 import { firstValueFrom } from "rxjs";
+import { AccountDto } from "../../../presentation/http/dtos/accounts.dto";
 
 @CommandHandler(InactivateAccountCommand)
 export class InactivateAccountCommandHandler extends AccountCommandHandler<InactivateAccountCommand, AccountDto> {

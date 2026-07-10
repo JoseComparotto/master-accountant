@@ -1,9 +1,9 @@
-import { AccountDto, ReplaceAccountsInputDto } from "@repo/coa-contracts";
+import { AccountDto, ReplaceAccountInputDto } from "../../../presentation/http/dtos/accounts.dto";
 import { IAccountCommand, AccountCommandHandler } from "../../bases/account-command-handler.base";
 
 export class ReplaceAccountsCommand implements IAccountCommand {
     constructor(
-        public readonly accounts: ReplaceAccountsInputDto
+        public readonly accounts: ReplaceAccountInputDto[]
     ) { }
 }
 

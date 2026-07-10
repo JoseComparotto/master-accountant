@@ -1,11 +1,11 @@
 import { CommandHandler } from "@nestjs/cqrs";
 import { AccountMapper } from "../../mappers/account.mapper";
-import { AccountDto } from "@repo/coa-contracts";
 import { AccountEntity, AccountNameValue, ChartOfAccountsEntity } from "@repo/coa-core";
 import { AppliableAccountCommandHandler } from "../../bases/account-command-handler.base";
 import { Ensure, UuidValue } from "@repo/shared-core";
 import { CreateAccountCommand } from "./create-account.command";
 import { firstValueFrom } from "rxjs";
+import { AccountDto } from "../../../presentation/http/dtos/accounts.dto";
 
 @CommandHandler(CreateAccountCommand)
 export class CreateAccountCommandHandler

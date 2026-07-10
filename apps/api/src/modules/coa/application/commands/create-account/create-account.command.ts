@@ -1,4 +1,4 @@
-import { CreateAccountInputDto } from "@repo/coa-contracts";
+import { CreateAccountInputDto } from "../../../presentation/http/dtos/accounts.dto";
 import { IAccountCommand } from "../../bases/account-command-handler.base";
 
 export class CreateAccountCommand implements IAccountCommand {

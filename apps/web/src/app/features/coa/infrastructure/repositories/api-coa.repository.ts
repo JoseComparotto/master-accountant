@@ -9,12 +9,12 @@ import {
     IChartOfAccountsRepository,
     VersionValue
 } from "@repo/coa-core";
-import { CoaApiClient } from "../services/coa-api-client";
 import { BehaviorSubject, from, map, Observable, defer, merge, ignoreElements, filter, shareReplay, finalize } from "rxjs";
 import { fromDtoToProps } from "../../application/mappers/from-dto-to-props.mapper";
 import { fromDomainToDto } from "../../application/mappers/from-props-to-dto.mapper";
 import { ValueObject } from "@repo/shared-core";
-import { ChartOfAccountsDto, CoaPatchOperation } from "@repo/coa-contracts";
+import { HttpClient } from "@angular/common/http";
+import { ChartOfAccountsDto, CoaPatchOperation } from "../dtos/coa.dto";
 
 export class ConcurrencyConflictError extends Error {
     constructor(
@@ -26,26 +26,20 @@ export class ConcurrencyConflictError extends Error {
     }
 }
 
-type CoaResponse = { status: 200 | 412, body: ChartOfAccountsDto } | { status: number, body: any };
-
 @Injectable()
 export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository {
-    private readonly client = inject(CoaApiClient);
+    private readonly client = inject(HttpClient);
     private readonly chart$ = new BehaviorSubject<ChartOfAccountsEntity | null>(null);
-    
+
     private ongoingFetch$: Observable<ChartOfAccountsEntity> | null = null;
 
     getUnique(options: GetUniqueOptions = { consistency: 'eventual' }): Observable<ChartOfAccountsEntity> {
-        // if (options.consistency === 'strong') {
-        //     return this.fetchUniqueFromApi();
-        // }
-
         return defer(() => {
             const continuousStream$ = this.chart$.asObservable().pipe(
                 filter((chart): chart is ChartOfAccountsEntity => chart !== null)
             );
 
-            if (!this.chart$.value  || options.consistency === 'strong') {
+            if (!this.chart$.value || options.consistency === 'strong') {
                 return merge(
                     this.fetchUniqueFromApi().pipe(ignoreElements()),
                     continuousStream$
@@ -61,7 +55,7 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
             return this.ongoingFetch$;
         }
 
-        this.ongoingFetch$ = from(this.client.coa.get()).pipe(
+        this.ongoingFetch$ = this.client.get<ChartOfAccountsDto>('/coa').pipe(
             map(response => this.processCoaResponse(response)),
             finalize(() => this.ongoingFetch$ = null),
             shareReplay(1) // Compartilha o resultado caso múltiplos componentes assinem ao mesmo tempo
@@ -88,9 +82,8 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
         const etag = `"${matchVersion.value}"`;
         const operations = this.buildPatchOperations(accountEvents);
 
-        return from(this.client.coa.patch({
-            headers: { 'if-match': etag },
-            body: operations,
+        return from(this.client.patch<ChartOfAccountsDto>('/coa', operations, {
+            headers: { 'if-match': etag }
         })).pipe(
             map((response) => this.processCoaResponse(response, chart))
         );
@@ -99,38 +92,23 @@ export class ApiChartOfAccountsRepository implements IChartOfAccountsRepository 
     private putCoa(chart: ChartOfAccountsEntity): Observable<ChartOfAccountsEntity> {
         const etag = `"${chart.version.value}"`;
 
-        return from(this.client.coa.update({
-            headers: { 'if-match': etag },
-            body: {
-                accounts: chart.accounts.map(fromDomainToDto),
-            }
+        return from(this.client.put<ChartOfAccountsDto>('/coa', {
+            accounts: chart.accounts.map(fromDomainToDto),
+        }, {
+            headers: { 'if-match': etag }
         })).pipe(
             map((response) => this.processCoaResponse(response, chart))
         );
     }
 
-    private processCoaResponse(response: CoaResponse, originalChart?: ChartOfAccountsEntity): ChartOfAccountsEntity {
-        const { status, body } = response;
-        switch (status) {
-            case 200:
-                const updatedChart = this.reconstituteFromDto(body);
+    private processCoaResponse(body: ChartOfAccountsDto, originalChart?: ChartOfAccountsEntity): ChartOfAccountsEntity {
+        const updatedChart = this.reconstituteFromDto(body);
 
-                originalChart?.clearDomainEvents();
-                this.chart$.next(updatedChart);
+        originalChart?.clearDomainEvents();
+        this.chart$.next(updatedChart);
 
-                return updatedChart;
+        return updatedChart;
 
-            case 412:
-                const serverChart = this.reconstituteFromDto(body);
-
-                this.chart$.next(serverChart);
-
-                throw new ConcurrencyConflictError(serverChart, originalChart!);
-
-            default:
-                console.error(body);
-                throw new Error("Erro ao processar mutação no servidor.");
-        }
     }
 
     private reconstituteFromDto(body: ChartOfAccountsDto): ChartOfAccountsEntity {

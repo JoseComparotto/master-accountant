@@ -1,6 +1,6 @@
-import { ChartOfAccountsDto } from "@repo/coa-contracts";
 import { ChartOfAccountsEntity } from "@repo/coa-core";
 import { AccountMapper } from "./account.mapper";
+import { ChartOfAccountsDto } from "../../presentation/http/dtos/coa.dto";
 
 export class ChartOfAccountsMapper {
     static toDto(chart: ChartOfAccountsEntity): ChartOfAccountsDto{

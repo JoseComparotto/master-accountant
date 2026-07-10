@@ -1,13 +1,11 @@
-import { Controller } from "@nestjs/common";
+import { Controller, Get, Post, Put, Patch, Param, Body, Res, HttpStatus } from "@nestjs/common";
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
+import type { Response } from 'express';
 
 import { GetAllAccountsQuery } from "../../../application/queries/get-all-accounts/get-all-accounts.query";
 import { GetAccountsTreeQuery } from "../../../application/queries/get-accounts-tree/get-accounts-tree.query";
 import { GetAccountByIdQuery } from "../../../application/queries/get-account-by-id/get-account-by-id.query";
 
-import { AccountDto, AccountNodeDto, apiContract, ReplaceAccountsInputDto } from "@repo/coa-contracts";
-
-import { tsRestHandler, TsRestHandler } from '@ts-rest/nest'
 import { ActivateAccountCommand } from "../../../application/commands/activate-account/activate-account.command";
 import { CreateAccountCommand } from "../../../application/commands/create-account/create-account.command";
 import { InactivateAccountCommand } from "../../../application/commands/inactivate-account/inactivate-account.command";
@@ -15,78 +13,90 @@ import { PatchAccountCommand } from "../../../application/commands/patch-account
 import { UpsertAccountCommand, UpsertAccountResult } from "../../../application/commands/upsert-account/upsert-account.command";
 import { ReplaceAccountsCommand, ReplaceAccountsResult } from "../../../application/commands/replace-accounts/replace-accounts.command";
 
-@Controller()
-export class AccountsController {
+// Importações dos novos DTOs puros baseados em class-validator
+import { 
+    AccountDto, 
+    AccountNodeDto, 
+    CreateAccountInputDto, 
+    UpsertAccountInputDto, 
+    ReplaceAccountInputDto, 
+    PatchAccountInputDto 
+} from "../dtos/accounts.dto";
+import { ApiBody } from "@nestjs/swagger";
 
+@Controller('accounts')
+export class AccountsController {
     constructor(
         private readonly queryBus: QueryBus,
         private readonly commandBus: CommandBus,
     ) { }
 
-    @TsRestHandler(apiContract.accounts)
-    async handleAccounts() {
-        return tsRestHandler(apiContract.accounts, this);
-    }
-
-    async getAll(): Promise<{ status: 200, body: AccountDto[] }> {
+    @Get()
+    async getAll(): Promise<AccountDto[]> {
         const query = new GetAllAccountsQuery();
-        const res: AccountDto[] = await this.queryBus.execute(query);
-        return { status: 200, body: res };
-    };
-
-    async getTree(): Promise<{ status: 200, body: AccountNodeDto[] }> {
-        const query = new GetAccountsTreeQuery();
-        const res: AccountNodeDto[] = await this.queryBus.execute(query);
-        return { status: 200, body: res };
+        return await this.queryBus.execute(query);
     }
 
-    async getById({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
+    @Get('tree')
+    async getTree(): Promise<AccountNodeDto[]> {
+        const query = new GetAccountsTreeQuery();
+        return await this.queryBus.execute(query);
+    }
+
+    @Get(':id')
+    async getById(@Param('id') id: string): Promise<AccountDto> {
         const query = new GetAccountByIdQuery(id);
-        const res = await this.queryBus.execute(query);
-        return { status: 200, body: res };
-    };
+        return await this.queryBus.execute(query);
+    }
 
-    async create({ body }): Promise<{ status: 201, body: AccountDto }> {
+    @Post()
+    async create(@Body() body: CreateAccountInputDto): Promise<AccountDto> {
         const command = new CreateAccountCommand(body);
-        const created = await this.commandBus.execute(command);
-        return { status: 201, body: created };
-    };
+        return await this.commandBus.execute(command);
+    }
 
-    async upsert({ params: { id }, body }): Promise<{ status: 200 | 201, body: AccountDto }> {
+    @Put(':id')
+    async upsert(
+        @Param('id') id: string, 
+        @Body() body: UpsertAccountInputDto,
+        @Res({ passthrough: true }) res: Response
+    ): Promise<AccountDto> {
         const command = new UpsertAccountCommand(id, body);
         const result: UpsertAccountResult = await this.commandBus.execute(command);
 
-        if (result.action === 'created')
-            return { status: 201, body: result.account };
-        else
-            return { status: 200, body: result.account };
+        // Controla nativamente o status HTTP dependendo da ação do CQRS
+        if (result.action === 'created') {
+            res.status(HttpStatus.CREATED);
+        } else {
+            res.status(HttpStatus.OK);
+        }
+
+        return result.account;
     }
 
-    async replaceAll({ body }: { body: ReplaceAccountsInputDto }): Promise<{ status: 200, body: AccountDto[] }> {
+    @Put()
+    @ApiBody({ type: [ReplaceAccountInputDto] })
+    async replaceAll(@Body() body: ReplaceAccountInputDto[]): Promise<AccountDto[]> {
         const command = new ReplaceAccountsCommand(body);
         const result: ReplaceAccountsResult = await this.commandBus.execute(command);
-
-        return {
-            status: 200,
-            body: result.accounts
-        }
+        return result.accounts;
     }
 
-    async patch({ params: { id }, body }): Promise<{ status: 200, body: AccountDto }> {
+    @Patch(':id')
+    async patch(@Param('id') id: string, @Body() body: PatchAccountInputDto): Promise<AccountDto> {
         const command = new PatchAccountCommand(id, body);
-        const updated: AccountDto = await this.commandBus.execute(command);
-        return { status: 200, body: updated };
-    };
+        return await this.commandBus.execute(command);
+    }
 
-    async activate({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
+    @Post(':id/activate')
+    async activate(@Param('id') id: string): Promise<AccountDto> {
         const command = new ActivateAccountCommand(id);
-        const activated: AccountDto = await this.commandBus.execute(command);
-        return { status: 200, body: activated };
-    };
+        return await this.commandBus.execute(command);
+    }
 
-    async inactivate({ params: { id } }): Promise<{ status: 200, body: AccountDto }> {
+    @Post(':id/inactivate')
+    async inactivate(@Param('id') id: string): Promise<AccountDto> {
         const command = new InactivateAccountCommand(id);
-        const inactivated: AccountDto = await this.commandBus.execute(command);
-        return { status: 200, body: inactivated };
-    };
+        return await this.commandBus.execute(command);
+    }
 }

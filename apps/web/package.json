@@ -21,7 +21,6 @@
     "@angular/router": "^22.0.0",
     "@ng-icons/core": "^33.2.4",
     "@ng-icons/lucide": "^33.2.4",
-    "@repo/coa-contracts": "workspace:^",
     "@repo/coa-core": "workspace:*",
     "@repo/shared-core": "workspace:^",
     "@spartan-ng/brain": "^1.0.4",

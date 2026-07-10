@@ -1,6 +1,6 @@
 import { QueryHandler } from "@nestjs/cqrs";
-import { AccountNodeDto } from "@repo/coa-contracts";
 import { BaseGetAccountsTreeQueryHandler, GetAccountsTreeQuery } from "./get-accounts-tree.query";
+import { AccountNodeDto } from "../../../presentation/http/dtos/accounts.dto";
 
 @QueryHandler(GetAccountsTreeQuery)
 export class GetAccountsTreeQueryHandler extends BaseGetAccountsTreeQueryHandler {

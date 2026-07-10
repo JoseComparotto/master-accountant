@@ -5,7 +5,7 @@ const configuration = () => ({
     },
     mock:{
         autoSeed: process.env.MOCK_AUTO_SEED === 'true',
-        defaultChartId: process.env.DEFAULT_CHART_ID
+        defaultChartId: process.env.DEFAULT_CHART_ID ?? '00000000-0000-4000-8000-000000000000'
     }
 });
 

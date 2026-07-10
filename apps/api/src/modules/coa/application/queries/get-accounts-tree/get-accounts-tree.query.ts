@@ -1,4 +1,4 @@
-import { AccountNodeDto } from "@repo/coa-contracts";
+import { AccountNodeDto } from "../../../presentation/http/dtos/accounts.dto";
 import { IAccountQuery, BaseAccountQueryHandler } from "../../bases/account-query-handler.base";
 
 export class GetAccountsTreeQuery implements IAccountQuery { }
